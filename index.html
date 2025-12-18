@@ -35,15 +35,12 @@
             position: absolute;
             top: 0; left: 0; width: 100%;
             padding: 10px;
-            padding-top: max(10px, env(safe-area-inset-top)); /* Çentik desteği */
+            padding-top: max(10px, env(safe-area-inset-top));
             display: flex; justify-content: space-between; align-items: flex-start;
             pointer-events: none; text-shadow: 1px 1px 0 #000; color: white; z-index: 5;
         }
 
-        .ui-panel { 
-            display: flex; flex-direction: column; gap: 6px; 
-            width: 48%; /* Paneller ekranın yarısını geçmesin */
-        }
+        .ui-panel { display: flex; flex-direction: column; gap: 6px; width: 48%; }
         .ui-panel.left { align-items: flex-start; }
         .ui-panel.right { align-items: flex-end; }
 
@@ -56,13 +53,12 @@
             border: 1px solid rgba(255,255,255,0.3);
             display: flex; flex-direction: column; align-items: center;
             backdrop-filter: blur(2px);
-            white-space: nowrap; /* Metin kaymasını engeller */
+            white-space: nowrap;
         }
 
         .stat-label { font-size: 10px; color: #ffd700; font-weight: bold; letter-spacing: 0.5px; margin-bottom: 2px; }
         .stat-value { font-size: 16px; font-weight: 900; line-height: 1; }
 
-        /* Barlar */
         .mini-bar-wrapper {
             width: auto; min-width: 100px;
             background: rgba(0, 0, 0, 0.7);
@@ -92,24 +88,18 @@
         .icon-btn:hover { background: #f44336; transform: scale(1.05); }
         .icon-btn:active { transform: scale(0.95); }
 
-        /* MOBİL UYUMLULUK (Küçük Ekranlar) */
         @media (max-width: 480px) {
             #ui-layer { padding: 5px; padding-top: max(5px, env(safe-area-inset-top)); }
             .ui-panel { gap: 4px; }
             .stat-group { gap: 4px; }
-            
             .stat-box { padding: 3px 6px; }
             .stat-label { font-size: 8px; }
             .stat-value { font-size: 13px; }
-            
             .mini-bar-wrapper { padding: 2px 5px; min-width: 80px; }
-            .mini-bar-icon { font-size: 12px; }
             .mini-bar-track { height: 4px; min-width: 30px; }
             .mini-bar-text { font-size: 9px; }
-            
             .icon-btn { width: 32px; height: 32px; font-size: 16px; }
             .booster-icon { width: 20px; height: 20px; font-size: 12px; }
-            
             h1 { font-size: 32px; }
             h2 { font-size: 22px; }
         }
@@ -118,10 +108,9 @@
         .booster-icon {
             font-size: 14px; background: rgba(0,0,0,0.6); border-radius: 50%;
             width: 24px; height: 24px; display: flex; justify-content: center; align-items: center;
-            border: 1px solid #ffd700; box-shadow: 0 0 3px #ffd700;
+            border: 1px solid #ffd700; box-shadow: 0 0 3px #ffd700; cursor: help;
         }
 
-        /* Diğer CSS (Menüler vb.) */
         .overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.9);
@@ -148,7 +137,6 @@
             border-radius: 15px; cursor: pointer; margin-top: 10px;
         }
 
-        /* Market */
         .shop-container {
             display: flex; flex-direction: column; background: #2c3e50; padding: 15px;
             border-radius: 15px; border: 3px solid #ffd700; width: 95%; max-width: 500px;
@@ -183,7 +171,6 @@
         .buy-btn:disabled { background: #555; border-bottom: 3px solid #333; color: #999; cursor: not-allowed; }
         .buy-btn.equipped { background: #4caf50; border-bottom: 3px solid #2e7d32; pointer-events: none; }
 
-        /* Mesajlar */
         #messages {
             position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
             font-size: 28px; color: #fff; text-shadow: 0 0 10px rgba(0,0,0,0.8);
@@ -191,7 +178,6 @@
             z-index: 15; text-align: center; width: 100%; font-weight: 900;
         }
         
-        /* Harita */
         .map-container {
             width: 85%; max-width: 350px; height: 50vh; background: #3e2723;
             border: 3px solid #8d6e63; border-radius: 12px; overflow-y: auto;
@@ -283,9 +269,7 @@
             <p>Taşlar kancana zarar verir!</p>
             <p>Deponu sadece altınlarla doldur.</p>
             <div id="pre-boosters-info" style="display:flex; gap:10px; margin: 10px 0; justify-content:center; align-items:center;"></div>
-            <!-- Dinamik Bilgi Metni -->
             <p id="dynamite-hint" style="color:#ff5722; font-size:14px; display:none;">💡 İPUCU: Taşa dokunarak patlatabilirsin!</p>
-            
             <button id="start-level-btn" class="main-btn">MADENE İN</button>
             <button id="map-btn-start" class="secondary-btn">🗺️ HARİTAYA BAK</button>
         </div>
@@ -294,6 +278,7 @@
         <div id="pause-screen" class="overlay hidden">
             <h2 style="color:#ffd700">OYUN DURAKLATILDI</h2>
             <button id="resume-btn" class="main-btn">DEVAM ET</button>
+            <button id="pause-restart-btn" class="secondary-btn" style="background: #FF9800; border-bottom-color: #E65100;">BÖLÜMÜ YENİDEN BAŞLAT</button>
             <button id="map-btn-pause" class="secondary-btn">🗺️ HARİTA</button>
             <button id="main-menu-btn" class="secondary-btn" style="background: #f44336; border-bottom-color: #d32f2f;">ANA MENÜYE DÖN</button>
         </div>
@@ -317,7 +302,6 @@
                     <button class="tab-btn" onclick="switchTab('boosters')">DESTEK</button>
                     <button class="tab-btn" onclick="switchTab('skins')">KANCA</button>
                 </div>
-                <!-- Güçlendirmeler -->
                 <div id="tab-upgrades" class="shop-section active">
                     <div class="upgrade-grid">
                         <div class="item-card">
@@ -336,7 +320,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- Boosters -->
                 <div id="tab-boosters" class="shop-section">
                     <div class="upgrade-grid">
                         <div class="item-card">
@@ -362,7 +345,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- Skinler -->
                 <div id="tab-skins" class="shop-section">
                     <div class="upgrade-grid" id="skin-grid"></div>
                 </div>
@@ -424,7 +406,8 @@
             level: 1, money: 0, levelScore: 0, levelTarget: 500, maxStorage: 100,
             hookSpeed: 3, hookPower: 1, currentSkinId: 'default', unlockedSkins: ['default'],
             prices: { power: 100, storage: 150 },
-            activeBoosters: { dynamite: false, strength: false, polish: false }
+            activeBoosters: { dynamite: false, strength: false, polish: false },
+            levelMoneyStart: 0 // Bölüm başındaki para miktarı (Restart için)
         };
 
         let gameState = JSON.parse(JSON.stringify(defaultState));
@@ -444,6 +427,7 @@
 
         // --- YARDIMCI FONKSİYONLAR ---
         function getSkinDurability(skinId) { const s = skins.find(x => x.id === skinId); return s ? s.durability : 100; }
+        
         function getHookSVG(type, color) { 
             let path = ""; let filter = "";
             if (type === 'basic' || type === 'fancy') path = `<path d="M15 10 L15 35 C15 45 35 45 35 35 L35 10" stroke="${color}" stroke-width="6" fill="none" stroke-linecap="round"/><circle cx="25" cy="8" r="4" fill="${color}"/>`;
@@ -452,16 +436,25 @@
             return `<svg viewBox="0 0 50 50" style="${filter}">${path}</svg>`;
         }
 
-        // --- SINIFLAR (Yukarı Taşındı) ---
+        function resize() {
+            const container = document.getElementById('game-container');
+            if (container) {
+                canvas.width = container.clientWidth; canvas.height = container.clientHeight;
+                if(hook) hook.x = canvas.width / 2; 
+                if(miner) miner.x = canvas.width / 2 + 70;
+            }
+        }
+
+        function showMessage(text, color) {
+            ui.messages.innerText = text; ui.messages.style.color = color; ui.messages.style.opacity = 1; ui.messages.style.transform = "translate(-50%, -50%) scale(1.2)";
+            setTimeout(() => { ui.messages.style.opacity = 0; ui.messages.style.transform = "translate(-50%, -50%) scale(1)"; }, 800);
+        }
+
+        // --- SINIFLAR ---
         class Miner {
             constructor() {
-                this.x = 0; 
-                this.y = 45; 
-                this.armAngle = 0; 
-                this.waveSpeed = 0.1; 
-                this.mood = 'normal'; 
-                this.waveTimer = 0;
-                this.image = new Image();
+                this.x = 0; this.y = 45; this.armAngle = 0; this.waveSpeed = 0.1; 
+                this.mood = 'normal'; this.waveTimer = 0; this.image = new Image(); 
                 this.imageLoaded = false;
 
                 if(CUSTOM_MINER_IMAGE_URL && CUSTOM_MINER_IMAGE_URL.trim() !== '') {
@@ -484,71 +477,26 @@
 
             draw() { 
                 if (this.imageLoaded && this.image.complete && this.image.naturalWidth !== 0) { 
-                    ctx.save(); 
-                    ctx.translate(this.x, this.y); 
-                    ctx.scale(-1, 1); 
-                    ctx.drawImage(this.image, -35, 0, 70, 90); 
-                    ctx.restore(); 
+                    ctx.save(); ctx.translate(this.x, this.y); ctx.scale(-1, 1); 
+                    ctx.drawImage(this.image, -35, 0, 70, 90); ctx.restore(); 
                 } else { 
                     this.drawDefaultMiner(); 
                 }
             }
 
             drawDefaultMiner() {
-                ctx.save();
-                ctx.translate(this.x, this.y);
-                ctx.scale(-1, 1); 
-
-                ctx.save();
-                ctx.translate(14, 25);
-                ctx.rotate(0.5);
-                ctx.fillStyle = '#1565C0'; ctx.fillRect(-4, 0, 8, 20);
-                ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.arc(0, 20, 5, 0, Math.PI*2); ctx.fill();
-                ctx.restore();
-
-                ctx.fillStyle = '#0D47A1'; 
-                ctx.fillRect(-8, 45, 10, 25); 
-                ctx.fillRect(8, 45, 10, 25);  
-                
-                ctx.fillStyle = '#3E2723';
-                ctx.fillRect(-10, 68, 14, 6);
-                ctx.fillRect(6, 68, 14, 6);
-
-                ctx.fillStyle = '#1565C0'; 
-                ctx.beginPath();
-                if(ctx.roundRect) ctx.roundRect(-15, 20, 30, 30, 5);
-                else ctx.rect(-15, 20, 30, 30);
-                ctx.fill();
-                
-                ctx.fillStyle = '#1976D2'; ctx.fillRect(-8, 30, 16, 12);
-                ctx.fillStyle = '#333'; ctx.fillRect(-10, 20, 4, 30); ctx.fillRect(6, 20, 4, 30);
-                ctx.fillStyle = '#FFD700'; 
-                ctx.beginPath(); ctx.arc(-8, 22, 2, 0, Math.PI*2); ctx.fill(); 
-                ctx.beginPath(); ctx.arc(8, 22, 2, 0, Math.PI*2); ctx.fill();
-
-                ctx.fillStyle = '#ffcc80'; 
-                ctx.beginPath(); ctx.ellipse(0, 10, 11, 13, 0, 0, Math.PI*2); ctx.fill();
-
-                ctx.fillStyle = '#5D4037'; 
-                ctx.beginPath(); ctx.arc(0, 12, 11, 0, Math.PI, false); ctx.fill(); 
-                ctx.fillRect(-6, 12, 12, 3);
-                ctx.fillStyle = '#000'; ctx.fillRect(-4, 8, 2, 2); ctx.fillRect(2, 8, 2, 2);
-
-                ctx.fillStyle = '#FFC107'; 
-                ctx.beginPath(); ctx.arc(0, 5, 12, Math.PI, 0); ctx.lineTo(16, 5); ctx.lineTo(-14, 5); ctx.fill();
-                
-                ctx.fillStyle = '#9E9E9E'; ctx.fillRect(-2, -8, 4, 6); 
-                ctx.fillStyle = '#FFF'; ctx.beginPath(); ctx.arc(0, -5, 3, 0, Math.PI*2); ctx.fill();
+                ctx.save(); ctx.translate(this.x, this.y); ctx.scale(-1, 1); 
+                ctx.save(); ctx.translate(14, 25); ctx.rotate(0.5); ctx.fillStyle = '#1565C0'; ctx.fillRect(-4, 0, 8, 20); ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.arc(0, 20, 5, 0, Math.PI*2); ctx.fill(); ctx.restore();
+                ctx.fillStyle = '#0D47A1'; ctx.fillRect(-8, 45, 10, 25); ctx.fillRect(8, 45, 10, 25);  
+                ctx.fillStyle = '#3E2723'; ctx.fillRect(-10, 68, 14, 6); ctx.fillRect(6, 68, 14, 6);
+                ctx.fillStyle = '#1565C0'; ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(-15, 20, 30, 30, 5); else ctx.rect(-15, 20, 30, 30); ctx.fill();
+                ctx.fillStyle = '#1976D2'; ctx.fillRect(-8, 30, 16, 12); ctx.fillStyle = '#333'; ctx.fillRect(-10, 20, 4, 30); ctx.fillRect(6, 20, 4, 30); ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.arc(-8, 22, 2, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(8, 22, 2, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.ellipse(0, 10, 11, 13, 0, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#5D4037'; ctx.beginPath(); ctx.arc(0, 12, 11, 0, Math.PI, false); ctx.fill(); ctx.fillRect(-6, 12, 12, 3); ctx.fillStyle = '#000'; ctx.fillRect(-4, 8, 2, 2); ctx.fillRect(2, 8, 2, 2);
+                ctx.fillStyle = '#FFC107'; ctx.beginPath(); ctx.arc(0, 5, 12, Math.PI, 0); ctx.lineTo(16, 5); ctx.lineTo(-14, 5); ctx.fill();
+                ctx.fillStyle = '#9E9E9E'; ctx.fillRect(-2, -8, 4, 6); ctx.fillStyle = '#FFF'; ctx.beginPath(); ctx.arc(0, -5, 3, 0, Math.PI*2); ctx.fill();
                 ctx.fillStyle = 'rgba(255, 255, 200, 0.3)'; ctx.beginPath(); ctx.moveTo(0, -5); ctx.lineTo(-15, -30); ctx.lineTo(15, -30); ctx.fill();
-
-                ctx.save();
-                ctx.translate(-13, 22); 
-                ctx.rotate(this.armAngle); 
-                ctx.fillStyle = '#1565C0'; ctx.fillRect(-4, 0, 8, 22);
-                ctx.translate(0, 22);
-                ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.arc(0, 2, 6, 0, Math.PI*2); ctx.fill();
-                ctx.restore();
-
+                ctx.save(); ctx.translate(-13, 22); ctx.rotate(this.armAngle); ctx.fillStyle = '#1565C0'; ctx.fillRect(-4, 0, 8, 22); ctx.translate(0, 22); ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.arc(0, 2, 6, 0, Math.PI*2); ctx.fill(); ctx.restore();
                 ctx.restore();
             }
         }
@@ -589,104 +537,41 @@
             constructor(type, x, y) {
                 this.type = type; this.x = x; this.y = y; this.caught = false; this.collected = false;
                 switch(type) {
-                    case 'gold': 
-                        this.radius = 15 + Math.random() * 20; 
-                        this.value = Math.floor(this.radius * 12); 
-                        this.weight = this.radius * 1.5; 
-                        break;
+                    case 'gold': this.radius = 15 + Math.random() * 20; this.value = Math.floor(this.radius * 12); this.weight = this.radius * 1.5; break;
                     case 'rock': 
                         let sizeRoll = Math.random();
                         if (sizeRoll < 0.4) { this.radius = 20 + Math.random() * 8; this.damage = 30; } 
                         else if (sizeRoll < 0.8) { this.radius = 29 + Math.random() * 9; this.damage = 50; } 
                         else { this.radius = 39 + Math.random() * 11; this.damage = 100; }
-                        this.value = Math.floor(this.radius * 0.5); 
-                        this.weight = this.radius * 3.5; 
-                        break;
-                    case 'diamond': 
-                        this.radius = 12; 
-                        this.value = 650; 
-                        this.weight = 5; 
-                        break;
+                        this.value = Math.floor(this.radius * 0.5); this.weight = this.radius * 3.5; break;
+                    case 'diamond': this.radius = 12; this.value = 650; this.weight = 5; break;
                 }
             }
-
             draw() {
                 if (this.collected) return;
-                ctx.save();
-                ctx.translate(this.x, this.y);
-
+                ctx.save(); ctx.translate(this.x, this.y);
                 if (this.type === 'rock') {
-                    ctx.fillStyle = '#7f8c8d';
-                    ctx.beginPath();
-                    ctx.moveTo(-this.radius, -this.radius/2);
-                    ctx.lineTo(0, -this.radius);
-                    ctx.lineTo(this.radius, -this.radius*0.7);
-                    ctx.lineTo(this.radius*0.8, this.radius*0.8);
-                    ctx.lineTo(-this.radius*0.6, this.radius);
-                    ctx.closePath();
-                    ctx.fill();
-                    
-                    ctx.strokeStyle = '#555';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath(); 
-                    ctx.moveTo(-this.radius * 0.3, 0); 
-                    ctx.lineTo(this.radius * 0.2, this.radius * 0.2); 
-                    ctx.stroke();
-                    ctx.beginPath();
-                    ctx.moveTo(0, -this.radius * 0.4);
-                    ctx.lineTo(this.radius * 0.1, -this.radius * 0.1);
-                    ctx.stroke();
-
+                    ctx.fillStyle = '#7f8c8d'; ctx.beginPath(); ctx.moveTo(-this.radius, -this.radius/2); ctx.lineTo(0, -this.radius); ctx.lineTo(this.radius, -this.radius*0.7); ctx.lineTo(this.radius*0.8, this.radius*0.8); ctx.lineTo(-this.radius*0.6, this.radius); ctx.closePath(); ctx.fill();
+                    ctx.strokeStyle = '#555'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-this.radius * 0.3, 0); ctx.lineTo(this.radius * 0.2, this.radius * 0.2); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, -this.radius * 0.4); ctx.lineTo(this.radius * 0.1, -this.radius * 0.1); ctx.stroke();
                 } else if (this.type === 'gold') {
-                    let s = this.radius * 0.8;
-                    ctx.fillStyle = '#B8860B';
-                    ctx.beginPath();
-                    ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2); 
-                    ctx.lineTo(s*0.8, s); ctx.lineTo(-s*0.8, s);
-                    ctx.fill();
-
-                    ctx.fillStyle = '#FFD700';
-                    ctx.beginPath();
-                    ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2); 
-                    ctx.lineTo(s*0.7, -s); ctx.lineTo(-s*0.7, -s);
-                    ctx.fill();
-
-                    ctx.fillStyle = '#DAA520';
-                    ctx.beginPath();
-                    ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2);
-                    ctx.lineTo(s*0.8, s); ctx.lineTo(-s*0.8, s);
-                    ctx.fill();
-
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-                    ctx.beginPath(); 
-                    ctx.moveTo(-s+2, -s/2+2); ctx.lineTo(0, s-2); ctx.lineTo(2, s-2); ctx.lineTo(-s+5, -s/2+2); 
-                    ctx.fill();
-
+                    let s = this.radius * 0.8; ctx.fillStyle = '#B8860B'; ctx.beginPath(); ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2); ctx.lineTo(s*0.8, s); ctx.lineTo(-s*0.8, s); ctx.fill();
+                    ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2); ctx.lineTo(s*0.7, -s); ctx.lineTo(-s*0.7, -s); ctx.fill();
+                    ctx.fillStyle = '#DAA520'; ctx.beginPath(); ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2); ctx.lineTo(s*0.8, s); ctx.lineTo(-s*0.8, s); ctx.fill();
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)'; ctx.beginPath(); ctx.moveTo(-s+2, -s/2+2); ctx.lineTo(0, s-2); ctx.lineTo(2, s-2); ctx.lineTo(-s+5, -s/2+2); ctx.fill();
                 } else if (this.type === 'diamond') {
-                    ctx.fillStyle = '#00FFFF';
-                    ctx.beginPath();
-                    ctx.moveTo(0, -this.radius);
-                    ctx.lineTo(this.radius, 0);
-                    ctx.lineTo(0, this.radius);
-                    ctx.lineTo(-this.radius, 0);
-                    ctx.fill();
-                    
-                    ctx.fillStyle = 'rgba(255,255,255,0.6)';
-                    ctx.beginPath(); 
-                    ctx.moveTo(0, -this.radius/2); 
-                    ctx.lineTo(this.radius/2, 0); 
-                    ctx.lineTo(0, this.radius/2); 
-                    ctx.lineTo(-this.radius/2, 0); 
-                    ctx.fill();
-                    
-                    ctx.shadowBlur = 10; 
-                    ctx.shadowColor = '#00FFFF';
+                    ctx.fillStyle = '#00FFFF'; ctx.beginPath(); ctx.moveTo(0, -this.radius); ctx.lineTo(this.radius, 0); ctx.lineTo(0, this.radius); ctx.lineTo(-this.radius, 0); ctx.fill();
+                    ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.beginPath(); ctx.moveTo(0, -this.radius/2); ctx.lineTo(this.radius/2, 0); ctx.lineTo(0, this.radius/2); ctx.lineTo(-this.radius/2, 0); ctx.fill();
+                    ctx.shadowBlur = 10; ctx.shadowColor = '#00FFFF';
                 }
                 ctx.restore();
             }
         }
 
-        // --- SISTEM ---
+        // --- GLOBAL DEĞİŞKENLER (SINIFLARDAN SONRA) ---
+        hook = new Hook(); 
+        miner = new Miner();
+
+        // --- KAYIT & SİSTEM FONKSİYONLARI ---
         function saveGame() {
             try { localStorage.setItem('goldMinerSave_v6', JSON.stringify(gameState)); } catch(e) { console.warn("Save hatası:", e); }
         }
@@ -721,6 +606,7 @@
 
         function startGameFlow() {
             ui.mainMenu.classList.add('hidden');
+            gameState.levelMoneyStart = 0; // Yeni oyunda başlangıç parası 0
             showStartScreen();
         }
 
@@ -798,9 +684,15 @@
                     loseLevel("Kanca parçalandı! Çok büyük bir taşa çarptın.");
                 }
             } else {
-                if (sessionState.storage + obj.weight > gameState.maxStorage) {
-                    showMessage("DEPO DOLU!", "red");
-                    checkEnd(); return; 
+                // ESNEK DEPO MANTIĞI:
+                // Depo TAMAMEN dolu değilse (yani limitin altındaysa), kapasiteyi aşacak olsa bile al.
+                // Eğer limitin üzerindeyse veya eşitse almasına izin verme.
+                if (sessionState.storage >= gameState.maxStorage) {
+                    showMessage("DEPO TAMAMEN DOLU!", "red");
+                    // Kancayı boş dönmesi için resetleyelim veya sadece uyarı verelim
+                    // checkEnd çağırarak oyunun durumunu kontrol et
+                    checkEnd(); 
+                    return; 
                 }
                 
                 let val = obj.value;
@@ -818,11 +710,6 @@
             updateUI(); saveGame(); checkEnd();
         }
 
-        function showMessage(text, color) {
-            ui.messages.innerText = text; ui.messages.style.color = color; ui.messages.style.opacity = 1; ui.messages.style.transform = "translate(-50%, -50%) scale(1.2)";
-            setTimeout(() => { ui.messages.style.opacity = 0; ui.messages.style.transform = "translate(-50%, -50%) scale(1)"; }, 800);
-        }
-
         function checkEnd() {
             if (sessionState.levelEnding) return;
             if (gameState.levelScore >= gameState.levelTarget) { winLevel(); return; }
@@ -834,8 +721,15 @@
             objects.forEach(o => { if(!o.collected && o.type!=='rock') minWeight = Math.min(minWeight, o.weight); });
 
             if (gameState.levelScore < gameState.levelTarget) {
-                if (!valuableExists) loseLevel("Maden tükendi.");
-                else if (remainingCapacity < minWeight) loseLevel("Depo doldu.");
+                // Eğer değerli maden kalmadıysa
+                if (!valuableExists) {
+                    loseLevel("Maden tükendi.");
+                } 
+                // Eğer depo tamamen dolduysa (veya kalan en küçük parça bile sığmayacak kadar dolduysa)
+                // Esnek depo mantığına göre: Eğer şu an storage >= maxStorage ise artık hiçbir şey alınamaz.
+                else if (sessionState.storage >= gameState.maxStorage) {
+                    loseLevel("Depo doldu.");
+                }
             }
         }
 
@@ -858,13 +752,26 @@
             }, 1000);
         }
 
+        function restartCurrentLevel() {
+            // Bölümü yeniden başlatma mantığı
+            gameState.money = gameState.levelMoneyStart; // Parayı bölüm başına döndür
+            gameState.levelScore = 0; // Skoru sıfırla
+            ui.pauseScreen.classList.add('hidden');
+            sessionState.isPaused = false;
+            initLevel(gameState.level);
+            loop();
+        }
+
         function updateUI() {
             ui.money.innerText = gameState.money;
             ui.targetDisplay.innerText = `${gameState.levelScore} / ${gameState.levelTarget}`;
             ui.level.innerText = gameState.level;
             
             let sPct = (sessionState.storage / gameState.maxStorage) * 100;
-            ui.storageTextMini.innerText = `${Math.floor(sPct)}%`; ui.storageBar.style.width = `${Math.min(sPct, 100)}%`;
+            // 100%'den fazla olabilir, görsel olarak 100'de kalsın
+            let displayPct = Math.min(sPct, 100); 
+            ui.storageTextMini.innerText = `${Math.floor(sPct)}%`; 
+            ui.storageBar.style.width = `${displayPct}%`;
             ui.storageBar.style.background = sPct > 90 ? '#f44336' : '#4caf50';
 
             let hPct = (sessionState.currentHealth / sessionState.maxHealth) * 100;
@@ -931,7 +838,6 @@
             setBtnState('btn-boost-strength', 'strength', getBoosterPrice('strength'));
             setBtnState('btn-boost-polish', 'polish', getBoosterPrice('polish'));
             
-            // Fiyat etiketlerini güncelle
             ui.priceDynamite.innerText = `$${getBoosterPrice('dynamite')}`;
             ui.priceStrength.innerText = `$${getBoosterPrice('strength')}`;
             ui.pricePolish.innerText = `$${getBoosterPrice('polish')}`;
@@ -943,20 +849,18 @@
             else { btn.innerText = "SATIN AL"; btn.className = "buy-btn"; btn.disabled = gameState.money < price; }
         }
 
-        // --- INIT & LOOP ---
-        hook = new Hook(); miner = new Miner();
-        
-        function resize() {
-            const container = document.getElementById('game-container');
-            if (container) {
-                canvas.width = container.clientWidth; canvas.height = container.clientHeight;
-                if(hook) hook.x = canvas.width / 2; 
-                if(miner) miner.x = canvas.width / 2 + 70; // MADENCİ SAĞDA
-            }
+        // --- GLOBAL FUNCTIONS FOR LISTENERS ---
+        function openMap() { 
+            sessionState.isMapOpen = true; 
+            ui.mapScreen.classList.remove('hidden'); 
+            renderMap(); 
         }
-        
-        function openMap() { sessionState.isMapOpen = true; ui.mapScreen.classList.remove('hidden'); renderMap(); }
-        function closeMap() { sessionState.isMapOpen = false; ui.mapScreen.classList.add('hidden'); }
+
+        function closeMap() { 
+            sessionState.isMapOpen = false; 
+            ui.mapScreen.classList.add('hidden'); 
+        }
+
         function renderMap() { 
             ui.mapContent.innerHTML = '';
             let endLvl = gameState.level + 20;
@@ -980,6 +884,7 @@
             
             document.getElementById('pause-btn').onclick = () => { if (!sessionState.inMenu && !sessionState.levelEnding) { sessionState.isPaused = true; ui.pauseScreen.classList.remove('hidden'); } };
             document.getElementById('resume-btn').onclick = () => { sessionState.isPaused = false; ui.pauseScreen.classList.add('hidden'); };
+            document.getElementById('pause-restart-btn').onclick = restartCurrentLevel; // YENİ BUTON
             document.getElementById('main-menu-btn').onclick = () => { ui.pauseScreen.classList.add('hidden'); showMainMenu(); };
             
             document.getElementById('map-btn-start').onclick = openMap;
@@ -992,6 +897,7 @@
             document.getElementById('next-level-btn').onclick = () => {
                 ui.shopScreen.classList.add('hidden');
                 gameState.level++;
+                gameState.levelMoneyStart = gameState.money; // Bir sonraki bölüm için başlangıç parası
                 sessionState.isShopping = false;
                 showStartScreen(); 
             };
@@ -1052,7 +958,6 @@
             if(e.type === 'touchstart') e.preventDefault(); 
             if (sessionState.inMenu || sessionState.levelEnding || sessionState.isPaused || sessionState.isMapOpen) return;
 
-            // Koordinat hesaplama
             const rect = canvas.getBoundingClientRect();
             let clientX = e.clientX;
             let clientY = e.clientY;
@@ -1065,18 +970,17 @@
             const x = (clientX - rect.left) * scaleX;
             const y = (clientY - rect.top) * scaleY;
 
-            // Dinamit Kontrolü (Manuel Patlatma)
             if (gameState.activeBoosters.dynamite) {
                 for (let i = 0; i < objects.length; i++) {
                     let o = objects[i];
                     if (!o.collected && o.type === 'rock') {
-                        if (Math.hypot(o.x - x, o.y - y) < o.radius + 15) { // +15 tolerans
+                        if (Math.hypot(o.x - x, o.y - y) < o.radius + 15) { 
                             createExplosion(o.x, o.y);
                             objects.splice(i, 1);
                             gameState.activeBoosters.dynamite = false;
                             showMessage("GÜM! Taş Yok Oldu", "#ff5722");
                             updateUI();
-                            return; // Kanca atma
+                            return; 
                         }
                     }
                 }
