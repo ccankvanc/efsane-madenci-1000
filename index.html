@@ -194,10 +194,11 @@
             background: #8d6e63; transform: translateX(-50%); z-index: -1;
         }
         .map-node:last-child::after { display: none; }
-        .map-node.completed { background: #4caf50; border-color: #2e7d32; color: white; }
+        .map-node.completed { background: #4caf50; border-color: #2e7d32; color: white; cursor: pointer; }
+        .map-node.completed:hover { background: #689f38; }
         .map-node.current {
             background: #ffd700; border-color: #ff6f00; color: #3e2723;
-            transform: scale(1.2); box-shadow: 0 0 10px #ffd700; animation: pulseNode 1.5s infinite;
+            transform: scale(1.2); box-shadow: 0 0 10px #ffd700; animation: pulseNode 1.5s infinite; cursor: pointer;
         }
     </style>
 </head>
@@ -260,6 +261,7 @@
             <h1>EFSANE MADENCİ</h1>
             <p style="color:#ffd700; font-weight:bold;">DELUXE EDITION</p>
             <button id="play-btn" class="main-btn">OYNA</button>
+            <button id="main-market-btn" class="secondary-btn" style="background:#0288d1; border-bottom-color:#01579b;">MARKET</button>
             <button id="main-reset-btn" class="secondary-btn" style="background:#555; font-size:12px; margin-top:20px;">İlerlemeyi Sıfırla</button>
         </div>
 
@@ -414,7 +416,9 @@
         
         let sessionState = {
             storage: 0, currentHealth: 100, maxHealth: 100,
-            isShopping: false, isPaused: false, isMapOpen: false, levelEnding: false, inMenu: true
+            isShopping: false, isPaused: false, isMapOpen: false, levelEnding: false, inMenu: true,
+            playingLevel: 1, // Yeni: Oynanan aktif seviye
+            shopMode: 'level' // Yeni: Marketin açılma modu
         };
 
         let objects = [];
@@ -557,19 +561,83 @@
             }
             draw() {
                 if (this.collected) return;
-                ctx.save(); ctx.translate(this.x, this.y);
+                ctx.save();
+                ctx.translate(this.x, this.y);
+
                 if (this.type === 'rock') {
-                    ctx.fillStyle = '#7f8c8d'; ctx.beginPath(); ctx.moveTo(-this.radius, -this.radius/2); ctx.lineTo(0, -this.radius); ctx.lineTo(this.radius, -this.radius*0.7); ctx.lineTo(this.radius*0.8, this.radius*0.8); ctx.lineTo(-this.radius*0.6, this.radius); ctx.closePath(); ctx.fill();
-                    ctx.strokeStyle = '#555'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-this.radius * 0.3, 0); ctx.lineTo(this.radius * 0.2, this.radius * 0.2); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, -this.radius * 0.4); ctx.lineTo(this.radius * 0.1, -this.radius * 0.1); ctx.stroke();
+                    // --- DETAYLI KAYA ÇİZİMİ ---
+                    ctx.fillStyle = '#7f8c8d';
+                    ctx.beginPath();
+                    ctx.moveTo(-this.radius, -this.radius/2);
+                    ctx.lineTo(0, -this.radius);
+                    ctx.lineTo(this.radius, -this.radius*0.7);
+                    ctx.lineTo(this.radius*0.8, this.radius*0.8);
+                    ctx.lineTo(-this.radius*0.6, this.radius);
+                    ctx.closePath();
+                    ctx.fill();
+                    
+                    ctx.strokeStyle = '#555';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath(); 
+                    ctx.moveTo(-this.radius * 0.3, 0); 
+                    ctx.lineTo(this.radius * 0.2, this.radius * 0.2); 
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(0, -this.radius * 0.4);
+                    ctx.lineTo(this.radius * 0.1, -this.radius * 0.1);
+                    ctx.stroke();
+
                 } else if (this.type === 'gold') {
-                    let s = this.radius * 0.8; ctx.fillStyle = '#B8860B'; ctx.beginPath(); ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2); ctx.lineTo(s*0.8, s); ctx.lineTo(-s*0.8, s); ctx.fill();
-                    ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2); ctx.lineTo(s*0.7, -s); ctx.lineTo(-s*0.7, -s); ctx.fill();
-                    ctx.fillStyle = '#DAA520'; ctx.beginPath(); ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2); ctx.lineTo(s*0.8, s); ctx.lineTo(-s*0.8, s); ctx.fill();
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)'; ctx.beginPath(); ctx.moveTo(-s+2, -s/2+2); ctx.lineTo(0, s-2); ctx.lineTo(2, s-2); ctx.lineTo(-s+5, -s/2+2); ctx.fill();
+                    // --- DETAYLI ALTIN KÜLÇESİ ÇİZİMİ ---
+                    let s = this.radius * 0.8;
+                    // Alt Yüzey (Koyu)
+                    ctx.fillStyle = '#B8860B';
+                    ctx.beginPath();
+                    ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2); 
+                    ctx.lineTo(s*0.8, s); ctx.lineTo(-s*0.8, s);
+                    ctx.fill();
+
+                    // Üst Yüzey (Parlak)
+                    ctx.fillStyle = '#FFD700';
+                    ctx.beginPath();
+                    ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2); 
+                    ctx.lineTo(s*0.7, -s); ctx.lineTo(-s*0.7, -s);
+                    ctx.fill();
+
+                    // Ön Yüzey (Orta)
+                    ctx.fillStyle = '#DAA520';
+                    ctx.beginPath();
+                    ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2);
+                    ctx.lineTo(s*0.8, s); ctx.lineTo(-s*0.8, s);
+                    ctx.fill();
+
+                    // Parlama Efekti
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                    ctx.beginPath(); 
+                    ctx.moveTo(-s+2, -s/2+2); ctx.lineTo(0, s-2); ctx.lineTo(2, s-2); ctx.lineTo(-s+5, -s/2+2); 
+                    ctx.fill();
+
                 } else if (this.type === 'diamond') {
-                    ctx.fillStyle = '#00FFFF'; ctx.beginPath(); ctx.moveTo(0, -this.radius); ctx.lineTo(this.radius, 0); ctx.lineTo(0, this.radius); ctx.lineTo(-this.radius, 0); ctx.fill();
-                    ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.beginPath(); ctx.moveTo(0, -this.radius/2); ctx.lineTo(this.radius/2, 0); ctx.lineTo(0, this.radius/2); ctx.lineTo(-this.radius/2, 0); ctx.fill();
-                    ctx.shadowBlur = 10; ctx.shadowColor = '#00FFFF';
+                    // --- DETAYLI ELMAS ÇİZİMİ ---
+                    ctx.fillStyle = '#00FFFF';
+                    ctx.beginPath();
+                    ctx.moveTo(0, -this.radius);
+                    ctx.lineTo(this.radius, 0);
+                    ctx.lineTo(0, this.radius);
+                    ctx.lineTo(-this.radius, 0);
+                    ctx.fill();
+                    
+                    // İç detay (Parlama)
+                    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+                    ctx.beginPath(); 
+                    ctx.moveTo(0, -this.radius/2); 
+                    ctx.lineTo(this.radius/2, 0); 
+                    ctx.lineTo(0, this.radius/2); 
+                    ctx.lineTo(-this.radius/2, 0); 
+                    ctx.fill();
+                    
+                    ctx.shadowBlur = 10; 
+                    ctx.shadowColor = '#00FFFF';
                 }
                 ctx.restore();
             }
@@ -615,13 +683,20 @@
         function startGameFlow() {
             ui.mainMenu.classList.add('hidden');
             gameState.levelMoneyStart = 0; // Yeni oyunda başlangıç parası 0
+            
+            // Eğer daha önce hiç oyun açılmadıysa 1. seviyeden başla
+            // Aksi takdirde son kalınan seviyeden (gameState.level)
+            // Ama sessionState.playingLevel'ı güncellememiz lazım.
+            // Ana menüden "OYNA" dendiğinde en son kalınan seviye açılmalı.
+            sessionState.playingLevel = gameState.level;
+
             showStartScreen();
         }
 
         function showStartScreen() {
             sessionState.inMenu = true;
             ui.startScreen.classList.remove('hidden');
-            document.getElementById('level-title').innerText = `SEVİYE ${gameState.level}`;
+            document.getElementById('level-title').innerText = `SEVİYE ${sessionState.playingLevel}`;
             
             ui.preBoostersInfo.innerHTML = '';
             if (gameState.activeBoosters.dynamite) ui.preBoostersInfo.innerHTML += '<span title="Dinamit">🧨</span>';
@@ -745,7 +820,8 @@
             sessionState.levelEnding = true;
             gameState.activeBoosters = { dynamite: false, strength: false, polish: false };
             saveGame();
-            setTimeout(() => openShop(), 1000);
+            // Parametre olarak 'false' gönderiyoruz, yani ana menüden değil oyun sonundan açıldı
+            setTimeout(() => openShop(false), 1000);
         }
 
         function loseLevel(reason) {
@@ -766,14 +842,14 @@
             gameState.levelScore = 0; // Skoru sıfırla
             ui.pauseScreen.classList.add('hidden');
             sessionState.isPaused = false;
-            initLevel(gameState.level);
+            initLevel(sessionState.playingLevel);
             loop();
         }
 
         function updateUI() {
             ui.money.innerText = gameState.money;
             ui.targetDisplay.innerText = `${gameState.levelScore} / ${gameState.levelTarget}`;
-            ui.level.innerText = gameState.level;
+            ui.level.innerText = sessionState.playingLevel;
             
             let sPct = (sessionState.storage / gameState.maxStorage) * 100;
             // 100%'den fazla olabilir, görsel olarak 100'de kalsın
@@ -791,11 +867,36 @@
             if (gameState.activeBoosters.polish) ui.activeBoosters.innerHTML += '<div class="booster-icon" title="Değerli Elmas">💎</div>';
         }
 
-        function openShop() {
-            sessionState.isShopping = true; sessionState.inMenu = true;
-            let nextTarget = Math.floor(500 * Math.pow(1.2, gameState.level)); 
-            ui.shopMsg.innerText = `Cüzdan: $${gameState.money} - Sonraki Bölüm Hedefi: ${nextTarget} Puan`;
-            ui.pricePower.innerText = `$${gameState.prices.power}`; ui.priceStorage.innerText = `$${gameState.prices.storage}`;
+        function openShop(fromMenu = false) {
+            sessionState.isShopping = true; 
+            sessionState.inMenu = true;
+            sessionState.shopMode = fromMenu ? 'menu' : 'level';
+
+            let nextTarget = Math.floor(500 * Math.pow(1.2, sessionState.playingLevel)); 
+            
+            // Market başlığını ve mesajını ayarla
+            if (fromMenu) {
+                ui.shopTitle.innerText = "MARKET";
+                ui.shopMsg.innerText = `Cüzdan: $${gameState.money}`;
+            } else {
+                ui.shopTitle.innerText = `SEVİYE ${sessionState.playingLevel} TAMAMLANDI!`;
+                ui.shopMsg.innerText = `Cüzdan: $${gameState.money} - Sonraki Bölüm Hedefi: ${nextTarget} Puan`;
+            }
+
+            ui.pricePower.innerText = `$${gameState.prices.power}`; 
+            ui.priceStorage.innerText = `$${gameState.prices.storage}`;
+            
+            // Buton metnini ve işlevini ayarla
+            const nextBtn = document.getElementById('next-level-btn');
+            if (fromMenu) {
+                nextBtn.innerText = "KAPAT";
+                // İşlevi aşağıda event listener'da kontrol edilecek veya burada override edilebilir
+                // Ancak clean code için global listener'da statik kontrol daha iyi.
+                // Burada sadece metni değiştiriyoruz, logic `initListeners` içinde.
+            } else {
+                nextBtn.innerText = "SONRAKİ SEVİYE >>";
+            }
+
             ui.shopScreen.classList.remove('hidden');
             saveGame(); renderSkinShop(); updateBoosterButtons();
         }
@@ -869,17 +970,51 @@
             ui.mapScreen.classList.add('hidden'); 
         }
 
+        function startLevelFromMap(lvl) {
+            sessionState.playingLevel = lvl;
+            closeMap();
+            // Haritadan seçim yapıldığında direkt oyuna başlatmıyoruz,
+            // Start screen'e yönlendiriyoruz ki booster alabilsin.
+            // Ayrıca ana menüdeyse ana menüyü gizle.
+            ui.mainMenu.classList.add('hidden');
+            ui.pauseScreen.classList.add('hidden');
+            sessionState.isPaused = false;
+            
+            gameState.levelMoneyStart = gameState.money; // Başlangıç parası
+            showStartScreen();
+        }
+
         function renderMap() { 
             ui.mapContent.innerHTML = '';
-            let endLvl = gameState.level + 20;
+            // Haritada gösterilecek max seviye: gameState.level + 5 (geleceği görmek için)
+            let endLvl = gameState.level + 5;
             for (let i = endLvl; i >= 1; i--) {
                 const node = document.createElement('div'); node.className = 'map-node'; node.innerText = i;
-                if (i < gameState.level) { node.classList.add('completed'); node.innerText = "✓"; } 
-                else if (i === gameState.level) { node.classList.add('current'); node.id = 'current-level-node'; } 
+                if (i <= gameState.level) { 
+                    node.classList.add('completed'); // Aslında 'unlocked' daha doğru olur ama CSS'de completed var
+                    // Tıklanabilir yap
+                    node.onclick = () => startLevelFromMap(i);
+                } 
+                else if (i === gameState.level) { // Şu anki max seviye (aslında yukarıdaki if kapsıyor ama özel stil için)
+                    // CSS'de .current var, onu da ekleyelim
+                    node.classList.add('current'); 
+                    node.id = 'current-level-node'; 
+                    node.onclick = () => startLevelFromMap(i);
+                } 
                 else node.style.opacity = "0.5";
+                
+                // Eğer o an oynanan seviye ise extra işaretle
+                if (i === sessionState.playingLevel) {
+                    node.style.border = "3px solid #00FFFF";
+                    node.id = 'current-playing-node'; // Scroll önceliği
+                }
+
                 ui.mapContent.appendChild(node);
             }
-            setTimeout(() => { const c = document.getElementById('current-level-node'); if(c) c.scrollIntoView({block:"center"}); }, 100);
+            setTimeout(() => { 
+                const c = document.getElementById('current-playing-node') || document.getElementById('current-level-node'); 
+                if(c) c.scrollIntoView({block:"center"}); 
+            }, 100);
         }
 
         function initListeners() {
@@ -889,6 +1024,8 @@
 
             document.getElementById('play-btn').onclick = startGameFlow;
             document.getElementById('main-reset-btn').onclick = resetSave;
+            // ANA MENÜ MARKET BUTONU
+            document.getElementById('main-market-btn').onclick = () => openShop(true);
             
             document.getElementById('pause-btn').onclick = () => { if (!sessionState.inMenu && !sessionState.levelEnding) { sessionState.isPaused = true; ui.pauseScreen.classList.remove('hidden'); } };
             document.getElementById('resume-btn').onclick = () => { sessionState.isPaused = false; ui.pauseScreen.classList.add('hidden'); };
@@ -899,20 +1036,34 @@
             document.getElementById('map-btn-pause').onclick = openMap;
             document.getElementById('close-map-btn').onclick = closeMap;
 
-            document.getElementById('btn-power').onclick = () => { if (gameState.money >= gameState.prices.power) { gameState.money -= gameState.prices.power; gameState.hookSpeed *= 1.1; gameState.hookPower *= 1.1; gameState.prices.power = Math.floor(gameState.prices.power * 1.4); updateUI(); openShop(); } };
-            document.getElementById('btn-storage').onclick = () => { if (gameState.money >= gameState.prices.storage) { gameState.money -= gameState.prices.storage; gameState.maxStorage += 20; gameState.prices.storage = Math.floor(gameState.prices.storage * 1.4); updateUI(); openShop(); } };
+            document.getElementById('btn-power').onclick = () => { if (gameState.money >= gameState.prices.power) { gameState.money -= gameState.prices.power; gameState.hookSpeed *= 1.1; gameState.hookPower *= 1.1; gameState.prices.power = Math.floor(gameState.prices.power * 1.4); updateUI(); openShop(sessionState.shopMode === 'menu'); } };
+            document.getElementById('btn-storage').onclick = () => { if (gameState.money >= gameState.prices.storage) { gameState.money -= gameState.prices.storage; gameState.maxStorage += 20; gameState.prices.storage = Math.floor(gameState.prices.storage * 1.4); updateUI(); openShop(sessionState.shopMode === 'menu'); } };
             
             document.getElementById('next-level-btn').onclick = () => {
                 ui.shopScreen.classList.add('hidden');
-                gameState.level++;
-                gameState.levelMoneyStart = gameState.money; // Bir sonraki bölüm için başlangıç parası
-                sessionState.isShopping = false;
-                showStartScreen(); 
+                
+                if (sessionState.shopMode === 'menu') {
+                    // Ana menüden açıldıysa kapat ve ana menüye dön
+                    sessionState.isShopping = false;
+                    showMainMenu();
+                } else {
+                    // Oyun sonundan açıldıysa
+                    // Eğer oynanan seviye, max seviyeye eşitse, yeni seviye aç
+                    if (sessionState.playingLevel === gameState.level) {
+                        gameState.level++;
+                    }
+                    // Her halükarda bir sonraki seviyeye geç
+                    sessionState.playingLevel++;
+                    
+                    gameState.levelMoneyStart = gameState.money; // Bir sonraki bölüm için başlangıç parası
+                    sessionState.isShopping = false;
+                    showStartScreen(); 
+                }
             };
 
             document.getElementById('start-level-btn').onclick = () => {
                 ui.startScreen.classList.add('hidden');
-                initLevel(gameState.level);
+                initLevel(sessionState.playingLevel); // Oynanan seviyeyi başlat
                 if (!gameLoopRunning) {
                     gameLoopRunning = true;
                     loop();
