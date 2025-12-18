@@ -2,7 +2,6 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <!-- Viewport ayarı güncellendi: Çentikli telefonlar için fit=cover eklendi -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Efsane Madenci: Deluxe</title>
     
@@ -31,47 +30,51 @@
 
         canvas { display: block; width: 100%; height: 100%; }
 
-        /* --- UI KATMANI (DÜZELTİLDİ) --- */
+        /* --- UI DÜZENİ (DÜZELTİLDİ) --- */
         #ui-layer {
             position: absolute;
-            top: 10px; /* Güvenli alan için JS ile de ayarlanabilir ama CSS safe-area yeterli */
-            top: env(safe-area-inset-top, 10px); /* Çentik desteği */
-            left: 10px; right: 10px;
+            top: 0; left: 0; width: 100%;
+            padding: 10px;
+            padding-top: max(10px, env(safe-area-inset-top)); /* Çentik desteği */
             display: flex; justify-content: space-between; align-items: flex-start;
             pointer-events: none; text-shadow: 1px 1px 0 #000; color: white; z-index: 5;
         }
 
-        .ui-panel { display: flex; flex-direction: column; gap: 5px; align-items: flex-start; }
+        .ui-panel { 
+            display: flex; flex-direction: column; gap: 6px; 
+            width: 48%; /* Paneller ekranın yarısını geçmesin */
+        }
+        .ui-panel.left { align-items: flex-start; }
         .ui-panel.right { align-items: flex-end; }
 
-        .stat-group { display: flex; gap: 5px; }
+        .stat-group { display: flex; gap: 6px; align-items: center; }
 
         .stat-box {
             background: rgba(0, 0, 0, 0.6);
-            padding: 4px 8px; /* Daha sıkı padding */
+            padding: 5px 10px;
             border-radius: 8px;
             border: 1px solid rgba(255,255,255,0.3);
             display: flex; flex-direction: column; align-items: center;
-            min-width: 50px; /* Küçültüldü */
             backdrop-filter: blur(2px);
+            white-space: nowrap; /* Metin kaymasını engeller */
         }
 
-        .stat-label { font-size: 9px; color: #ffd700; font-weight: bold; letter-spacing: 0.5px; margin-bottom: 2px; }
-        .stat-value { font-size: 16px; font-weight: 900; line-height: 1.1; }
+        .stat-label { font-size: 10px; color: #ffd700; font-weight: bold; letter-spacing: 0.5px; margin-bottom: 2px; }
+        .stat-value { font-size: 16px; font-weight: 900; line-height: 1; }
 
-        /* Minimalist Barlar */
+        /* Barlar */
         .mini-bar-wrapper {
-            width: 100%;
+            width: auto; min-width: 100px;
             background: rgba(0, 0, 0, 0.7);
-            padding: 3px 6px;
+            padding: 4px 8px;
             border-radius: 6px;
             display: flex; align-items: center; gap: 6px;
             backdrop-filter: blur(2px);
         }
 
         .mini-bar-track {
-            flex-grow: 1; height: 5px; background: rgba(255,255,255,0.2);
-            border-radius: 3px; overflow: hidden; min-width: 60px;
+            flex-grow: 1; height: 6px; background: rgba(255,255,255,0.2);
+            border-radius: 3px; overflow: hidden; min-width: 50px;
         }
 
         .mini-bar-fill { height: 100%; width: 100%; border-radius: 3px; transition: width 0.3s ease; }
@@ -82,35 +85,39 @@
         .icon-btn {
             pointer-events: auto; background: rgba(0, 0, 0, 0.6);
             border: 1px solid rgba(255,255,255,0.3); color: white;
-            width: 38px; height: 38px; border-radius: 8px;
-            font-size: 18px; cursor: pointer; display: flex; justify-content: center; align-items: center;
+            width: 40px; height: 40px; border-radius: 8px;
+            font-size: 20px; cursor: pointer; display: flex; justify-content: center; align-items: center;
             transition: all 0.2s; margin: 0; padding: 0;
         }
         .icon-btn:hover { background: #f44336; transform: scale(1.05); }
         .icon-btn:active { transform: scale(0.95); }
 
-        /* --- MOBİL ÖZEL AYARLAR (KRİTİK DÜZELTME) --- */
+        /* MOBİL UYUMLULUK (Küçük Ekranlar) */
         @media (max-width: 480px) {
-            /* Ekran çok darsa UI'ı biraz küçült */
-            #ui-layer {
-                zoom: 0.85; /* Her şeyi %85 boyutuna indir */
-                width: 117%; /* Zoom yapınca genişlik daralır, onu düzelt */
-                left: -8.5%; /* Ortalamak için */
-            }
+            #ui-layer { padding: 5px; padding-top: max(5px, env(safe-area-inset-top)); }
+            .ui-panel { gap: 4px; }
+            .stat-group { gap: 4px; }
             
-            .stat-box { min-width: 40px; padding: 3px 5px; }
+            .stat-box { padding: 3px 6px; }
             .stat-label { font-size: 8px; }
             .stat-value { font-size: 13px; }
-            .mini-bar-wrapper { padding: 2px 4px; gap: 3px; }
-            .mini-bar-track { min-width: 30px; height: 4px; }
+            
+            .mini-bar-wrapper { padding: 2px 5px; min-width: 80px; }
+            .mini-bar-icon { font-size: 12px; }
+            .mini-bar-track { height: 4px; min-width: 30px; }
             .mini-bar-text { font-size: 9px; }
-            .icon-btn { width: 34px; height: 34px; }
+            
+            .icon-btn { width: 32px; height: 32px; font-size: 16px; }
+            .booster-icon { width: 20px; height: 20px; font-size: 12px; }
+            
+            h1 { font-size: 32px; }
+            h2 { font-size: 22px; }
         }
 
-        #active-boosters { display: flex; gap: 4px; margin-top: 4px; }
+        #active-boosters { display: flex; gap: 4px; margin-top: 2px; }
         .booster-icon {
             font-size: 14px; background: rgba(0,0,0,0.6); border-radius: 50%;
-            width: 20px; height: 20px; display: flex; justify-content: center; align-items: center;
+            width: 24px; height: 24px; display: flex; justify-content: center; align-items: center;
             border: 1px solid #ffd700; box-shadow: 0 0 3px #ffd700;
         }
 
@@ -217,7 +224,7 @@
             <!-- Sol Panel -->
             <div class="ui-panel left">
                 <div class="stat-group">
-                    <div class="stat-box" style="min-width: 70px;">
+                    <div class="stat-box">
                         <span class="stat-label">HEDEF</span>
                         <span class="stat-value" id="target-display">0 / 500</span>
                     </div>
@@ -428,12 +435,11 @@
         };
 
         let objects = [];
-        let particles = []; // Patlama efektleri için
+        let particles = [];
         let miner = null;
         let hook = null;
         let gameLoopRunning = false;
         
-        // Görselin dosya yolu
         const CUSTOM_MINER_IMAGE_URL = 'image_cd5845.jpg'; 
 
         // --- SISTEM ---
@@ -451,7 +457,6 @@
             location.reload();
         }
 
-        // --- FİYAT HESAPLAMA (DİNAMİK) ---
         function getBoosterPrice(type) {
             let base = 0;
             if(type === 'dynamite') base = 200;
@@ -569,7 +574,6 @@
             updateUI(); saveGame(); checkEnd();
         }
 
-        // --- GÖRSELLER ---
         function getSkinDurability(skinId) { const s = skins.find(x => x.id === skinId); return s ? s.durability : 100; }
         function getHookSVG(type, color) { 
             let path = ""; let filter = "";
@@ -611,8 +615,8 @@
             draw() { 
                 if (this.imageLoaded && this.image.complete && this.image.naturalWidth !== 0) { 
                     ctx.save(); 
-                    ctx.translate(this.x, this.y);
-                    ctx.scale(-1, 1); // Flip to face center
+                    ctx.translate(this.x, this.y); 
+                    ctx.scale(-1, 1); // SAĞA KOYDUĞUMUZ İÇİN YÖNÜNÜ ÇEVİRDİK
                     ctx.drawImage(this.image, -35, 0, 70, 90); 
                     ctx.restore(); 
                 } else { 
@@ -623,11 +627,9 @@
             drawDefaultMiner() {
                 ctx.save();
                 ctx.translate(this.x, this.y);
-                ctx.scale(-1, 1); // Flip to face center
+                ctx.scale(-1, 1); // FLIP
 
-                // --- DETAYLI MADENCİ ÇİZİMİ ---
-                
-                // Sağ Kol (Sabit - Arka planda)
+                // Sağ Kol
                 ctx.save();
                 ctx.translate(14, 25);
                 ctx.rotate(0.5);
@@ -645,15 +647,13 @@
                 ctx.fillRect(-10, 68, 14, 6);
                 ctx.fillRect(6, 68, 14, 6);
 
-                // Gövde (Tulum)
+                // Gövde
                 ctx.fillStyle = '#1565C0'; 
                 ctx.beginPath();
-                // roundRect desteği olmayan tarayıcılar için fallback
                 if(ctx.roundRect) ctx.roundRect(-15, 20, 30, 30, 5);
                 else ctx.rect(-15, 20, 30, 30);
                 ctx.fill();
                 
-                // Tulum Cebi ve Askılar
                 ctx.fillStyle = '#1976D2'; ctx.fillRect(-8, 30, 16, 12);
                 ctx.fillStyle = '#333'; ctx.fillRect(-10, 20, 4, 30); ctx.fillRect(6, 20, 4, 30);
                 ctx.fillStyle = '#FFD700'; 
@@ -664,7 +664,7 @@
                 ctx.fillStyle = '#ffcc80'; 
                 ctx.beginPath(); ctx.ellipse(0, 10, 11, 13, 0, 0, Math.PI*2); ctx.fill();
 
-                // Sakal ve Yüz
+                // Sakal
                 ctx.fillStyle = '#5D4037'; 
                 ctx.beginPath(); ctx.arc(0, 12, 11, 0, Math.PI, false); ctx.fill(); 
                 ctx.fillRect(-6, 12, 12, 3);
@@ -674,12 +674,11 @@
                 ctx.fillStyle = '#FFC107'; 
                 ctx.beginPath(); ctx.arc(0, 5, 12, Math.PI, 0); ctx.lineTo(16, 5); ctx.lineTo(-14, 5); ctx.fill();
                 
-                // Baret Lambası
                 ctx.fillStyle = '#9E9E9E'; ctx.fillRect(-2, -8, 4, 6); 
                 ctx.fillStyle = '#FFF'; ctx.beginPath(); ctx.arc(0, -5, 3, 0, Math.PI*2); ctx.fill();
                 ctx.fillStyle = 'rgba(255, 255, 200, 0.3)'; ctx.beginPath(); ctx.moveTo(0, -5); ctx.lineTo(-15, -30); ctx.lineTo(15, -30); ctx.fill();
 
-                // Sol Kol (Hareketli - Önde)
+                // Sol Kol
                 ctx.save();
                 ctx.translate(-13, 22); 
                 ctx.rotate(this.armAngle); 
@@ -720,116 +719,6 @@
                 if (currentSkin.type === 'neon') { ctx.shadowBlur = 15; ctx.shadowColor = currentSkin.color; }
                 ctx.beginPath();
                 if (this.targetObj) { ctx.arc(0, 4, 8, 0, Math.PI * 2); ctx.stroke(); } else { ctx.arc(0, 0, 12, 0, Math.PI, false); ctx.stroke(); }
-                ctx.restore();
-            }
-        }
-
-        class MineObject {
-            constructor(type, x, y) {
-                this.type = type; this.x = x; this.y = y; this.caught = false; this.collected = false;
-                switch(type) {
-                    case 'gold': 
-                        this.radius = 15 + Math.random() * 20; 
-                        this.value = Math.floor(this.radius * 12); 
-                        this.weight = this.radius * 1.5; 
-                        break;
-                    case 'rock': 
-                        let sizeRoll = Math.random();
-                        if (sizeRoll < 0.4) { this.radius = 20 + Math.random() * 8; this.damage = 30; } 
-                        else if (sizeRoll < 0.8) { this.radius = 29 + Math.random() * 9; this.damage = 50; } 
-                        else { this.radius = 39 + Math.random() * 11; this.damage = 100; }
-                        this.value = Math.floor(this.radius * 0.5); 
-                        this.weight = this.radius * 3.5; 
-                        break;
-                    case 'diamond': 
-                        this.radius = 12; 
-                        this.value = 650; 
-                        this.weight = 5; 
-                        break;
-                }
-            }
-
-            draw() {
-                if (this.collected) return;
-                ctx.save();
-                ctx.translate(this.x, this.y);
-
-                if (this.type === 'rock') {
-                    // --- DETAYLI KAYA ÇİZİMİ ---
-                    ctx.fillStyle = '#7f8c8d';
-                    ctx.beginPath();
-                    ctx.moveTo(-this.radius, -this.radius/2);
-                    ctx.lineTo(0, -this.radius);
-                    ctx.lineTo(this.radius, -this.radius*0.7);
-                    ctx.lineTo(this.radius*0.8, this.radius*0.8);
-                    ctx.lineTo(-this.radius*0.6, this.radius);
-                    ctx.closePath();
-                    ctx.fill();
-                    
-                    // Gölgeler/Çatlaklar
-                    ctx.strokeStyle = '#555';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath(); 
-                    ctx.moveTo(-this.radius * 0.3, 0); 
-                    ctx.lineTo(this.radius * 0.2, this.radius * 0.2); 
-                    ctx.stroke();
-                    ctx.beginPath();
-                    ctx.moveTo(0, -this.radius * 0.4);
-                    ctx.lineTo(this.radius * 0.1, -this.radius * 0.1);
-                    ctx.stroke();
-
-                } else if (this.type === 'gold') {
-                    // --- DETAYLI ALTIN KÜLÇESİ ÇİZİMİ ---
-                    let s = this.radius * 0.8;
-                    // Alt Yüzey (Koyu)
-                    ctx.fillStyle = '#B8860B';
-                    ctx.beginPath();
-                    ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2); 
-                    ctx.lineTo(s*0.8, s); ctx.lineTo(-s*0.8, s);
-                    ctx.fill();
-
-                    // Üst Yüzey (Parlak)
-                    ctx.fillStyle = '#FFD700';
-                    ctx.beginPath();
-                    ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2); 
-                    ctx.lineTo(s*0.7, -s); ctx.lineTo(-s*0.7, -s);
-                    ctx.fill();
-
-                    // Ön Yüzey (Orta)
-                    ctx.fillStyle = '#DAA520';
-                    ctx.beginPath();
-                    ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2);
-                    ctx.lineTo(s*0.8, s); ctx.lineTo(-s*0.8, s);
-                    ctx.fill();
-
-                    // Parlama Efekti
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-                    ctx.beginPath(); 
-                    ctx.moveTo(-s+2, -s/2+2); ctx.lineTo(0, s-2); ctx.lineTo(2, s-2); ctx.lineTo(-s+5, -s/2+2); 
-                    ctx.fill();
-
-                } else if (this.type === 'diamond') {
-                    // --- DETAYLI ELMAS ÇİZİMİ ---
-                    ctx.fillStyle = '#00FFFF';
-                    ctx.beginPath();
-                    ctx.moveTo(0, -this.radius);
-                    ctx.lineTo(this.radius, 0);
-                    ctx.lineTo(0, this.radius);
-                    ctx.lineTo(-this.radius, 0);
-                    ctx.fill();
-                    
-                    // İç detay (Parlama)
-                    ctx.fillStyle = 'rgba(255,255,255,0.6)';
-                    ctx.beginPath(); 
-                    ctx.moveTo(0, -this.radius/2); 
-                    ctx.lineTo(this.radius/2, 0); 
-                    ctx.lineTo(0, this.radius/2); 
-                    ctx.lineTo(-this.radius/2, 0); 
-                    ctx.fill();
-                    
-                    ctx.shadowBlur = 10; 
-                    ctx.shadowColor = '#00FFFF';
-                }
                 ctx.restore();
             }
         }
@@ -966,22 +855,13 @@
             const container = document.getElementById('game-container');
             if (container) {
                 canvas.width = container.clientWidth; canvas.height = container.clientHeight;
-                if(hook) hook.x = canvas.width / 2; if(miner) miner.x = canvas.width / 2 + 55;
+                if(hook) hook.x = canvas.width / 2; 
+                if(miner) miner.x = canvas.width / 2 + 70; // MADENCİ SAĞDA
             }
         }
         
-        // --- GLOBAL FUNCTIONS FOR LISTENERS ---
-        function openMap() { 
-            sessionState.isMapOpen = true; 
-            ui.mapScreen.classList.remove('hidden'); 
-            renderMap(); 
-        }
-
-        function closeMap() { 
-            sessionState.isMapOpen = false; 
-            ui.mapScreen.classList.add('hidden'); 
-        }
-
+        function openMap() { sessionState.isMapOpen = true; ui.mapScreen.classList.remove('hidden'); renderMap(); }
+        function closeMap() { sessionState.isMapOpen = false; ui.mapScreen.classList.add('hidden'); }
         function renderMap() { 
             ui.mapContent.innerHTML = '';
             let endLvl = gameState.level + 20;
