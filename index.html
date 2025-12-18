@@ -611,7 +611,8 @@
             draw() { 
                 if (this.imageLoaded && this.image.complete && this.image.naturalWidth !== 0) { 
                     ctx.save(); 
-                    ctx.translate(this.x, this.y); 
+                    ctx.translate(this.x, this.y);
+                    ctx.scale(-1, 1); // Flip to face center
                     ctx.drawImage(this.image, -35, 0, 70, 90); 
                     ctx.restore(); 
                 } else { 
@@ -622,6 +623,7 @@
             drawDefaultMiner() {
                 ctx.save();
                 ctx.translate(this.x, this.y);
+                ctx.scale(-1, 1); // Flip to face center
 
                 // --- DETAYLI MADENCİ ÇİZİMİ ---
                 
@@ -964,7 +966,7 @@
             const container = document.getElementById('game-container');
             if (container) {
                 canvas.width = container.clientWidth; canvas.height = container.clientHeight;
-                if(hook) hook.x = canvas.width / 2; if(miner) miner.x = canvas.width / 2 - 45;
+                if(hook) hook.x = canvas.width / 2; if(miner) miner.x = canvas.width / 2 + 55;
             }
         }
         
