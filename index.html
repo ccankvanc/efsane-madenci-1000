@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Efsane Madenci: Deluxe (Final)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;700;900&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #2c3e50;
+            font-family: 'Rubik', sans-serif;
+            overflow: hidden;
+            touch-action: none;
+            user-select: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 800px;
+            background: #87CEEB;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* UI Katmanı */
+        #ui-layer {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            pointer-events: none;
+            text-shadow: 1px 1px 0 #000;
+            color: white;
+            z-index: 5;
+        }
+
+        .ui-panel { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+        .ui-panel.right { align-items: flex-end; }
+
+        .stat-group { display: flex; gap: 8px; }
+
+        .stat-box {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 60px;
+            backdrop-filter: blur(2px);
+        }
+
+        .stat-label { font-size: 10px; color: #ffd700; font-weight: bold; letter-spacing: 1px; }
+        .stat-value { font-size: 18px; font-weight: 900; }
+
+        /* Minimalist Barlar */
+        .mini-bar-wrapper {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 4px 8px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(2px);
+        }
+
+        .mini-bar-track {
+            flex-grow: 1;
+            height: 6px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            min-width: 80px;
+        }
+
+        .mini-bar-fill { height: 100%; width: 100%; border-radius: 3px; transition: width 0.3s ease; }
+        #health-bar-fill { background: #e53935; box-shadow: 0 0 5px #e53935; }
+        #storage-bar-fill { background: #4caf50; box-shadow: 0 0 5px #4caf50; }
+        .mini-bar-text { font-size: 11px; font-weight: bold; min-width: 30px; text-align: right; }
+
+        /* Butonlar */
+        .icon-btn {
+            pointer-events: auto;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s;
+            margin: 0; padding: 0;
+        }
+        .icon-btn:hover { background: #f44336; transform: scale(1.05); }
+        .icon-btn:active { transform: scale(0.95); }
+
+        /* Aktif Güçlendiriciler Göstergesi */
+        #active-boosters {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        .booster-icon {
+            font-size: 16px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 50%;
+            width: 24px; height: 24px;
+            display: flex; justify-content: center; align-items: center;
+            border: 1px solid #ffd700;
+            box-shadow: 0 0 5px #ffd700;
+            cursor: help; /* İpucu imleci */
+        }
+
+        /* Menüler */
+        .overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 20; color: white; backdrop-filter: blur(5px);
+        }
+        .hidden { display: none !important; }
+
+        h1 { font-size: 42px; margin-bottom: 5px; color: #ffd700; text-shadow: 4px 4px 0 #d35400; text-align: center; font-weight: 900; }
+        h2 { font-size: 28px; margin-bottom: 15px; color: #fff; font-weight: 700; }
+        p { font-size: 16px; margin: 10px; text-align: center; max-width: 80%; color: #ccc; line-height: 1.5; }
+
+        button.main-btn {
+            background: linear-gradient(to bottom, #ff9800, #e65100);
+            border: none; border-bottom: 5px solid #bf360c; color: white;
+            padding: 15px 50px; font-size: 20px; font-family: 'Rubik', sans-serif; font-weight: bold;
+            border-radius: 30px; cursor: pointer; margin-top: 20px; transition: all 0.1s;
+        }
+        button.main-btn:active { transform: translateY(4px); border-bottom: 0px solid transparent; margin-bottom: 5px; }
+        
+        button.secondary-btn {
+            background: #455a64; border: none; border-bottom: 4px solid #263238; color: white;
+            padding: 10px 30px; font-size: 16px; font-family: 'Rubik', sans-serif; font-weight: bold;
+            border-radius: 20px; cursor: pointer; margin-top: 10px;
+        }
+
+        /* Ana Menü Özel */
+        .menu-logo { font-size: 60px; margin-bottom: 10px; }
+        
+        /* Harita */
+        .map-container {
+            width: 80%; max-width: 400px; height: 60vh; background: #3e2723;
+            border: 4px solid #8d6e63; border-radius: 15px; overflow-y: auto;
+            position: relative; padding: 20px; box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+            scrollbar-width: thin; scrollbar-color: #ffd700 #3e2723;
+        }
+        .map-path { display: flex; flex-direction: column-reverse; align-items: center; gap: 20px; padding-bottom: 20px; }
+        .map-node {
+            width: 60px; height: 60px; background: #5d4037; border-radius: 50%; border: 3px solid #8d6e63;
+            display: flex; justify-content: center; align-items: center; color: #aaa;
+            font-weight: bold; font-size: 18px; position: relative; z-index: 2;
+        }
+        .map-node::after {
+            content: ''; position: absolute; top: 100%; left: 50%; width: 4px; height: 23px;
+            background: #8d6e63; transform: translateX(-50%); z-index: -1;
+        }
+        .map-node:last-child::after { display: none; }
+        .map-node.completed { background: #4caf50; border-color: #2e7d32; color: white; }
+        .map-node.current {
+            background: #ffd700; border-color: #ff6f00; color: #3e2723;
+            transform: scale(1.2); box-shadow: 0 0 15px #ffd700; animation: pulseNode 1.5s infinite;
+        }
+        @keyframes pulseNode { 0% { transform: scale(1.1); } 50% { transform: scale(1.2); } 100% { transform: scale(1.1); } }
+
+        /* Market */
+        .shop-container {
+            display: flex; flex-direction: column; background: #2c3e50; padding: 20px;
+            border-radius: 20px; border: 4px solid #ffd700; width: 90%; max-width: 600px;
+            max-height: 80vh; overflow-y: auto;
+        }
+        .shop-tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
+        .tab-btn {
+            background: #455a64; padding: 10px 10px; font-size: 13px; border-bottom: 3px solid #263238;
+            margin: 0; flex: 1; color: #fff; border: none; cursor: pointer; border-radius: 5px 5px 0 0;
+        }
+        .tab-btn.active { background: #ffd700; color: #333; border-bottom: 3px solid #f57f17; }
+        .shop-section { display: none; width: 100%; }
+        .shop-section.active { display: block; }
+        .upgrade-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+        
+        .item-card {
+            background: #37474f; border: 2px solid #546e7a; border-radius: 10px; padding: 10px;
+            display: flex; flex-direction: column; align-items: center; text-align: center; transition: transform 0.2s;
+        }
+        .item-card:hover { transform: scale(1.03); border-color: #ffd700; }
+        .item-card.purchased { border-color: #4caf50; opacity: 0.8; }
+        .item-icon { font-size: 28px; margin-bottom: 5px; height: 40px; display: flex; align-items: center; justify-content: center; }
+        .item-icon svg { width: 100%; height: 100%; filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); }
+        .item-name { font-size: 14px; font-weight: bold; margin-bottom: 2px; color: #fff; }
+        .item-desc { font-size: 10px; color: #aaa; margin-bottom: 5px; min-height: 24px; display: flex; align-items: center; justify-content: center; }
+        .item-price { font-size: 14px; color: #ffd700; font-weight: bold; }
+        
+        .buy-btn {
+            padding: 5px 10px; font-size: 12px; margin-top: 5px; width: 100%; background: #0288d1;
+            border-bottom: 3px solid #01579b; color: #fff; border: none; cursor: pointer; border-radius: 5px;
+        }
+        .buy-btn:disabled { background: #555; border-bottom: 3px solid #333; color: #999; cursor: not-allowed; }
+        .buy-btn.equipped { background: #4caf50; border-bottom: 3px solid #2e7d32; pointer-events: none; }
+
+        /* Mesajlar */
+        #messages {
+            position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 32px; color: #fff; text-shadow: 0 0 10px rgba(0,0,0,0.8);
+            pointer-events: none; opacity: 0; transition: opacity 0.5s, transform 0.5s;
+            z-index: 15; text-align: center; width: 100%; font-weight: 900;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+
+        <div id="ui-layer">
+            <!-- Sol Panel -->
+            <div class="ui-panel left">
+                <div class="stat-group">
+                    <div class="stat-box" style="min-width: 90px;">
+                        <span class="stat-label">HEDEF</span>
+                        <span class="stat-value" id="target-display">0 / 500</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">SEVİYE</span>
+                        <span class="stat-value" id="level-display">1</span>
+                    </div>
+                </div>
+                <div class="mini-bar-wrapper">
+                    <span class="mini-bar-icon">❤️</span>
+                    <div class="mini-bar-track">
+                        <div class="mini-bar-fill" id="health-bar-fill"></div>
+                    </div>
+                    <span class="mini-bar-text" id="health-text-mini">100</span>
+                </div>
+                <div id="active-boosters"></div>
+            </div>
+
+            <!-- Sağ Panel -->
+            <div class="ui-panel right">
+                <div class="stat-group">
+                    <div class="stat-box">
+                        <span class="stat-label">CÜZDAN</span>
+                        <span class="stat-value">$<span id="current-score">0</span></span>
+                    </div>
+                    <button id="pause-btn" class="icon-btn" title="Oyunu Durdur">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="mini-bar-wrapper">
+                    <span class="mini-bar-icon">🎒</span>
+                    <div class="mini-bar-track">
+                        <div class="mini-bar-fill" id="storage-bar-fill"></div>
+                    </div>
+                    <span class="mini-bar-text" id="storage-text-mini">0%</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="messages"></div>
+
+        <!-- Ana Menü -->
+        <div id="main-menu" class="overlay">
+            <div class="menu-logo">⛏️💎</div>
+            <h1>EFSANE MADENCİ</h1>
+            <p style="color:#ffd700; font-weight:bold;">DELUXE EDITION</p>
+            <button id="play-btn" class="main-btn">OYNA</button>
+            <button id="main-reset-btn" class="secondary-btn" style="background:#555; font-size:12px; margin-top:20px;">İlerlemeyi Sıfırla</button>
+        </div>
+
+        <!-- Seviye Başlangıç / Bilgi Ekranı -->
+        <div id="start-screen" class="overlay hidden">
+            <h2 id="level-title">SEVİYE 1</h2>
+            <p>Taşlar kancana zarar verir!</p>
+            <p>Deponu sadece altınlarla doldur.</p>
+            <div id="pre-boosters-info" style="display:flex; gap:10px; margin: 10px 0; justify-content:center; align-items:center;"></div>
+            <!-- Dinamik Bilgi Metni -->
+            <p id="dynamite-hint" style="color:#ff5722; font-size:14px; display:none;">💡 İPUCU: Taşa dokunarak patlatabilirsin!</p>
+            
+            <button id="start-level-btn" class="main-btn">MADENE İN</button>
+            <button id="map-btn-start" class="secondary-btn">🗺️ HARİTAYA BAK</button>
+        </div>
+
+        <!-- Duraklatma Ekranı -->
+        <div id="pause-screen" class="overlay hidden">
+            <h2 style="color:#ffd700">OYUN DURAKLATILDI</h2>
+            <button id="resume-btn" class="main-btn">DEVAM ET</button>
+            <button id="map-btn-pause" class="secondary-btn">🗺️ HARİTA</button>
+            <button id="main-menu-btn" class="secondary-btn" style="background: #f44336; border-bottom-color: #d32f2f;">ANA MENÜYE DÖN</button>
+        </div>
+
+        <!-- Harita Ekranı -->
+        <div id="map-screen" class="overlay hidden">
+            <h2 style="color:#ffd700; margin-bottom:10px;">İLERLEME HARİTASI</h2>
+            <div class="map-container">
+                <div id="map-content" class="map-path"></div>
+            </div>
+            <button id="close-map-btn" class="main-btn" style="margin-top:15px; padding:10px 40px;">KAPAT</button>
+        </div>
+
+        <!-- Market Ekranı -->
+        <div id="shop-screen" class="overlay hidden">
+            <h2 id="shop-title" style="color:#ffd700">SEVİYE TAMAMLANDI!</h2>
+            <p id="shop-message">Sonraki bölüme hazırlan.</p>
+            <div class="shop-container">
+                <div class="shop-tabs">
+                    <button class="tab-btn active" onclick="switchTab('upgrades')">GÜÇLENDİR</button>
+                    <button class="tab-btn" onclick="switchTab('boosters')">DESTEK</button>
+                    <button class="tab-btn" onclick="switchTab('skins')">KANCA</button>
+                </div>
+                <!-- Güçlendirmeler -->
+                <div id="tab-upgrades" class="shop-section active">
+                    <div class="upgrade-grid">
+                        <div class="item-card">
+                            <div class="item-icon">⚡</div>
+                            <div class="item-name">Hızlı Çekim</div>
+                            <div class="item-desc">Çekme hızı kalıcı artar</div>
+                            <div class="item-price" id="price-power">$100</div>
+                            <button class="buy-btn" id="btn-power">SATIN AL (+%10)</button>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-icon">📦</div>
+                            <div class="item-name">Geniş Depo</div>
+                            <div class="item-desc">Depo kapasitesi artar</div>
+                            <div class="item-price" id="price-storage">$150</div>
+                            <button class="buy-btn" id="btn-storage">SATIN AL (+20kg)</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Boosters -->
+                <div id="tab-boosters" class="shop-section">
+                    <div class="upgrade-grid">
+                        <div class="item-card">
+                            <div class="item-icon">🧨</div>
+                            <div class="item-name">Dinamit</div>
+                            <div class="item-desc">Taşa dokunarak patlat.</div>
+                            <div class="item-price" id="price-dynamite">$200</div>
+                            <button class="buy-btn" id="btn-boost-dynamite">SATIN AL (1 Adet)</button>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-icon">💪</div>
+                            <div class="item-name">Güç İksiri</div>
+                            <div class="item-desc">Bölüm boyunca %50 hızlı çekim.</div>
+                            <div class="item-price" id="price-strength">$300</div>
+                            <button class="buy-btn" id="btn-boost-strength">SATIN AL (1 Adet)</button>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-icon">💎</div>
+                            <div class="item-name">Elmas Cilası</div>
+                            <div class="item-desc">Elmaslar %50 daha değerli.</div>
+                            <div class="item-price" id="price-polish">$150</div>
+                            <button class="buy-btn" id="btn-boost-polish">SATIN AL (1 Adet)</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Skinler -->
+                <div id="tab-skins" class="shop-section">
+                    <div class="upgrade-grid" id="skin-grid"></div>
+                </div>
+            </div>
+            <button id="next-level-btn" class="main-btn" style="background: #4caf50; border-bottom-color: #2e7d32;">SONRAKİ SEVİYE >></button>
+        </div>
+
+        <!-- Oyun Bitti -->
+        <div id="game-over-screen" class="overlay hidden">
+            <h1 style="color: #f44336;">OYUN BİTTİ!</h1>
+            <p id="game-over-reason">Hedefe ulaşamadın.</p>
+            <h2 id="final-score">Kasa: $0</h2>
+            <button id="restart-level-btn" class="main-btn">TEKRAR DENE</button>
+            <button id="game-over-main-btn" class="secondary-btn" style="margin-top:10px;">ANA MENÜ</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // UI Elemanları
+        const ui = {
+            money: document.getElementById('current-score'),
+            targetDisplay: document.getElementById('target-display'),
+            level: document.getElementById('level-display'),
+            storageTextMini: document.getElementById('storage-text-mini'),
+            storageBar: document.getElementById('storage-bar-fill'),
+            healthTextMini: document.getElementById('health-text-mini'),
+            healthBar: document.getElementById('health-bar-fill'),
+            messages: document.getElementById('messages'),
+            shopTitle: document.getElementById('shop-title'),
+            shopMsg: document.getElementById('shop-message'),
+            pricePower: document.getElementById('price-power'),
+            priceStorage: document.getElementById('price-storage'),
+            skinGrid: document.getElementById('skin-grid'),
+            pauseScreen: document.getElementById('pause-screen'),
+            mapScreen: document.getElementById('map-screen'),
+            mapContent: document.getElementById('map-content'),
+            shopScreen: document.getElementById('shop-screen'),
+            mainMenu: document.getElementById('main-menu'),
+            startScreen: document.getElementById('start-screen'),
+            activeBoosters: document.getElementById('active-boosters'),
+            preBoostersInfo: document.getElementById('pre-boosters-info'),
+            dynamiteHint: document.getElementById('dynamite-hint'),
+            priceDynamite: document.getElementById('price-dynamite'),
+            priceStrength: document.getElementById('price-strength'),
+            pricePolish: document.getElementById('price-polish')
+        };
+
+        const skins = [
+            { id: 'default', name: 'Paslı Kanca', price: 0, color: '#555', type: 'basic', durability: 100 },
+            { id: 'golden', name: 'Altın Kanca', price: 800, color: '#FFD700', type: 'fancy', durability: 180 },
+            { id: 'diamond', name: 'Elmas Uçlu', price: 2000, color: '#00FFFF', type: 'sharp', durability: 300 },
+            { id: 'laser', name: 'Lazer Kıskaç', price: 5000, color: '#FF0055', type: 'neon', durability: 600 }
+        ];
+
+        const defaultState = {
+            level: 1, money: 0, levelScore: 0, levelTarget: 500, maxStorage: 100,
+            hookSpeed: 3, hookPower: 1, currentSkinId: 'default', unlockedSkins: ['default'],
+            prices: { power: 100, storage: 150 },
+            activeBoosters: { dynamite: false, strength: false, polish: false }
+        };
+
+        let gameState = JSON.parse(JSON.stringify(defaultState));
+        
+        let sessionState = {
+            storage: 0, currentHealth: 100, maxHealth: 100,
+            isShopping: false, isPaused: false, isMapOpen: false, levelEnding: false, inMenu: true
+        };
+
+        let objects = [];
+        let particles = []; // Patlama efektleri için
+        let miner = null;
+        let hook = null;
+        let gameLoopRunning = false;
+        const CUSTOM_MINER_IMAGE_URL = 'image_cd5845.jpg'; 
+
+        // --- SISTEM ---
+        function saveGame() {
+            try { localStorage.setItem('goldMinerSave_v6', JSON.stringify(gameState)); } catch(e) { console.warn("Save hatası:", e); }
+        }
+        function loadGame() {
+            try {
+                const saved = localStorage.getItem('goldMinerSave_v6');
+                if (saved) gameState = { ...defaultState, ...JSON.parse(saved) };
+            } catch(e) { console.warn("Load hatası, varsayılan yükleniyor:", e); }
+        }
+        function resetSave() {
+            try { localStorage.removeItem('goldMinerSave_v6'); } catch(e){}
+            location.reload();
+        }
+
+        // --- FİYAT HESAPLAMA (DİNAMİK) ---
+        function getBoosterPrice(type) {
+            let base = 0;
+            if(type === 'dynamite') base = 200;
+            if(type === 'strength') base = 300;
+            if(type === 'polish') base = 150;
+            // Her seviye için %10 artış
+            return Math.floor(base * Math.pow(1.10, gameState.level - 1));
+        }
+
+        // --- MENÜLER ---
+        function showMainMenu() {
+            ui.mainMenu.classList.remove('hidden');
+            ui.startScreen.classList.add('hidden');
+            ui.shopScreen.classList.add('hidden');
+            ui.pauseScreen.classList.add('hidden');
+            document.getElementById('game-over-screen').classList.add('hidden');
+            sessionState.inMenu = true;
+        }
+
+        function startGameFlow() {
+            ui.mainMenu.classList.add('hidden');
+            showStartScreen();
+        }
+
+        function showStartScreen() {
+            sessionState.inMenu = true;
+            ui.startScreen.classList.remove('hidden');
+            document.getElementById('level-title').innerText = `SEVİYE ${gameState.level}`;
+            
+            ui.preBoostersInfo.innerHTML = '';
+            if (gameState.activeBoosters.dynamite) ui.preBoostersInfo.innerHTML += '<span title="Dinamit">🧨</span>';
+            if (gameState.activeBoosters.strength) ui.preBoostersInfo.innerHTML += '<span title="Güç">💪</span>';
+            if (gameState.activeBoosters.polish) ui.preBoostersInfo.innerHTML += '<span title="Cila">💎</span>';
+
+            // Dinamit ipucu göster/gizle
+            ui.dynamiteHint.style.display = gameState.activeBoosters.dynamite ? 'block' : 'none';
+        }
+
+        function initLevel(lvl) {
+            objects = [];
+            particles = [];
+            hook.state = 'swing'; hook.targetObj = null; hook.length = 50;
+            
+            let durability = getSkinDurability(gameState.currentSkinId);
+            sessionState.currentHealth = durability;
+            sessionState.maxHealth = durability;
+            sessionState.storage = 0;
+            sessionState.levelEnding = false;
+            sessionState.inMenu = false;
+            
+            gameState.levelScore = 0;
+            gameState.levelTarget = Math.floor(500 * Math.pow(1.2, lvl - 1));
+            
+            updateUI();
+            saveGame();
+
+            let count = Math.min(12 + lvl, 35);
+            for(let i=0; i<count; i++) {
+                let typeRand = Math.random();
+                let type = 'rock';
+                let rockProb = 0.3 + (lvl * 0.02);
+                if (rockProb > 0.6) rockProb = 0.6;
+
+                if (typeRand < rockProb) type = 'rock';
+                else if (typeRand < 0.85) type = 'gold';
+                else if (typeRand < 0.95 && lvl > 2) type = 'diamond';
+                else type = 'gold';
+
+                let ox = 50 + Math.random() * (canvas.width - 100);
+                let oy = 150 + Math.random() * (canvas.height - 200);
+                
+                let safe = true;
+                for(let o of objects) { if (Math.hypot(o.x - ox, o.y - oy) < 40) safe = false; }
+                if(safe) objects.push(new MineObject(type, ox, oy));
+            }
+            // Not: Otomatik dinamit kullanımı kaldırıldı.
+        }
+
+        function createExplosion(x, y) {
+            for(let i=0; i<10; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 5,
+                    vy: (Math.random() - 0.5) * 5,
+                    life: 1.0,
+                    color: '#ff5722'
+                });
+            }
+        }
+
+        function collectObject(obj) {
+            if (obj.type === 'rock') {
+                let damage = obj.damage || 30; 
+                sessionState.currentHealth -= damage;
+                showMessage(`HASAR: -${damage}`, "#e53935");
+                if (sessionState.currentHealth <= 0) {
+                    sessionState.currentHealth = 0;
+                    loseLevel("Kanca parçalandı! Çok büyük bir taşa çarptın.");
+                }
+            } else {
+                if (sessionState.storage + obj.weight > gameState.maxStorage) {
+                    showMessage("DEPO DOLU!", "red");
+                    checkEnd(); return; 
+                }
+                
+                let val = obj.value;
+                if (obj.type === 'diamond' && gameState.activeBoosters.polish) {
+                    val = Math.floor(val * 1.5);
+                    showMessage("Cila Bonusu!", "#00FFFF");
+                }
+
+                gameState.money += val;
+                gameState.levelScore += val;
+                sessionState.storage += obj.weight;
+                showMessage(`+$${val}`, "#ffd700");
+            }
+            obj.collected = true;
+            updateUI(); saveGame(); checkEnd();
+        }
+
+        // --- GÖRSELLER ---
+        function getSkinDurability(skinId) { const s = skins.find(x => x.id === skinId); return s ? s.durability : 100; }
+        function getHookSVG(type, color) { 
+            let path = ""; let filter = "";
+            if (type === 'basic' || type === 'fancy') path = `<path d="M15 10 L15 35 C15 45 35 45 35 35 L35 10" stroke="${color}" stroke-width="6" fill="none" stroke-linecap="round"/><circle cx="25" cy="8" r="4" fill="${color}"/>`;
+            else if (type === 'sharp') path = `<path d="M10 10 L25 40 L40 10" stroke="${color}" stroke-width="5" fill="none" stroke-linejoin="miter"/><circle cx="25" cy="40" r="3" fill="#fff"/>`;
+            else if (type === 'neon') { path = `<path d="M15 15 L15 35 L25 40 L35 35 L35 15" stroke="${color}" stroke-width="4" fill="none"/><path d="M10 20 L40 20" stroke="${color}" stroke-width="2"/>`; filter = `filter: drop-shadow(0 0 5px ${color});`; }
+            return `<svg viewBox="0 0 50 50" style="${filter}">${path}</svg>`;
+        }
+        
+        class Miner {
+            constructor() {
+                this.x = 0; 
+                this.y = 45; 
+                this.armAngle = 0; 
+                this.waveSpeed = 0.1; 
+                this.mood = 'normal'; 
+                this.waveTimer = 0;
+                this.image = new Image();
+                this.imageLoaded = false;
+
+                if(CUSTOM_MINER_IMAGE_URL && CUSTOM_MINER_IMAGE_URL.trim() !== '') {
+                    this.image.src = CUSTOM_MINER_IMAGE_URL;
+                    this.image.onload = () => { this.imageLoaded = true; };
+                    this.image.onerror = () => { this.imageLoaded = false; };
+                }
+            }
+
+            update() { 
+                this.waveTimer += this.waveSpeed; 
+                if (this.mood === 'happy') { 
+                    this.armAngle = Math.sin(this.waveTimer * 3) * 0.5 - 2.5; 
+                    if (this.waveTimer > 10) this.mood = 'normal'; 
+                } else { 
+                    if (Math.sin(this.waveTimer * 0.05) > 0.8) this.armAngle = Math.sin(this.waveTimer) * 0.3 - 2.5; 
+                    else this.armAngle = -2.5; 
+                } 
+            }
+
+            draw() { 
+                if (this.imageLoaded && this.image.complete && this.image.naturalWidth !== 0) { 
+                    ctx.save(); 
+                    ctx.translate(this.x, this.y); 
+                    ctx.drawImage(this.image, -35, 0, 70, 90); 
+                    ctx.restore(); 
+                } else { 
+                    this.drawDefaultMiner(); 
+                }
+            }
+
+            drawDefaultMiner() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+
+                // --- DETAYLI MADENCİ ÇİZİMİ ---
+                
+                // Sağ Kol (Sabit - Arka planda)
+                ctx.save();
+                ctx.translate(14, 25);
+                ctx.rotate(0.5);
+                ctx.fillStyle = '#1565C0'; ctx.fillRect(-4, 0, 8, 20);
+                ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.arc(0, 20, 5, 0, Math.PI*2); ctx.fill();
+                ctx.restore();
+
+                // Bacaklar
+                ctx.fillStyle = '#0D47A1'; 
+                ctx.fillRect(-8, 45, 10, 25); 
+                ctx.fillRect(8, 45, 10, 25);  
+                
+                // Ayakkabılar
+                ctx.fillStyle = '#3E2723';
+                ctx.fillRect(-10, 68, 14, 6);
+                ctx.fillRect(6, 68, 14, 6);
+
+                // Gövde (Tulum)
+                ctx.fillStyle = '#1565C0'; 
+                ctx.beginPath();
+                // roundRect desteği olmayan tarayıcılar için fallback
+                if(ctx.roundRect) ctx.roundRect(-15, 20, 30, 30, 5);
+                else ctx.rect(-15, 20, 30, 30);
+                ctx.fill();
+                
+                // Tulum Cebi ve Askılar
+                ctx.fillStyle = '#1976D2'; ctx.fillRect(-8, 30, 16, 12);
+                ctx.fillStyle = '#333'; ctx.fillRect(-10, 20, 4, 30); ctx.fillRect(6, 20, 4, 30);
+                ctx.fillStyle = '#FFD700'; 
+                ctx.beginPath(); ctx.arc(-8, 22, 2, 0, Math.PI*2); ctx.fill(); 
+                ctx.beginPath(); ctx.arc(8, 22, 2, 0, Math.PI*2); ctx.fill();
+
+                // Kafa
+                ctx.fillStyle = '#ffcc80'; 
+                ctx.beginPath(); ctx.ellipse(0, 10, 11, 13, 0, 0, Math.PI*2); ctx.fill();
+
+                // Sakal ve Yüz
+                ctx.fillStyle = '#5D4037'; 
+                ctx.beginPath(); ctx.arc(0, 12, 11, 0, Math.PI, false); ctx.fill(); 
+                ctx.fillRect(-6, 12, 12, 3);
+                ctx.fillStyle = '#000'; ctx.fillRect(-4, 8, 2, 2); ctx.fillRect(2, 8, 2, 2);
+
+                // Baret
+                ctx.fillStyle = '#FFC107'; 
+                ctx.beginPath(); ctx.arc(0, 5, 12, Math.PI, 0); ctx.lineTo(16, 5); ctx.lineTo(-14, 5); ctx.fill();
+                
+                // Baret Lambası
+                ctx.fillStyle = '#9E9E9E'; ctx.fillRect(-2, -8, 4, 6); 
+                ctx.fillStyle = '#FFF'; ctx.beginPath(); ctx.arc(0, -5, 3, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = 'rgba(255, 255, 200, 0.3)'; ctx.beginPath(); ctx.moveTo(0, -5); ctx.lineTo(-15, -30); ctx.lineTo(15, -30); ctx.fill();
+
+                // Sol Kol (Hareketli - Önde)
+                ctx.save();
+                ctx.translate(-13, 22); 
+                ctx.rotate(this.armAngle); 
+                ctx.fillStyle = '#1565C0'; ctx.fillRect(-4, 0, 8, 22);
+                ctx.translate(0, 22);
+                ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.arc(0, 2, 6, 0, Math.PI*2); ctx.fill();
+                ctx.restore();
+
+                ctx.restore();
+            }
+        }
+
+        class Hook {
+            constructor() { this.x = 0; this.y = 80; this.angle = 0; this.angleSpeed = 0.025; this.length = 50; this.state = 'swing'; this.targetObj = null; }
+            update() {
+                if (this.state === 'swing') { this.angle += this.angleSpeed; if (this.angle > 1.3 || this.angle < -1.3) this.angleSpeed *= -1; }
+                else if (this.state === 'shoot') {
+                    this.length += gameState.hookSpeed * 2.5;
+                    if (this.length > canvas.height * 1.3 || this.x + Math.sin(this.angle) * this.length < 0 || this.x + Math.sin(this.angle) * this.length > canvas.width) this.state = 'pull';
+                    let tipX = this.x + Math.sin(this.angle) * this.length; let tipY = this.y + Math.cos(this.angle) * this.length;
+                    for (let obj of objects) { if (!obj.collected && Math.hypot(tipX - obj.x, tipY - obj.y) < obj.radius) { this.targetObj = obj; this.state = 'pull'; obj.caught = true; miner.mood = 'happy'; miner.waveTimer = 0; break; } }
+                } else if (this.state === 'pull') {
+                    let pullSpeed = gameState.hookSpeed;
+                    if (this.targetObj) {
+                        let weightFactor = this.targetObj.weight / gameState.hookPower;
+                        let speedMult = gameState.activeBoosters.strength ? 1.5 : 1.0;
+                        pullSpeed = Math.max(0.5, (gameState.hookSpeed * (15 / (weightFactor + 10))) * speedMult);
+                        this.targetObj.x = this.x + Math.sin(this.angle) * this.length; this.targetObj.y = this.y + Math.cos(this.angle) * this.length;
+                    } else { pullSpeed = gameState.hookSpeed * 4; }
+                    this.length -= pullSpeed;
+                    if (this.length <= 50) { this.length = 50; this.state = 'swing'; if (this.targetObj) { collectObject(this.targetObj); this.targetObj = null; } }
+                }
+            }
+            draw() {
+                ctx.save(); ctx.translate(this.x, this.y); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.sin(this.angle) * this.length, Math.cos(this.angle) * this.length); ctx.lineWidth = 2; ctx.strokeStyle = '#222'; ctx.stroke();
+                ctx.translate(Math.sin(this.angle) * this.length, Math.cos(this.angle) * this.length); ctx.rotate(-this.angle);
+                let currentSkin = skins.find(s => s.id === gameState.currentSkinId); ctx.strokeStyle = currentSkin.color; ctx.lineWidth = 5; ctx.lineCap = "round"; ctx.lineJoin = "round";
+                if (currentSkin.type === 'neon') { ctx.shadowBlur = 15; ctx.shadowColor = currentSkin.color; }
+                ctx.beginPath();
+                if (this.targetObj) { ctx.arc(0, 4, 8, 0, Math.PI * 2); ctx.stroke(); } else { ctx.arc(0, 0, 12, 0, Math.PI, false); ctx.stroke(); }
+                ctx.restore();
+            }
+        }
+
+        class MineObject {
+            constructor(type, x, y) {
+                this.type = type; this.x = x; this.y = y; this.caught = false; this.collected = false;
+                switch(type) {
+                    case 'gold': 
+                        this.radius = 15 + Math.random() * 20; 
+                        this.value = Math.floor(this.radius * 12); 
+                        this.weight = this.radius * 1.5; 
+                        break;
+                    case 'rock': 
+                        let sizeRoll = Math.random();
+                        if (sizeRoll < 0.4) { this.radius = 20 + Math.random() * 8; this.damage = 30; } 
+                        else if (sizeRoll < 0.8) { this.radius = 29 + Math.random() * 9; this.damage = 50; } 
+                        else { this.radius = 39 + Math.random() * 11; this.damage = 100; }
+                        this.value = Math.floor(this.radius * 0.5); 
+                        this.weight = this.radius * 3.5; 
+                        break;
+                    case 'diamond': 
+                        this.radius = 12; 
+                        this.value = 650; 
+                        this.weight = 5; 
+                        break;
+                }
+            }
+
+            draw() {
+                if (this.collected) return;
+                ctx.save();
+                ctx.translate(this.x, this.y);
+
+                if (this.type === 'rock') {
+                    // --- DETAYLI KAYA ÇİZİMİ ---
+                    ctx.fillStyle = '#7f8c8d';
+                    ctx.beginPath();
+                    ctx.moveTo(-this.radius, -this.radius/2);
+                    ctx.lineTo(0, -this.radius);
+                    ctx.lineTo(this.radius, -this.radius*0.7);
+                    ctx.lineTo(this.radius*0.8, this.radius*0.8);
+                    ctx.lineTo(-this.radius*0.6, this.radius);
+                    ctx.closePath();
+                    ctx.fill();
+                    
+                    // Gölgeler/Çatlaklar
+                    ctx.strokeStyle = '#555';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath(); 
+                    ctx.moveTo(-this.radius * 0.3, 0); 
+                    ctx.lineTo(this.radius * 0.2, this.radius * 0.2); 
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(0, -this.radius * 0.4);
+                    ctx.lineTo(this.radius * 0.1, -this.radius * 0.1);
+                    ctx.stroke();
+
+                } else if (this.type === 'gold') {
+                    // --- DETAYLI ALTIN KÜLÇESİ ÇİZİMİ ---
+                    let s = this.radius * 0.8;
+                    // Alt Yüzey (Koyu)
+                    ctx.fillStyle = '#B8860B';
+                    ctx.beginPath();
+                    ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2); 
+                    ctx.lineTo(s*0.8, s); ctx.lineTo(-s*0.8, s);
+                    ctx.fill();
+
+                    // Üst Yüzey (Parlak)
+                    ctx.fillStyle = '#FFD700';
+                    ctx.beginPath();
+                    ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2); 
+                    ctx.lineTo(s*0.7, -s); ctx.lineTo(-s*0.7, -s);
+                    ctx.fill();
+
+                    // Ön Yüzey (Orta)
+                    ctx.fillStyle = '#DAA520';
+                    ctx.beginPath();
+                    ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2);
+                    ctx.lineTo(s*0.8, s); ctx.lineTo(-s*0.8, s);
+                    ctx.fill();
+
+                    // Parlama Efekti
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                    ctx.beginPath(); 
+                    ctx.moveTo(-s+2, -s/2+2); ctx.lineTo(0, s-2); ctx.lineTo(2, s-2); ctx.lineTo(-s+5, -s/2+2); 
+                    ctx.fill();
+
+                } else if (this.type === 'diamond') {
+                    // --- DETAYLI ELMAS ÇİZİMİ ---
+                    ctx.fillStyle = '#00FFFF';
+                    ctx.beginPath();
+                    ctx.moveTo(0, -this.radius);
+                    ctx.lineTo(this.radius, 0);
+                    ctx.lineTo(0, this.radius);
+                    ctx.lineTo(-this.radius, 0);
+                    ctx.fill();
+                    
+                    // İç detay (Parlama)
+                    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+                    ctx.beginPath(); 
+                    ctx.moveTo(0, -this.radius/2); 
+                    ctx.lineTo(this.radius/2, 0); 
+                    ctx.lineTo(0, this.radius/2); 
+                    ctx.lineTo(-this.radius/2, 0); 
+                    ctx.fill();
+                    
+                    ctx.shadowBlur = 10; 
+                    ctx.shadowColor = '#00FFFF';
+                }
+                ctx.restore();
+            }
+        }
+
+        function showMessage(text, color) {
+            ui.messages.innerText = text; ui.messages.style.color = color; ui.messages.style.opacity = 1; ui.messages.style.transform = "translate(-50%, -50%) scale(1.2)";
+            setTimeout(() => { ui.messages.style.opacity = 0; ui.messages.style.transform = "translate(-50%, -50%) scale(1)"; }, 800);
+        }
+
+        function checkEnd() {
+            if (sessionState.levelEnding) return;
+            if (gameState.levelScore >= gameState.levelTarget) { winLevel(); return; }
+            if (sessionState.currentHealth <= 0) return;
+            
+            let remainingCapacity = gameState.maxStorage - sessionState.storage;
+            let valuableExists = objects.some(o => !o.collected && o.type !== 'rock');
+            let minWeight = Infinity;
+            objects.forEach(o => { if(!o.collected && o.type!=='rock') minWeight = Math.min(minWeight, o.weight); });
+
+            if (gameState.levelScore < gameState.levelTarget) {
+                if (!valuableExists) loseLevel("Maden tükendi.");
+                else if (remainingCapacity < minWeight) loseLevel("Depo doldu.");
+            }
+        }
+
+        function winLevel() {
+            sessionState.levelEnding = true;
+            gameState.activeBoosters = { dynamite: false, strength: false, polish: false };
+            saveGame();
+            setTimeout(() => openShop(), 1000);
+        }
+
+        function loseLevel(reason) {
+            sessionState.levelEnding = true;
+            gameState.activeBoosters = { dynamite: false, strength: false, polish: false };
+            saveGame();
+            setTimeout(() => {
+                ui.shopScreen.classList.add('hidden');
+                document.getElementById('game-over-screen').classList.remove('hidden');
+                document.getElementById('game-over-reason').innerText = reason;
+                document.getElementById('final-score').innerText = `Kasa: $${gameState.money}`;
+            }, 1000);
+        }
+
+        function updateUI() {
+            ui.money.innerText = gameState.money;
+            ui.targetDisplay.innerText = `${gameState.levelScore} / ${gameState.levelTarget}`;
+            ui.level.innerText = gameState.level;
+            
+            let sPct = (sessionState.storage / gameState.maxStorage) * 100;
+            ui.storageTextMini.innerText = `${Math.floor(sPct)}%`; ui.storageBar.style.width = `${Math.min(sPct, 100)}%`;
+            ui.storageBar.style.background = sPct > 90 ? '#f44336' : '#4caf50';
+
+            let hPct = (sessionState.currentHealth / sessionState.maxHealth) * 100;
+            ui.healthTextMini.innerText = `${Math.floor(sessionState.currentHealth)}`; ui.healthBar.style.width = `${Math.max(0, Math.min(hPct, 100))}%`;
+            
+            ui.activeBoosters.innerHTML = '';
+            if (gameState.activeBoosters.dynamite) ui.activeBoosters.innerHTML += '<div class="booster-icon" title="Dinamit Hazır">🧨</div>';
+            if (gameState.activeBoosters.strength) ui.activeBoosters.innerHTML += '<div class="booster-icon" title="Güçlü Çekim">💪</div>';
+            if (gameState.activeBoosters.polish) ui.activeBoosters.innerHTML += '<div class="booster-icon" title="Değerli Elmas">💎</div>';
+        }
+
+        function openShop() {
+            sessionState.isShopping = true; sessionState.inMenu = true;
+            let nextTarget = Math.floor(500 * Math.pow(1.2, gameState.level)); 
+            ui.shopMsg.innerText = `Cüzdan: $${gameState.money} - Sonraki Bölüm Hedefi: ${nextTarget} Puan`;
+            ui.pricePower.innerText = `$${gameState.prices.power}`; ui.priceStorage.innerText = `$${gameState.prices.storage}`;
+            ui.shopScreen.classList.remove('hidden');
+            saveGame(); renderSkinShop(); updateBoosterButtons();
+        }
+
+        window.switchTab = function(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.shop-section').forEach(s => s.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+
+        function renderSkinShop() {
+            ui.skinGrid.innerHTML = '';
+            skins.forEach(skin => {
+                let isOwned = gameState.unlockedSkins.includes(skin.id);
+                let isEquipped = gameState.currentSkinId === skin.id;
+                let btnText = isEquipped ? "KUŞANILDI" : (isOwned ? "KUŞAN" : "SATIN AL");
+                let btnClass = isEquipped ? "buy-btn equipped" : "buy-btn";
+                let disabled = !isOwned && gameState.money < skin.price;
+                ui.skinGrid.innerHTML += `
+                    <div class="item-card ${isOwned ? 'purchased' : ''}">
+                        <div class="item-icon">${getHookSVG(skin.type, skin.color)}</div>
+                        <div class="item-name">${skin.name}</div>
+                        <div class="item-desc">Dayanıklılık: ${skin.durability}</div>
+                        <div class="item-price">${isOwned ? 'Sahipsin' : '$'+skin.price}</div>
+                        <button class="${btnClass}" ${disabled ? 'disabled' : ''} onclick="handleSkinClick('${skin.id}')">${btnText}</button>
+                    </div>`;
+            });
+        }
+
+        window.handleSkinClick = function(skinId) {
+            let skin = skins.find(s => s.id === skinId);
+            if (gameState.unlockedSkins.includes(skinId)) { gameState.currentSkinId = skinId; }
+            else { if (gameState.money >= skin.price) { gameState.money -= skin.price; gameState.unlockedSkins.push(skinId); gameState.currentSkinId = skinId; updateUI(); } }
+            saveGame(); renderSkinShop();
+        }
+
+        function buyBooster(type) {
+            let price = getBoosterPrice(type);
+            if (gameState.money >= price && !gameState.activeBoosters[type]) {
+                gameState.money -= price; gameState.activeBoosters[type] = true;
+                updateBoosterButtons(); updateUI(); saveGame();
+            }
+        }
+
+        function updateBoosterButtons() {
+            setBtnState('btn-boost-dynamite', 'dynamite', getBoosterPrice('dynamite'));
+            setBtnState('btn-boost-strength', 'strength', getBoosterPrice('strength'));
+            setBtnState('btn-boost-polish', 'polish', getBoosterPrice('polish'));
+            
+            // Fiyat etiketlerini güncelle
+            ui.priceDynamite.innerText = `$${getBoosterPrice('dynamite')}`;
+            ui.priceStrength.innerText = `$${getBoosterPrice('strength')}`;
+            ui.pricePolish.innerText = `$${getBoosterPrice('polish')}`;
+        }
+
+        function setBtnState(btnId, type, price) {
+            const btn = document.getElementById(btnId);
+            if (gameState.activeBoosters[type]) { btn.innerText = "ALINDI"; btn.className = "buy-btn equipped"; btn.disabled = true; } 
+            else { btn.innerText = "SATIN AL"; btn.className = "buy-btn"; btn.disabled = gameState.money < price; }
+        }
+
+        // --- INIT & LOOP ---
+        hook = new Hook(); miner = new Miner();
+        
+        function resize() {
+            const container = document.getElementById('game-container');
+            if (container) {
+                canvas.width = container.clientWidth; canvas.height = container.clientHeight;
+                if(hook) hook.x = canvas.width / 2; if(miner) miner.x = canvas.width / 2 - 45;
+            }
+        }
+        
+        // --- GLOBAL FUNCTIONS FOR LISTENERS ---
+        function openMap() { 
+            sessionState.isMapOpen = true; 
+            ui.mapScreen.classList.remove('hidden'); 
+            renderMap(); 
+        }
+
+        function closeMap() { 
+            sessionState.isMapOpen = false; 
+            ui.mapScreen.classList.add('hidden'); 
+        }
+
+        function renderMap() { 
+            ui.mapContent.innerHTML = '';
+            let endLvl = gameState.level + 20;
+            for (let i = endLvl; i >= 1; i--) {
+                const node = document.createElement('div'); node.className = 'map-node'; node.innerText = i;
+                if (i < gameState.level) { node.classList.add('completed'); node.innerText = "✓"; } 
+                else if (i === gameState.level) { node.classList.add('current'); node.id = 'current-level-node'; } 
+                else node.style.opacity = "0.5";
+                ui.mapContent.appendChild(node);
+            }
+            setTimeout(() => { const c = document.getElementById('current-level-node'); if(c) c.scrollIntoView({block:"center"}); }, 100);
+        }
+
+        function initListeners() {
+            document.getElementById('btn-boost-dynamite').onclick = () => buyBooster('dynamite');
+            document.getElementById('btn-boost-strength').onclick = () => buyBooster('strength');
+            document.getElementById('btn-boost-polish').onclick = () => buyBooster('polish');
+
+            document.getElementById('play-btn').onclick = startGameFlow;
+            document.getElementById('main-reset-btn').onclick = resetSave;
+            
+            document.getElementById('pause-btn').onclick = () => { if (!sessionState.inMenu && !sessionState.levelEnding) { sessionState.isPaused = true; ui.pauseScreen.classList.remove('hidden'); } };
+            document.getElementById('resume-btn').onclick = () => { sessionState.isPaused = false; ui.pauseScreen.classList.add('hidden'); };
+            document.getElementById('main-menu-btn').onclick = () => { ui.pauseScreen.classList.add('hidden'); showMainMenu(); };
+            
+            document.getElementById('map-btn-start').onclick = openMap;
+            document.getElementById('map-btn-pause').onclick = openMap;
+            document.getElementById('close-map-btn').onclick = closeMap;
+
+            document.getElementById('btn-power').onclick = () => { if (gameState.money >= gameState.prices.power) { gameState.money -= gameState.prices.power; gameState.hookSpeed *= 1.1; gameState.hookPower *= 1.1; gameState.prices.power = Math.floor(gameState.prices.power * 1.4); updateUI(); openShop(); } };
+            document.getElementById('btn-storage').onclick = () => { if (gameState.money >= gameState.prices.storage) { gameState.money -= gameState.prices.storage; gameState.maxStorage += 20; gameState.prices.storage = Math.floor(gameState.prices.storage * 1.4); updateUI(); openShop(); } };
+            
+            document.getElementById('next-level-btn').onclick = () => {
+                ui.shopScreen.classList.add('hidden');
+                gameState.level++;
+                sessionState.isShopping = false;
+                showStartScreen(); 
+            };
+
+            document.getElementById('start-level-btn').onclick = () => {
+                ui.startScreen.classList.add('hidden');
+                initLevel(gameState.level);
+                if (!gameLoopRunning) {
+                    gameLoopRunning = true;
+                    loop();
+                }
+            };
+
+            document.getElementById('restart-level-btn').onclick = () => {
+                document.getElementById('game-over-screen').classList.add('hidden');
+                showStartScreen();
+            };
+            document.getElementById('game-over-main-btn').onclick = () => {
+                document.getElementById('game-over-screen').classList.add('hidden');
+                showMainMenu();
+            };
+        }
+
+        window.addEventListener('load', () => {
+            loadGame();
+            resize();
+            window.addEventListener('resize', resize);
+            initListeners(); 
+            showMainMenu(); 
+        });
+
+        function loop() {
+            requestAnimationFrame(loop);
+            
+            if (sessionState.isPaused || sessionState.isMapOpen || sessionState.inMenu) return;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#87CEEB'; ctx.fillRect(0, 0, canvas.width, 110);
+            ctx.fillStyle = '#5D4037'; ctx.fillRect(0, 110, canvas.width, canvas.height);
+            ctx.fillStyle = '#333'; ctx.fillRect(canvas.width/2 - 25, 50, 50, 60); 
+            miner.update(); miner.draw();
+            objects.forEach(o => o.draw());
+            
+            // PARTİKÜLLER
+            for(let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx; p.y += p.vy; p.life -= 0.05;
+                ctx.globalAlpha = p.life; ctx.fillStyle = p.color;
+                ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI*2); ctx.fill();
+                ctx.globalAlpha = 1.0;
+                if(p.life <= 0) particles.splice(i, 1);
+            }
+
+            hook.update(); hook.draw();
+        }
+
+        function inputAction(e) {
+            if(e.type === 'touchstart') e.preventDefault(); 
+            if (sessionState.inMenu || sessionState.levelEnding || sessionState.isPaused || sessionState.isMapOpen) return;
+
+            // Koordinat hesaplama
+            const rect = canvas.getBoundingClientRect();
+            let clientX = e.clientX;
+            let clientY = e.clientY;
+            if(e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            }
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const x = (clientX - rect.left) * scaleX;
+            const y = (clientY - rect.top) * scaleY;
+
+            // Dinamit Kontrolü (Manuel Patlatma)
+            if (gameState.activeBoosters.dynamite) {
+                for (let i = 0; i < objects.length; i++) {
+                    let o = objects[i];
+                    if (!o.collected && o.type === 'rock') {
+                        if (Math.hypot(o.x - x, o.y - y) < o.radius + 15) { // +15 tolerans
+                            createExplosion(o.x, o.y);
+                            objects.splice(i, 1);
+                            gameState.activeBoosters.dynamite = false;
+                            showMessage("GÜM! Taş Yok Oldu", "#ff5722");
+                            updateUI();
+                            return; // Kanca atma
+                        }
+                    }
+                }
+            }
+
+            if (hook.state === 'swing') { hook.state = 'shoot'; }
+        }
+        canvas.addEventListener('mousedown', inputAction);
+        canvas.addEventListener('touchstart', inputAction, {passive: false});
+
+    </script>
+</body>
+</html>
