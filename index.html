@@ -3,7 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Efsane Madenci: Deluxe (Final)</title>
+    <title>Efsane Madenci: Deluxe</title>
+    
+    <!-- UYGULAMA İKONLARI -->
+    <!-- Dosya adının tam olarak bu şekilde (boşluklar ve parantez dahil) olduğundan emin ol -->
+    <link rel="icon" type="image/png" href="Efsane Madenci 1000 (1).png">
+    <link rel="apple-touch-icon" href="Efsane Madenci 1000 (1).png">
+    
+    <meta name="theme-color" content="#2c3e50">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;700;900&display=swap');
 
@@ -82,6 +92,7 @@
             align-items: center;
             gap: 8px;
             backdrop-filter: blur(2px);
+            box-sizing: border-box;
         }
 
         .mini-bar-track {
@@ -118,7 +129,23 @@
         .icon-btn:hover { background: #f44336; transform: scale(1.05); }
         .icon-btn:active { transform: scale(0.95); }
 
-        /* Aktif Güçlendiriciler Göstergesi */
+        /* MOBİL UYUMLULUK (TELEFON) */
+        @media (max-width: 600px) {
+            #ui-layer { top: 5px; left: 5px; right: 5px; }
+            .stat-box { padding: 3px 6px; min-width: 45px; }
+            .stat-label { font-size: 8px; letter-spacing: 0; }
+            .stat-value { font-size: 14px; }
+            .mini-bar-wrapper { padding: 3px 5px; gap: 4px; }
+            .mini-bar-icon { font-size: 12px; }
+            .mini-bar-track { min-width: 40px; height: 4px; }
+            .mini-bar-text { font-size: 9px; min-width: 20px; }
+            .icon-btn { width: 32px; height: 32px; font-size: 16px; }
+            .booster-icon { width: 18px; height: 18px; font-size: 12px; }
+            h1 { font-size: 32px; }
+            h2 { font-size: 24px; }
+        }
+
+        /* Aktif Güçlendiriciler */
         #active-boosters {
             display: flex;
             gap: 5px;
@@ -132,7 +159,7 @@
             display: flex; justify-content: center; align-items: center;
             border: 1px solid #ffd700;
             box-shadow: 0 0 5px #ffd700;
-            cursor: help; /* İpucu imleci */
+            cursor: help;
         }
 
         /* Menüler */
@@ -162,7 +189,7 @@
             border-radius: 20px; cursor: pointer; margin-top: 10px;
         }
 
-        /* Ana Menü Özel */
+        /* Ana Menü */
         .menu-logo { font-size: 60px; margin-bottom: 10px; }
         
         /* Harita */
@@ -454,10 +481,12 @@
         };
 
         let objects = [];
-        let particles = []; // Patlama efektleri için
+        let particles = [];
         let miner = null;
         let hook = null;
         let gameLoopRunning = false;
+        
+        // Görselin dosya yolu
         const CUSTOM_MINER_IMAGE_URL = 'image_cd5845.jpg'; 
 
         // --- SISTEM ---
@@ -481,7 +510,6 @@
             if(type === 'dynamite') base = 200;
             if(type === 'strength') base = 300;
             if(type === 'polish') base = 150;
-            // Her seviye için %10 artış
             return Math.floor(base * Math.pow(1.10, gameState.level - 1));
         }
 
@@ -510,7 +538,6 @@
             if (gameState.activeBoosters.strength) ui.preBoostersInfo.innerHTML += '<span title="Güç">💪</span>';
             if (gameState.activeBoosters.polish) ui.preBoostersInfo.innerHTML += '<span title="Cila">💎</span>';
 
-            // Dinamit ipucu göster/gizle
             ui.dynamiteHint.style.display = gameState.activeBoosters.dynamite ? 'block' : 'none';
         }
 
@@ -551,7 +578,6 @@
                 for(let o of objects) { if (Math.hypot(o.x - ox, o.y - oy) < 40) safe = false; }
                 if(safe) objects.push(new MineObject(type, ox, oy));
             }
-            // Not: Otomatik dinamit kullanımı kaldırıldı.
         }
 
         function createExplosion(x, y) {
