@@ -30,7 +30,7 @@
 
         canvas { display: block; width: 100%; height: 100%; }
 
-        /* --- UI DÜZENİ (DÜZELTİLDİ) --- */
+        /* --- UI DÜZENİ --- */
         #ui-layer {
             position: absolute;
             top: 0; left: 0; width: 100%;
@@ -224,7 +224,7 @@
             <!-- Sol Panel -->
             <div class="ui-panel left">
                 <div class="stat-group">
-                    <div class="stat-box">
+                    <div class="stat-box" style="min-width: 70px;">
                         <span class="stat-label">HEDEF</span>
                         <span class="stat-value" id="target-display">0 / 500</span>
                     </div>
@@ -442,6 +442,250 @@
         
         const CUSTOM_MINER_IMAGE_URL = 'image_cd5845.jpg'; 
 
+        // --- YARDIMCI FONKSİYONLAR ---
+        function getSkinDurability(skinId) { const s = skins.find(x => x.id === skinId); return s ? s.durability : 100; }
+        function getHookSVG(type, color) { 
+            let path = ""; let filter = "";
+            if (type === 'basic' || type === 'fancy') path = `<path d="M15 10 L15 35 C15 45 35 45 35 35 L35 10" stroke="${color}" stroke-width="6" fill="none" stroke-linecap="round"/><circle cx="25" cy="8" r="4" fill="${color}"/>`;
+            else if (type === 'sharp') path = `<path d="M10 10 L25 40 L40 10" stroke="${color}" stroke-width="5" fill="none" stroke-linejoin="miter"/><circle cx="25" cy="40" r="3" fill="#fff"/>`;
+            else if (type === 'neon') { path = `<path d="M15 15 L15 35 L25 40 L35 35 L35 15" stroke="${color}" stroke-width="4" fill="none"/><path d="M10 20 L40 20" stroke="${color}" stroke-width="2"/>`; filter = `filter: drop-shadow(0 0 5px ${color});`; }
+            return `<svg viewBox="0 0 50 50" style="${filter}">${path}</svg>`;
+        }
+
+        // --- SINIFLAR (Yukarı Taşındı) ---
+        class Miner {
+            constructor() {
+                this.x = 0; 
+                this.y = 45; 
+                this.armAngle = 0; 
+                this.waveSpeed = 0.1; 
+                this.mood = 'normal'; 
+                this.waveTimer = 0;
+                this.image = new Image();
+                this.imageLoaded = false;
+
+                if(CUSTOM_MINER_IMAGE_URL && CUSTOM_MINER_IMAGE_URL.trim() !== '') {
+                    this.image.src = CUSTOM_MINER_IMAGE_URL;
+                    this.image.onload = () => { this.imageLoaded = true; };
+                    this.image.onerror = () => { this.imageLoaded = false; };
+                }
+            }
+
+            update() { 
+                this.waveTimer += this.waveSpeed; 
+                if (this.mood === 'happy') { 
+                    this.armAngle = Math.sin(this.waveTimer * 3) * 0.5 - 2.5; 
+                    if (this.waveTimer > 10) this.mood = 'normal'; 
+                } else { 
+                    if (Math.sin(this.waveTimer * 0.05) > 0.8) this.armAngle = Math.sin(this.waveTimer) * 0.3 - 2.5; 
+                    else this.armAngle = -2.5; 
+                } 
+            }
+
+            draw() { 
+                if (this.imageLoaded && this.image.complete && this.image.naturalWidth !== 0) { 
+                    ctx.save(); 
+                    ctx.translate(this.x, this.y); 
+                    ctx.scale(-1, 1); 
+                    ctx.drawImage(this.image, -35, 0, 70, 90); 
+                    ctx.restore(); 
+                } else { 
+                    this.drawDefaultMiner(); 
+                }
+            }
+
+            drawDefaultMiner() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.scale(-1, 1); 
+
+                ctx.save();
+                ctx.translate(14, 25);
+                ctx.rotate(0.5);
+                ctx.fillStyle = '#1565C0'; ctx.fillRect(-4, 0, 8, 20);
+                ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.arc(0, 20, 5, 0, Math.PI*2); ctx.fill();
+                ctx.restore();
+
+                ctx.fillStyle = '#0D47A1'; 
+                ctx.fillRect(-8, 45, 10, 25); 
+                ctx.fillRect(8, 45, 10, 25);  
+                
+                ctx.fillStyle = '#3E2723';
+                ctx.fillRect(-10, 68, 14, 6);
+                ctx.fillRect(6, 68, 14, 6);
+
+                ctx.fillStyle = '#1565C0'; 
+                ctx.beginPath();
+                if(ctx.roundRect) ctx.roundRect(-15, 20, 30, 30, 5);
+                else ctx.rect(-15, 20, 30, 30);
+                ctx.fill();
+                
+                ctx.fillStyle = '#1976D2'; ctx.fillRect(-8, 30, 16, 12);
+                ctx.fillStyle = '#333'; ctx.fillRect(-10, 20, 4, 30); ctx.fillRect(6, 20, 4, 30);
+                ctx.fillStyle = '#FFD700'; 
+                ctx.beginPath(); ctx.arc(-8, 22, 2, 0, Math.PI*2); ctx.fill(); 
+                ctx.beginPath(); ctx.arc(8, 22, 2, 0, Math.PI*2); ctx.fill();
+
+                ctx.fillStyle = '#ffcc80'; 
+                ctx.beginPath(); ctx.ellipse(0, 10, 11, 13, 0, 0, Math.PI*2); ctx.fill();
+
+                ctx.fillStyle = '#5D4037'; 
+                ctx.beginPath(); ctx.arc(0, 12, 11, 0, Math.PI, false); ctx.fill(); 
+                ctx.fillRect(-6, 12, 12, 3);
+                ctx.fillStyle = '#000'; ctx.fillRect(-4, 8, 2, 2); ctx.fillRect(2, 8, 2, 2);
+
+                ctx.fillStyle = '#FFC107'; 
+                ctx.beginPath(); ctx.arc(0, 5, 12, Math.PI, 0); ctx.lineTo(16, 5); ctx.lineTo(-14, 5); ctx.fill();
+                
+                ctx.fillStyle = '#9E9E9E'; ctx.fillRect(-2, -8, 4, 6); 
+                ctx.fillStyle = '#FFF'; ctx.beginPath(); ctx.arc(0, -5, 3, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = 'rgba(255, 255, 200, 0.3)'; ctx.beginPath(); ctx.moveTo(0, -5); ctx.lineTo(-15, -30); ctx.lineTo(15, -30); ctx.fill();
+
+                ctx.save();
+                ctx.translate(-13, 22); 
+                ctx.rotate(this.armAngle); 
+                ctx.fillStyle = '#1565C0'; ctx.fillRect(-4, 0, 8, 22);
+                ctx.translate(0, 22);
+                ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.arc(0, 2, 6, 0, Math.PI*2); ctx.fill();
+                ctx.restore();
+
+                ctx.restore();
+            }
+        }
+
+        class Hook {
+            constructor() { this.x = 0; this.y = 80; this.angle = 0; this.angleSpeed = 0.025; this.length = 50; this.state = 'swing'; this.targetObj = null; }
+            update() {
+                if (this.state === 'swing') { this.angle += this.angleSpeed; if (this.angle > 1.3 || this.angle < -1.3) this.angleSpeed *= -1; }
+                else if (this.state === 'shoot') {
+                    this.length += gameState.hookSpeed * 2.5;
+                    if (this.length > canvas.height * 1.3 || this.x + Math.sin(this.angle) * this.length < 0 || this.x + Math.sin(this.angle) * this.length > canvas.width) this.state = 'pull';
+                    let tipX = this.x + Math.sin(this.angle) * this.length; let tipY = this.y + Math.cos(this.angle) * this.length;
+                    for (let obj of objects) { if (!obj.collected && Math.hypot(tipX - obj.x, tipY - obj.y) < obj.radius) { this.targetObj = obj; this.state = 'pull'; obj.caught = true; miner.mood = 'happy'; miner.waveTimer = 0; break; } }
+                } else if (this.state === 'pull') {
+                    let pullSpeed = gameState.hookSpeed;
+                    if (this.targetObj) {
+                        let weightFactor = this.targetObj.weight / gameState.hookPower;
+                        let speedMult = gameState.activeBoosters.strength ? 1.5 : 1.0;
+                        pullSpeed = Math.max(0.5, (gameState.hookSpeed * (15 / (weightFactor + 10))) * speedMult);
+                        this.targetObj.x = this.x + Math.sin(this.angle) * this.length; this.targetObj.y = this.y + Math.cos(this.angle) * this.length;
+                    } else { pullSpeed = gameState.hookSpeed * 4; }
+                    this.length -= pullSpeed;
+                    if (this.length <= 50) { this.length = 50; this.state = 'swing'; if (this.targetObj) { collectObject(this.targetObj); this.targetObj = null; } }
+                }
+            }
+            draw() {
+                ctx.save(); ctx.translate(this.x, this.y); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.sin(this.angle) * this.length, Math.cos(this.angle) * this.length); ctx.lineWidth = 2; ctx.strokeStyle = '#222'; ctx.stroke();
+                ctx.translate(Math.sin(this.angle) * this.length, Math.cos(this.angle) * this.length); ctx.rotate(-this.angle);
+                let currentSkin = skins.find(s => s.id === gameState.currentSkinId); ctx.strokeStyle = currentSkin.color; ctx.lineWidth = 5; ctx.lineCap = "round"; ctx.lineJoin = "round";
+                if (currentSkin.type === 'neon') { ctx.shadowBlur = 15; ctx.shadowColor = currentSkin.color; }
+                ctx.beginPath();
+                if (this.targetObj) { ctx.arc(0, 4, 8, 0, Math.PI * 2); ctx.stroke(); } else { ctx.arc(0, 0, 12, 0, Math.PI, false); ctx.stroke(); }
+                ctx.restore();
+            }
+        }
+
+        class MineObject {
+            constructor(type, x, y) {
+                this.type = type; this.x = x; this.y = y; this.caught = false; this.collected = false;
+                switch(type) {
+                    case 'gold': 
+                        this.radius = 15 + Math.random() * 20; 
+                        this.value = Math.floor(this.radius * 12); 
+                        this.weight = this.radius * 1.5; 
+                        break;
+                    case 'rock': 
+                        let sizeRoll = Math.random();
+                        if (sizeRoll < 0.4) { this.radius = 20 + Math.random() * 8; this.damage = 30; } 
+                        else if (sizeRoll < 0.8) { this.radius = 29 + Math.random() * 9; this.damage = 50; } 
+                        else { this.radius = 39 + Math.random() * 11; this.damage = 100; }
+                        this.value = Math.floor(this.radius * 0.5); 
+                        this.weight = this.radius * 3.5; 
+                        break;
+                    case 'diamond': 
+                        this.radius = 12; 
+                        this.value = 650; 
+                        this.weight = 5; 
+                        break;
+                }
+            }
+
+            draw() {
+                if (this.collected) return;
+                ctx.save();
+                ctx.translate(this.x, this.y);
+
+                if (this.type === 'rock') {
+                    ctx.fillStyle = '#7f8c8d';
+                    ctx.beginPath();
+                    ctx.moveTo(-this.radius, -this.radius/2);
+                    ctx.lineTo(0, -this.radius);
+                    ctx.lineTo(this.radius, -this.radius*0.7);
+                    ctx.lineTo(this.radius*0.8, this.radius*0.8);
+                    ctx.lineTo(-this.radius*0.6, this.radius);
+                    ctx.closePath();
+                    ctx.fill();
+                    
+                    ctx.strokeStyle = '#555';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath(); 
+                    ctx.moveTo(-this.radius * 0.3, 0); 
+                    ctx.lineTo(this.radius * 0.2, this.radius * 0.2); 
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(0, -this.radius * 0.4);
+                    ctx.lineTo(this.radius * 0.1, -this.radius * 0.1);
+                    ctx.stroke();
+
+                } else if (this.type === 'gold') {
+                    let s = this.radius * 0.8;
+                    ctx.fillStyle = '#B8860B';
+                    ctx.beginPath();
+                    ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2); 
+                    ctx.lineTo(s*0.8, s); ctx.lineTo(-s*0.8, s);
+                    ctx.fill();
+
+                    ctx.fillStyle = '#FFD700';
+                    ctx.beginPath();
+                    ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2); 
+                    ctx.lineTo(s*0.7, -s); ctx.lineTo(-s*0.7, -s);
+                    ctx.fill();
+
+                    ctx.fillStyle = '#DAA520';
+                    ctx.beginPath();
+                    ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2);
+                    ctx.lineTo(s*0.8, s); ctx.lineTo(-s*0.8, s);
+                    ctx.fill();
+
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                    ctx.beginPath(); 
+                    ctx.moveTo(-s+2, -s/2+2); ctx.lineTo(0, s-2); ctx.lineTo(2, s-2); ctx.lineTo(-s+5, -s/2+2); 
+                    ctx.fill();
+
+                } else if (this.type === 'diamond') {
+                    ctx.fillStyle = '#00FFFF';
+                    ctx.beginPath();
+                    ctx.moveTo(0, -this.radius);
+                    ctx.lineTo(this.radius, 0);
+                    ctx.lineTo(0, this.radius);
+                    ctx.lineTo(-this.radius, 0);
+                    ctx.fill();
+                    
+                    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+                    ctx.beginPath(); 
+                    ctx.moveTo(0, -this.radius/2); 
+                    ctx.lineTo(this.radius/2, 0); 
+                    ctx.lineTo(0, this.radius/2); 
+                    ctx.lineTo(-this.radius/2, 0); 
+                    ctx.fill();
+                    
+                    ctx.shadowBlur = 10; 
+                    ctx.shadowColor = '#00FFFF';
+                }
+                ctx.restore();
+            }
+        }
+
         // --- SISTEM ---
         function saveGame() {
             try { localStorage.setItem('goldMinerSave_v6', JSON.stringify(gameState)); } catch(e) { console.warn("Save hatası:", e); }
@@ -572,155 +816,6 @@
             }
             obj.collected = true;
             updateUI(); saveGame(); checkEnd();
-        }
-
-        function getSkinDurability(skinId) { const s = skins.find(x => x.id === skinId); return s ? s.durability : 100; }
-        function getHookSVG(type, color) { 
-            let path = ""; let filter = "";
-            if (type === 'basic' || type === 'fancy') path = `<path d="M15 10 L15 35 C15 45 35 45 35 35 L35 10" stroke="${color}" stroke-width="6" fill="none" stroke-linecap="round"/><circle cx="25" cy="8" r="4" fill="${color}"/>`;
-            else if (type === 'sharp') path = `<path d="M10 10 L25 40 L40 10" stroke="${color}" stroke-width="5" fill="none" stroke-linejoin="miter"/><circle cx="25" cy="40" r="3" fill="#fff"/>`;
-            else if (type === 'neon') { path = `<path d="M15 15 L15 35 L25 40 L35 35 L35 15" stroke="${color}" stroke-width="4" fill="none"/><path d="M10 20 L40 20" stroke="${color}" stroke-width="2"/>`; filter = `filter: drop-shadow(0 0 5px ${color});`; }
-            return `<svg viewBox="0 0 50 50" style="${filter}">${path}</svg>`;
-        }
-        
-        class Miner {
-            constructor() {
-                this.x = 0; 
-                this.y = 45; 
-                this.armAngle = 0; 
-                this.waveSpeed = 0.1; 
-                this.mood = 'normal'; 
-                this.waveTimer = 0;
-                this.image = new Image();
-                this.imageLoaded = false;
-
-                if(CUSTOM_MINER_IMAGE_URL && CUSTOM_MINER_IMAGE_URL.trim() !== '') {
-                    this.image.src = CUSTOM_MINER_IMAGE_URL;
-                    this.image.onload = () => { this.imageLoaded = true; };
-                    this.image.onerror = () => { this.imageLoaded = false; };
-                }
-            }
-
-            update() { 
-                this.waveTimer += this.waveSpeed; 
-                if (this.mood === 'happy') { 
-                    this.armAngle = Math.sin(this.waveTimer * 3) * 0.5 - 2.5; 
-                    if (this.waveTimer > 10) this.mood = 'normal'; 
-                } else { 
-                    if (Math.sin(this.waveTimer * 0.05) > 0.8) this.armAngle = Math.sin(this.waveTimer) * 0.3 - 2.5; 
-                    else this.armAngle = -2.5; 
-                } 
-            }
-
-            draw() { 
-                if (this.imageLoaded && this.image.complete && this.image.naturalWidth !== 0) { 
-                    ctx.save(); 
-                    ctx.translate(this.x, this.y); 
-                    ctx.scale(-1, 1); // SAĞA KOYDUĞUMUZ İÇİN YÖNÜNÜ ÇEVİRDİK
-                    ctx.drawImage(this.image, -35, 0, 70, 90); 
-                    ctx.restore(); 
-                } else { 
-                    this.drawDefaultMiner(); 
-                }
-            }
-
-            drawDefaultMiner() {
-                ctx.save();
-                ctx.translate(this.x, this.y);
-                ctx.scale(-1, 1); // FLIP
-
-                // Sağ Kol
-                ctx.save();
-                ctx.translate(14, 25);
-                ctx.rotate(0.5);
-                ctx.fillStyle = '#1565C0'; ctx.fillRect(-4, 0, 8, 20);
-                ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.arc(0, 20, 5, 0, Math.PI*2); ctx.fill();
-                ctx.restore();
-
-                // Bacaklar
-                ctx.fillStyle = '#0D47A1'; 
-                ctx.fillRect(-8, 45, 10, 25); 
-                ctx.fillRect(8, 45, 10, 25);  
-                
-                // Ayakkabılar
-                ctx.fillStyle = '#3E2723';
-                ctx.fillRect(-10, 68, 14, 6);
-                ctx.fillRect(6, 68, 14, 6);
-
-                // Gövde
-                ctx.fillStyle = '#1565C0'; 
-                ctx.beginPath();
-                if(ctx.roundRect) ctx.roundRect(-15, 20, 30, 30, 5);
-                else ctx.rect(-15, 20, 30, 30);
-                ctx.fill();
-                
-                ctx.fillStyle = '#1976D2'; ctx.fillRect(-8, 30, 16, 12);
-                ctx.fillStyle = '#333'; ctx.fillRect(-10, 20, 4, 30); ctx.fillRect(6, 20, 4, 30);
-                ctx.fillStyle = '#FFD700'; 
-                ctx.beginPath(); ctx.arc(-8, 22, 2, 0, Math.PI*2); ctx.fill(); 
-                ctx.beginPath(); ctx.arc(8, 22, 2, 0, Math.PI*2); ctx.fill();
-
-                // Kafa
-                ctx.fillStyle = '#ffcc80'; 
-                ctx.beginPath(); ctx.ellipse(0, 10, 11, 13, 0, 0, Math.PI*2); ctx.fill();
-
-                // Sakal
-                ctx.fillStyle = '#5D4037'; 
-                ctx.beginPath(); ctx.arc(0, 12, 11, 0, Math.PI, false); ctx.fill(); 
-                ctx.fillRect(-6, 12, 12, 3);
-                ctx.fillStyle = '#000'; ctx.fillRect(-4, 8, 2, 2); ctx.fillRect(2, 8, 2, 2);
-
-                // Baret
-                ctx.fillStyle = '#FFC107'; 
-                ctx.beginPath(); ctx.arc(0, 5, 12, Math.PI, 0); ctx.lineTo(16, 5); ctx.lineTo(-14, 5); ctx.fill();
-                
-                ctx.fillStyle = '#9E9E9E'; ctx.fillRect(-2, -8, 4, 6); 
-                ctx.fillStyle = '#FFF'; ctx.beginPath(); ctx.arc(0, -5, 3, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = 'rgba(255, 255, 200, 0.3)'; ctx.beginPath(); ctx.moveTo(0, -5); ctx.lineTo(-15, -30); ctx.lineTo(15, -30); ctx.fill();
-
-                // Sol Kol
-                ctx.save();
-                ctx.translate(-13, 22); 
-                ctx.rotate(this.armAngle); 
-                ctx.fillStyle = '#1565C0'; ctx.fillRect(-4, 0, 8, 22);
-                ctx.translate(0, 22);
-                ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.arc(0, 2, 6, 0, Math.PI*2); ctx.fill();
-                ctx.restore();
-
-                ctx.restore();
-            }
-        }
-
-        class Hook {
-            constructor() { this.x = 0; this.y = 80; this.angle = 0; this.angleSpeed = 0.025; this.length = 50; this.state = 'swing'; this.targetObj = null; }
-            update() {
-                if (this.state === 'swing') { this.angle += this.angleSpeed; if (this.angle > 1.3 || this.angle < -1.3) this.angleSpeed *= -1; }
-                else if (this.state === 'shoot') {
-                    this.length += gameState.hookSpeed * 2.5;
-                    if (this.length > canvas.height * 1.3 || this.x + Math.sin(this.angle) * this.length < 0 || this.x + Math.sin(this.angle) * this.length > canvas.width) this.state = 'pull';
-                    let tipX = this.x + Math.sin(this.angle) * this.length; let tipY = this.y + Math.cos(this.angle) * this.length;
-                    for (let obj of objects) { if (!obj.collected && Math.hypot(tipX - obj.x, tipY - obj.y) < obj.radius) { this.targetObj = obj; this.state = 'pull'; obj.caught = true; miner.mood = 'happy'; miner.waveTimer = 0; break; } }
-                } else if (this.state === 'pull') {
-                    let pullSpeed = gameState.hookSpeed;
-                    if (this.targetObj) {
-                        let weightFactor = this.targetObj.weight / gameState.hookPower;
-                        let speedMult = gameState.activeBoosters.strength ? 1.5 : 1.0;
-                        pullSpeed = Math.max(0.5, (gameState.hookSpeed * (15 / (weightFactor + 10))) * speedMult);
-                        this.targetObj.x = this.x + Math.sin(this.angle) * this.length; this.targetObj.y = this.y + Math.cos(this.angle) * this.length;
-                    } else { pullSpeed = gameState.hookSpeed * 4; }
-                    this.length -= pullSpeed;
-                    if (this.length <= 50) { this.length = 50; this.state = 'swing'; if (this.targetObj) { collectObject(this.targetObj); this.targetObj = null; } }
-                }
-            }
-            draw() {
-                ctx.save(); ctx.translate(this.x, this.y); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.sin(this.angle) * this.length, Math.cos(this.angle) * this.length); ctx.lineWidth = 2; ctx.strokeStyle = '#222'; ctx.stroke();
-                ctx.translate(Math.sin(this.angle) * this.length, Math.cos(this.angle) * this.length); ctx.rotate(-this.angle);
-                let currentSkin = skins.find(s => s.id === gameState.currentSkinId); ctx.strokeStyle = currentSkin.color; ctx.lineWidth = 5; ctx.lineCap = "round"; ctx.lineJoin = "round";
-                if (currentSkin.type === 'neon') { ctx.shadowBlur = 15; ctx.shadowColor = currentSkin.color; }
-                ctx.beginPath();
-                if (this.targetObj) { ctx.arc(0, 4, 8, 0, Math.PI * 2); ctx.stroke(); } else { ctx.arc(0, 0, 12, 0, Math.PI, false); ctx.stroke(); }
-                ctx.restore();
-            }
         }
 
         function showMessage(text, color) {
