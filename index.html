@@ -426,6 +426,7 @@
         let particles = [];
         let miner = null;
         let hook = null;
+        let mole = null; // FARE TANIMLANDI
         let gameLoopRunning = false;
         
         const CUSTOM_MINER_IMAGE_URL = 'image_cd5845.jpg'; 
@@ -506,6 +507,87 @@
             }
         }
 
+        // --- FARE SINIFI ---
+        class Mole {
+            constructor() {
+                this.active = false;
+                this.caught = false;
+                this.collected = false;
+                this.width = 40;
+                this.height = 30;
+                this.y = 0;
+                this.x = 0;
+                this.speed = 2; // Koşma hızı
+                this.direction = 1; // 1: Sağ, -1: Sol
+                this.weight = 5; // Hafif
+                this.value = 800; // Çok değerli
+                this.type = 'mole';
+                this.radius = 20; // Çarpışma için
+            }
+
+            spawn() {
+                this.active = true;
+                this.caught = false;
+                this.collected = false;
+                this.direction = Math.random() < 0.5 ? 1 : -1;
+                this.y = 180 + Math.random() * (canvas.height - 250); // Maden alanında rastgele Y
+                this.speed = 1.5 + (gameState.level * 0.1); // Seviyeye göre hızlan
+
+                if (this.direction === 1) {
+                    this.x = -50; // Soldan başla
+                } else {
+                    this.x = canvas.width + 50; // Sağdan başla
+                }
+            }
+
+            update() {
+                if (!this.active || this.caught) return;
+                
+                this.x += this.speed * this.direction;
+
+                // Ekrandan çıktı mı?
+                if ((this.direction === 1 && this.x > canvas.width + 50) || 
+                    (this.direction === -1 && this.x < -50)) {
+                    this.active = false; 
+                }
+            }
+
+            draw() {
+                if (!this.active || this.collected) return;
+                
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                if (this.direction === -1) ctx.scale(-1, 1); // Sola gidiyorsa çevir
+
+                // Gövde
+                ctx.fillStyle = '#795548'; // Kahverengi
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 20, 15, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Kafa
+                ctx.beginPath();
+                ctx.arc(15, -5, 10, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Göz
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(18, -8, 2, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Elmas (Elinde)
+                ctx.fillStyle = '#00FFFF';
+                ctx.beginPath();
+                ctx.moveTo(15, 5);
+                ctx.lineTo(25, 5);
+                ctx.lineTo(20, 15);
+                ctx.fill();
+                
+                ctx.restore();
+            }
+        }
+
         class Hook {
             constructor() { 
                 this.x = 0; 
@@ -522,6 +604,17 @@
                     this.length += gameState.hookSpeed * 2.0; 
                     if (this.length > canvas.height * 1.3 || this.x + Math.sin(this.angle) * this.length < 0 || this.x + Math.sin(this.angle) * this.length > canvas.width) this.state = 'pull';
                     let tipX = this.x + Math.sin(this.angle) * this.length; let tipY = this.y + Math.cos(this.angle) * this.length;
+                    
+                    // Önce Fare Kontrolü (Hareketli olduğu için)
+                    if (mole.active && !mole.caught && Math.hypot(tipX - mole.x, tipY - mole.y) < 30) {
+                        this.targetObj = mole;
+                        this.state = 'pull';
+                        mole.caught = true;
+                        miner.mood = 'happy';
+                        miner.waveTimer = 0;
+                        return; // Fareyi yakaladıysan taşlara bakma
+                    }
+
                     for (let obj of objects) { if (!obj.collected && Math.hypot(tipX - obj.x, tipY - obj.y) < obj.radius) { this.targetObj = obj; this.state = 'pull'; obj.caught = true; miner.mood = 'happy'; miner.waveTimer = 0; break; } }
                 } else if (this.state === 'pull') {
                     let pullSpeed = gameState.hookSpeed;
@@ -646,6 +739,7 @@
         // --- GLOBAL DEĞİŞKENLER ---
         hook = new Hook(); 
         miner = new Miner();
+        mole = new Mole(); // FARE OLUŞTURULDU
 
         // --- KAYIT & SİSTEM FONKSİYONLARI ---
         function saveGame() {
@@ -704,6 +798,7 @@
             objects = [];
             particles = [];
             hook.state = 'swing'; hook.targetObj = null; hook.length = 50;
+            mole.active = false; // Farek reset
             
             let durability = getSkinDurability(gameState.currentSkinId);
             sessionState.currentHealth = durability;
@@ -713,8 +808,6 @@
             sessionState.inMenu = false;
             
             gameState.levelScore = 0;
-            
-            // HEDEF DENGESİ: Daha doğrusal artış (250 * level)
             gameState.levelTarget = 400 + (lvl * 250); 
             
             updateUI();
@@ -763,13 +856,9 @@
                     loseLevel("Kanca parçalandı! Çok büyük bir taşa çarptın.");
                 }
             } else {
-                // ESNEK DEPO KONTROLÜ
                 if (sessionState.storage >= gameState.maxStorage) {
-                    // Depo doluysa ve yeni bir şey almaya çalışıyorsa uyarı ver
-                    // Ama checkEnd ile belki de kazanmıştır diye kontrol et
                     showMessage("DEPO TAMAMEN DOLU!", "red");
-                    checkEnd(); 
-                    return; 
+                    checkEnd(); return; 
                 }
                 
                 let val = obj.value;
@@ -777,11 +866,17 @@
                     val = Math.floor(val * 1.5);
                     showMessage("Cila Bonusu!", "#00FFFF");
                 }
+                if (obj.type === 'mole') {
+                     showMessage("FARE YAKALANDI!", "#00FFFF");
+                     mole.active = false;
+                     mole.caught = false;
+                } else {
+                     showMessage(`+$${val}`, "#ffd700");
+                }
 
                 gameState.money += val;
                 gameState.levelScore += val;
                 sessionState.storage += obj.weight;
-                showMessage(`+$${val}`, "#ffd700");
             }
             obj.collected = true;
             updateUI(); saveGame(); checkEnd();
@@ -789,29 +884,20 @@
 
         function checkEnd() {
             if (sessionState.levelEnding) return;
-
-            // KAZANMA KOŞULU 1: Hedef puana ulaşıldı
-            if (gameState.levelScore >= gameState.levelTarget) {
-                winLevel();
-                return;
-            }
-            
+            if (gameState.levelScore >= gameState.levelTarget) { winLevel(); return; }
             if (sessionState.currentHealth <= 0) return;
-
+            
             let remainingCapacity = gameState.maxStorage - sessionState.storage;
             let valuableExists = objects.some(o => !o.collected && o.type !== 'rock');
             let minWeight = Infinity;
             objects.forEach(o => { if(!o.collected && o.type!=='rock') minWeight = Math.min(minWeight, o.weight); });
 
-            // KAYBETME / KAZANMA KONTROLÜ
             if (gameState.levelScore < gameState.levelTarget) {
-                if (!valuableExists) {
+                if (!valuableExists && !mole.active) { // Fare de yoksa
                     loseLevel("Maden tükendi.");
                 } 
                 else if (sessionState.storage >= gameState.maxStorage) {
-                    // KAZANMA KOŞULU 2 (KULLANICI İSTEĞİ): Depo doldu, madenci görevini yaptı.
-                    // Depo dolduğu için bölümü başarılı sayıyoruz.
-                    winLevel("Depo Doldu! (Başarılı)");
+                    loseLevel("Depo doldu.");
                 }
             }
         }
@@ -820,10 +906,7 @@
             sessionState.levelEnding = true;
             gameState.activeBoosters = { dynamite: false, strength: false, polish: false };
             saveGame();
-            
-            // Eğer özel bir mesaj varsa (Depo Doldu gibi)
             if(msg) showMessage(msg, "#4CAF50");
-
             setTimeout(() => openShop(false), 1500);
         }
 
@@ -1078,7 +1161,17 @@
             ctx.fillStyle = '#87CEEB'; ctx.fillRect(0, 0, canvas.width, 110);
             ctx.fillStyle = '#5D4037'; ctx.fillRect(0, 110, canvas.width, canvas.height);
             ctx.fillStyle = '#333'; ctx.fillRect(canvas.width/2 - 25, 50, 50, 60); 
-            miner.update(); miner.draw();
+            
+            miner.update(); 
+            miner.draw();
+
+            // Fare Mantığı
+            if (!mole.active && !mole.caught && Math.random() < 0.001) { // Binde bir ihtimalle doğ
+                mole.spawn();
+            }
+            mole.update();
+            mole.draw();
+
             objects.forEach(o => o.draw());
             
             for(let i = particles.length - 1; i >= 0; i--) {
