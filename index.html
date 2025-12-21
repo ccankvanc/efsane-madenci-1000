@@ -143,10 +143,10 @@
             border-radius: 15px; border: 3px solid #ffd700; width: 95%; max-width: 500px;
             max-height: 75vh; overflow-y: auto;
         }
-        .shop-tabs { display: flex; justify-content: center; gap: 5px; margin-bottom: 10px; }
+        .shop-tabs { display: flex; justify-content: center; gap: 5px; margin-bottom: 10px; flex-wrap: wrap; }
         .tab-btn {
-            background: #455a64; padding: 8px 5px; font-size: 12px; border-bottom: 3px solid #263238;
-            margin: 0; flex: 1; color: #fff; border: none; cursor: pointer; border-radius: 5px 5px 0 0;
+            background: #455a64; padding: 8px 10px; font-size: 11px; border-bottom: 3px solid #263238;
+            margin: 0; flex: 1; color: #fff; border: none; cursor: pointer; border-radius: 5px 5px 0 0; min-width: 60px;
         }
         .tab-btn.active { background: #ffd700; color: #333; border-bottom: 3px solid #f57f17; }
         .shop-section { display: none; width: 100%; }
@@ -171,6 +171,18 @@
         }
         .buy-btn:disabled { background: #555; border-bottom: 3px solid #333; color: #999; cursor: not-allowed; }
         .buy-btn.equipped { background: #4caf50; border-bottom: 3px solid #2e7d32; pointer-events: none; }
+
+        /* Nasıl Oynanır */
+        #tutorial-screen { text-align: left; }
+        .tutorial-content {
+            background: #3e2723; padding: 20px; border-radius: 15px; border: 2px solid #8d6e63;
+            width: 90%; max-width: 500px; max-height: 70vh; overflow-y: auto; color: #fff;
+        }
+        .tut-item { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+        .tut-icon { width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; }
+        .tut-icon svg { width: 100%; height: 100%; }
+        .tut-text h3 { margin: 0 0 5px 0; color: #ffd700; font-size: 16px; }
+        .tut-text p { margin: 0; font-size: 13px; color: #ccc; text-align: left; max-width: 100%; }
 
         #messages {
             position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
@@ -261,9 +273,65 @@
             <div class="menu-logo">⛏️💎</div>
             <h1>EFSANE MADENCİ</h1>
             <p style="color:#ffd700; font-weight:bold;">DELUXE EDITION</p>
-            <button id="play-btn" class="main-btn">OYNA</button>
-            <button id="main-market-btn" class="secondary-btn" style="background:#0288d1; border-bottom-color:#01579b;">MARKET</button>
-            <button id="main-reset-btn" class="secondary-btn" style="background:#555; font-size:12px; margin-top:20px;">İlerlemeyi Sıfırla</button>
+            <div style="display:flex; gap:10px; flex-direction:column; width:200px;">
+                <button id="play-btn" class="main-btn" style="margin-top:0;">OYNA</button>
+                <button id="main-market-btn" class="secondary-btn" style="background:#0288d1; border-bottom-color:#01579b;">MARKET & KOSTÜM</button>
+                <button id="tutorial-btn" class="secondary-btn" style="background:#7b1fa2; border-bottom-color:#4a148c;">NASIL OYNANIR?</button>
+            </div>
+            <button id="main-reset-btn" class="secondary-btn" style="background:#555; font-size:10px; margin-top:20px; padding:5px 15px;">İlerlemeyi Sıfırla</button>
+        </div>
+
+        <!-- Nasıl Oynanır Ekranı -->
+        <div id="tutorial-screen" class="overlay hidden">
+            <h2 style="color:#ffd700">NASIL OYNANIR?</h2>
+            <div class="tutorial-content">
+                <div class="tut-item">
+                    <div class="tut-icon">
+                        <svg viewBox="0 0 50 50"><path d="M15 10 L15 35 C15 45 35 45 35 35 L35 10" stroke="#ffd700" stroke-width="4" fill="none" stroke-linecap="round"/></svg>
+                    </div>
+                    <div class="tut-text">
+                        <h3>Kancayı Fırlat</h3>
+                        <p>Ekrana dokunarak veya tıklayarak sallanan kancayı fırlat. Altınları ve elmasları hedefle.</p>
+                    </div>
+                </div>
+                <div class="tut-item">
+                    <div class="tut-icon">
+                        <svg viewBox="0 0 50 50"><path d="M10 20 L20 10 L40 15 L45 35 L25 45 L5 35 Z" fill="#7f8c8d" stroke="#555" stroke-width="2"/></svg>
+                    </div>
+                    <div class="tut-text">
+                        <h3>Taşlardan Kaçın!</h3>
+                        <p>Taşlar değersizdir ve kancanın <b>canını azaltır</b>. Çok büyük taşlar kancanı kırabilir!</p>
+                    </div>
+                </div>
+                <div class="tut-item">
+                    <div class="tut-icon">
+                        <svg viewBox="0 0 50 50"><text x="10" y="35" font-size="30">🧨</text></svg>
+                    </div>
+                    <div class="tut-text">
+                        <h3>Dinamit Kullan</h3>
+                        <p>Eğer "Dinamit" aldıysan, oyun sırasında <b>taşa dokunarak</b> onu patlatabilirsin.</p>
+                    </div>
+                </div>
+                <div class="tut-item">
+                    <div class="tut-icon">
+                        <svg viewBox="0 0 50 50"><text x="10" y="35" font-size="30">🐭</text></svg>
+                    </div>
+                    <div class="tut-text">
+                        <h3>Fareyi Yakala</h3>
+                        <p>Elmas taşıyan fareyi yakalarsan ekstra yüksek puan kazanırsın.</p>
+                    </div>
+                </div>
+                <div class="tut-item">
+                    <div class="tut-icon">
+                         <svg viewBox="0 0 50 50"><text x="10" y="35" font-size="30">🎒</text></svg>
+                    </div>
+                    <div class="tut-text">
+                        <h3>Depo Yönetimi</h3>
+                        <p>Depon dolarsa bölümü geçemeyebilirsin. Marketten depo kapasitesini artır.</p>
+                    </div>
+                </div>
+            </div>
+            <button id="close-tutorial-btn" class="main-btn" style="margin-top:15px;">ANLADIM</button>
         </div>
 
         <!-- Seviye Başlangıç / Bilgi Ekranı -->
@@ -304,7 +372,9 @@
                     <button class="tab-btn active" onclick="switchTab('upgrades')">GÜÇLENDİR</button>
                     <button class="tab-btn" onclick="switchTab('boosters')">DESTEK</button>
                     <button class="tab-btn" onclick="switchTab('skins')">KANCA</button>
+                    <button class="tab-btn" onclick="switchTab('miner_skins')">KOSTÜM</button>
                 </div>
+                <!-- Güçlendirmeler -->
                 <div id="tab-upgrades" class="shop-section active">
                     <div class="upgrade-grid">
                         <div class="item-card">
@@ -323,6 +393,7 @@
                         </div>
                     </div>
                 </div>
+                <!-- Boosters -->
                 <div id="tab-boosters" class="shop-section">
                     <div class="upgrade-grid">
                         <div class="item-card">
@@ -348,8 +419,13 @@
                         </div>
                     </div>
                 </div>
+                <!-- Kanca Skinler -->
                 <div id="tab-skins" class="shop-section">
                     <div class="upgrade-grid" id="skin-grid"></div>
+                </div>
+                <!-- Madenci Kostümleri -->
+                <div id="tab-miner_skins" class="shop-section">
+                    <div class="upgrade-grid" id="miner-skin-grid"></div>
                 </div>
             </div>
             <button id="next-level-btn" class="main-btn" style="background: #4caf50; border-bottom-color: #2e7d32;">SONRAKİ SEVİYE >></button>
@@ -384,12 +460,14 @@
             pricePower: document.getElementById('price-power'),
             priceStorage: document.getElementById('price-storage'),
             skinGrid: document.getElementById('skin-grid'),
+            minerSkinGrid: document.getElementById('miner-skin-grid'),
             pauseScreen: document.getElementById('pause-screen'),
             mapScreen: document.getElementById('map-screen'),
             mapContent: document.getElementById('map-content'),
             shopScreen: document.getElementById('shop-screen'),
             mainMenu: document.getElementById('main-menu'),
             startScreen: document.getElementById('start-screen'),
+            tutorialScreen: document.getElementById('tutorial-screen'),
             activeBoosters: document.getElementById('active-boosters'),
             preBoostersInfo: document.getElementById('pre-boosters-info'),
             dynamiteHint: document.getElementById('dynamite-hint'),
@@ -398,19 +476,33 @@
             pricePolish: document.getElementById('price-polish')
         };
 
-        const skins = [
+        const hookSkins = [
             { id: 'default', name: 'Paslı Kanca', price: 0, color: '#555', type: 'basic', durability: 100 },
-            { id: 'golden', name: 'Altın Kanca', price: 800, color: '#FFD700', type: 'fancy', durability: 180 },
-            { id: 'diamond', name: 'Elmas Uçlu', price: 2000, color: '#00FFFF', type: 'sharp', durability: 300 },
-            { id: 'laser', name: 'Lazer Kıskaç', price: 5000, color: '#FF0055', type: 'neon', durability: 600 }
+            { id: 'golden', name: 'Altın Kanca', price: 1500, color: '#FFD700', type: 'fancy', durability: 200 },
+            { id: 'diamond', name: 'Elmas Uçlu', price: 3500, color: '#00FFFF', type: 'sharp', durability: 350 },
+            { id: 'laser', name: 'Lazer Kıskaç', price: 8000, color: '#FF0055', type: 'neon', durability: 600 },
+            { id: 'plasma', name: 'Plazma Kanca', price: 15000, color: '#76ff03', type: 'neon', durability: 1000 },
+            { id: 'void', name: 'Kara Delik', price: 1000000, color: '#e040fb', type: 'neon', durability: 2000, special: 'blackhole' }
+        ];
+
+        const minerSkins = [
+            { id: 'default', name: 'Klasik', price: 0, shirt: '#1565C0', hat: '#FFC107', pants: '#0D47A1' },
+            { id: 'business', name: 'İş Adamı', price: 5000, shirt: '#212121', hat: '#424242', pants: '#000000' },
+            { id: 'ninja', name: 'Ninja', price: 8000, shirt: '#1a237e', hat: '#000000', pants: '#1a237e' },
+            { id: 'santa', name: 'Noel Baba', price: 10000, shirt: '#d32f2f', hat: '#ff5252', pants: '#d32f2f' },
+            { id: 'alien', name: 'Marslı', price: 15000, shirt: '#4caf50', hat: '#76ff03', pants: '#2e7d32' },
+            { id: 'golden_boy', name: 'Bay Altın', price: 50000, shirt: '#FFD700', hat: '#FFECB3', pants: '#FFD700' }
         ];
 
         const defaultState = {
             level: 1, money: 0, levelScore: 0, levelTarget: 500, maxStorage: 100,
-            hookSpeed: 2, hookPower: 1, currentSkinId: 'default', unlockedSkins: ['default'], 
+            hookSpeed: 2, hookPower: 1, 
+            currentSkinId: 'default', unlockedSkins: ['default'],
+            currentMinerSkinId: 'default', unlockedMinerSkins: ['default'],
             prices: { power: 100, storage: 150 },
             activeBoosters: { dynamite: false, strength: false, polish: false },
-            levelMoneyStart: 0 
+            levelMoneyStart: 0,
+            tutorialSeen: false
         };
 
         let gameState = JSON.parse(JSON.stringify(defaultState));
@@ -426,13 +518,13 @@
         let particles = [];
         let miner = null;
         let hook = null;
-        let mole = null; // FARE TANIMLANDI
+        let mole = null;
         let gameLoopRunning = false;
         
         const CUSTOM_MINER_IMAGE_URL = 'image_cd5845.jpg'; 
 
         // --- YARDIMCI FONKSİYONLAR ---
-        function getSkinDurability(skinId) { const s = skins.find(x => x.id === skinId); return s ? s.durability : 100; }
+        function getSkinDurability(skinId) { const s = hookSkins.find(x => x.id === skinId); return s ? s.durability : 100; }
         
         function getHookSVG(type, color) { 
             let path = ""; let filter = "";
@@ -440,6 +532,15 @@
             else if (type === 'sharp') path = `<path d="M10 10 L25 40 L40 10" stroke="${color}" stroke-width="5" fill="none" stroke-linejoin="miter"/><circle cx="25" cy="40" r="3" fill="#fff"/>`;
             else if (type === 'neon') { path = `<path d="M15 15 L15 35 L25 40 L35 35 L35 15" stroke="${color}" stroke-width="4" fill="none"/><path d="M10 20 L40 20" stroke="${color}" stroke-width="2"/>`; filter = `filter: drop-shadow(0 0 5px ${color});`; }
             return `<svg viewBox="0 0 50 50" style="${filter}">${path}</svg>`;
+        }
+
+        // Madenci ikonu için (Market)
+        function getMinerSVG(shirt, hat) {
+            return `<svg viewBox="0 0 50 50">
+                <rect x="15" y="20" width="20" height="20" fill="${shirt}" rx="5"/>
+                <circle cx="25" cy="15" r="8" fill="#ffcc80"/>
+                <path d="M15 10 Q25 5 35 10" stroke="${hat}" stroke-width="8" fill="none"/>
+            </svg>`;
         }
 
         function resize() {
@@ -456,13 +557,57 @@
             setTimeout(() => { ui.messages.style.opacity = 0; ui.messages.style.transform = "translate(-50%, -50%) scale(1)"; }, 800);
         }
 
+        function activateBlackHole(centerX, centerY) {
+            // Görsel Efekt: Kara Delik
+            for(let i=0; i<30; i++) {
+                particles.push({
+                    x: centerX + (Math.random()-0.5)*300, 
+                    y: centerY + (Math.random()-0.5)*300, 
+                    vx: (centerX - (centerX + (Math.random()-0.5)*300)) * 0.05,
+                    vy: (centerY - (centerY + (Math.random()-0.5)*300)) * 0.05,
+                    life: 2.0, color: '#e040fb'
+                });
+            }
+
+            // Logic: Etraftaki her şeyi çek
+            objects.forEach((obj, index) => {
+                if (obj.collected) return;
+                
+                let dist = Math.hypot(obj.x - centerX, obj.y - centerY);
+                if (dist < 200) { // 200px yarıçap
+                    obj.collected = true; // Hepsini topla
+                    
+                    if (obj.type === 'rock') {
+                        // Taşları yok et
+                        createExplosion(obj.x, obj.y);
+                    } else {
+                        // Altın/Elmas/Fare topla
+                        // Kara delik nesneleri sıkıştırır, ağırlık yok sayılır (0.1)
+                        let val = obj.value;
+                        if (obj.type === 'diamond' && gameState.activeBoosters.polish) val = Math.floor(val * 1.5);
+                        
+                        gameState.money += val;
+                        gameState.levelScore += val;
+                        sessionState.storage += 0.1; // Çok az ağırlık
+                        
+                        // Uçuşan skor efekti (basitçe toplanmış gibi gösteriyoruz)
+                        createExplosion(obj.x, obj.y); // Görsel efekt
+                    }
+                }
+            });
+            showMessage("KARA DELİK!", "#e040fb");
+            updateUI();
+        }
+
+
         // --- SINIFLAR ---
         class Miner {
             constructor() {
                 this.x = 0; this.y = 45; this.armAngle = 0; this.waveSpeed = 0.1; 
                 this.mood = 'normal'; this.waveTimer = 0; this.image = new Image(); 
                 this.imageLoaded = false;
-
+                
+                // Harici resim varsa onu kullan, yoksa procedural çizim yap
                 if(CUSTOM_MINER_IMAGE_URL && CUSTOM_MINER_IMAGE_URL.trim() !== '') {
                     this.image.src = CUSTOM_MINER_IMAGE_URL;
                     this.image.onload = () => { this.imageLoaded = true; };
@@ -482,6 +627,7 @@
             }
 
             draw() { 
+                // Eğer harici resim varsa onu çiz
                 if (this.imageLoaded && this.image.complete && this.image.naturalWidth !== 0) { 
                     ctx.save(); ctx.translate(this.x, this.y); ctx.scale(-1, 1); 
                     ctx.drawImage(this.image, -35, 0, 70, 90); ctx.restore(); 
@@ -491,98 +637,34 @@
             }
 
             drawDefaultMiner() {
+                // Seçili kostüm renklerini al
+                const skin = minerSkins.find(s => s.id === gameState.currentMinerSkinId) || minerSkins[0];
+                
                 ctx.save(); ctx.translate(this.x, this.y); ctx.scale(-1, 1); 
-                ctx.save(); ctx.translate(14, 25); ctx.rotate(0.5); ctx.fillStyle = '#1565C0'; ctx.fillRect(-4, 0, 8, 20); ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.arc(0, 20, 5, 0, Math.PI*2); ctx.fill(); ctx.restore();
-                ctx.fillStyle = '#0D47A1'; ctx.fillRect(-8, 45, 10, 25); ctx.fillRect(8, 45, 10, 25);  
-                ctx.fillStyle = '#3E2723'; ctx.fillRect(-10, 68, 14, 6); ctx.fillRect(6, 68, 14, 6);
-                ctx.fillStyle = '#1565C0'; ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(-15, 20, 30, 30, 5); else ctx.rect(-15, 20, 30, 30); ctx.fill();
-                ctx.fillStyle = '#1976D2'; ctx.fillRect(-8, 30, 16, 12); ctx.fillStyle = '#333'; ctx.fillRect(-10, 20, 4, 30); ctx.fillRect(6, 20, 4, 30); ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.arc(-8, 22, 2, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(8, 22, 2, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.ellipse(0, 10, 11, 13, 0, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = '#5D4037'; ctx.beginPath(); ctx.arc(0, 12, 11, 0, Math.PI, false); ctx.fill(); ctx.fillRect(-6, 12, 12, 3); ctx.fillStyle = '#000'; ctx.fillRect(-4, 8, 2, 2); ctx.fillRect(2, 8, 2, 2);
-                ctx.fillStyle = '#FFC107'; ctx.beginPath(); ctx.arc(0, 5, 12, Math.PI, 0); ctx.lineTo(16, 5); ctx.lineTo(-14, 5); ctx.fill();
-                ctx.fillStyle = '#9E9E9E'; ctx.fillRect(-2, -8, 4, 6); ctx.fillStyle = '#FFF'; ctx.beginPath(); ctx.arc(0, -5, 3, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = 'rgba(255, 255, 200, 0.3)'; ctx.beginPath(); ctx.moveTo(0, -5); ctx.lineTo(-15, -30); ctx.lineTo(15, -30); ctx.fill();
-                ctx.save(); ctx.translate(-13, 22); ctx.rotate(this.armAngle); ctx.fillStyle = '#1565C0'; ctx.fillRect(-4, 0, 8, 22); ctx.translate(0, 22); ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.arc(0, 2, 6, 0, Math.PI*2); ctx.fill(); ctx.restore();
-                ctx.restore();
-            }
-        }
-
-        // --- FARE SINIFI ---
-        class Mole {
-            constructor() {
-                this.active = false;
-                this.caught = false;
-                this.collected = false;
-                this.width = 40;
-                this.height = 30;
-                this.y = 0;
-                this.x = 0;
-                this.speed = 2; // Koşma hızı
-                this.direction = 1; // 1: Sağ, -1: Sol
-                this.weight = 5; // Hafif
-                this.value = 800; // Çok değerli
-                this.type = 'mole';
-                this.radius = 20; // Çarpışma için
-            }
-
-            spawn() {
-                this.active = true;
-                this.caught = false;
-                this.collected = false;
-                this.direction = Math.random() < 0.5 ? 1 : -1;
-                this.y = 180 + Math.random() * (canvas.height - 250); // Maden alanında rastgele Y
-                this.speed = 1.5 + (gameState.level * 0.1); // Seviyeye göre hızlan
-
-                if (this.direction === 1) {
-                    this.x = -50; // Soldan başla
-                } else {
-                    this.x = canvas.width + 50; // Sağdan başla
-                }
-            }
-
-            update() {
-                if (!this.active || this.caught) return;
                 
-                this.x += this.speed * this.direction;
-
-                // Ekrandan çıktı mı?
-                if ((this.direction === 1 && this.x > canvas.width + 50) || 
-                    (this.direction === -1 && this.x < -50)) {
-                    this.active = false; 
-                }
-            }
-
-            draw() {
-                if (!this.active || this.collected) return;
+                // Sağ Kol (Arka)
+                ctx.save(); ctx.translate(14, 25); ctx.rotate(0.5); 
+                ctx.fillStyle = skin.shirt; ctx.fillRect(-4, 0, 8, 20); ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.arc(0, 20, 5, 0, Math.PI*2); ctx.fill(); ctx.restore();
                 
-                ctx.save();
-                ctx.translate(this.x, this.y);
-                if (this.direction === -1) ctx.scale(-1, 1); // Sola gidiyorsa çevir
-
+                // Bacaklar
+                ctx.fillStyle = skin.pants; ctx.fillRect(-8, 45, 10, 25); ctx.fillRect(8, 45, 10, 25);  
+                ctx.fillStyle = '#3E2723'; ctx.fillRect(-10, 68, 14, 6); ctx.fillRect(6, 68, 14, 6); // Ayakkabı
+                
                 // Gövde
-                ctx.fillStyle = '#795548'; // Kahverengi
-                ctx.beginPath();
-                ctx.ellipse(0, 0, 20, 15, 0, 0, Math.PI * 2);
-                ctx.fill();
-
+                ctx.fillStyle = skin.shirt; ctx.beginPath(); 
+                if(ctx.roundRect) ctx.roundRect(-15, 20, 30, 30, 5); else ctx.rect(-15, 20, 30, 30); ctx.fill();
+                
                 // Kafa
-                ctx.beginPath();
-                ctx.arc(15, -5, 10, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Göz
-                ctx.fillStyle = 'black';
-                ctx.beginPath();
-                ctx.arc(18, -8, 2, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Elmas (Elinde)
-                ctx.fillStyle = '#00FFFF';
-                ctx.beginPath();
-                ctx.moveTo(15, 5);
-                ctx.lineTo(25, 5);
-                ctx.lineTo(20, 15);
-                ctx.fill();
+                ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.ellipse(0, 10, 11, 13, 0, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#5D4037'; ctx.beginPath(); ctx.arc(0, 12, 11, 0, Math.PI, false); ctx.fill(); // Sakal
+                ctx.fillRect(-6, 12, 12, 3);
+                
+                // Baret
+                ctx.fillStyle = skin.hat; ctx.beginPath(); ctx.arc(0, 5, 12, Math.PI, 0); ctx.lineTo(16, 5); ctx.lineTo(-14, 5); ctx.fill();
+                
+                // Sol Kol (Ön)
+                ctx.save(); ctx.translate(-13, 22); ctx.rotate(this.armAngle); 
+                ctx.fillStyle = skin.shirt; ctx.fillRect(-4, 0, 8, 22); ctx.translate(0, 22); ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.arc(0, 2, 6, 0, Math.PI*2); ctx.fill(); ctx.restore();
                 
                 ctx.restore();
             }
@@ -605,18 +687,22 @@
                     if (this.length > canvas.height * 1.3 || this.x + Math.sin(this.angle) * this.length < 0 || this.x + Math.sin(this.angle) * this.length > canvas.width) this.state = 'pull';
                     let tipX = this.x + Math.sin(this.angle) * this.length; let tipY = this.y + Math.cos(this.angle) * this.length;
                     
-                    // Önce Fare Kontrolü (Hareketli olduğu için)
                     if (mole.active && !mole.caught && Math.hypot(tipX - mole.x, tipY - mole.y) < 30) {
-                        this.targetObj = mole;
-                        this.state = 'pull';
-                        mole.caught = true;
-                        miner.mood = 'happy';
-                        miner.waveTimer = 0;
-                        return; // Fareyi yakaladıysan taşlara bakma
+                        this.targetObj = mole; this.state = 'pull'; mole.caught = true; miner.mood = 'happy'; miner.waveTimer = 0; return;
                     }
 
                     for (let obj of objects) { if (!obj.collected && Math.hypot(tipX - obj.x, tipY - obj.y) < obj.radius) { this.targetObj = obj; this.state = 'pull'; obj.caught = true; miner.mood = 'happy'; miner.waveTimer = 0; break; } }
                 } else if (this.state === 'pull') {
+                    // Kanca bir şey yakaladı, KARA DELİK kontrolü
+                    if (this.targetObj && this.targetObj.caught) {
+                        const currentSkin = hookSkins.find(s => s.id === gameState.currentSkinId);
+                        // Eğer Kara Delik kancasıysa ve henüz patlamadıysa
+                        if (currentSkin && currentSkin.special === 'blackhole' && !this.targetObj.blackholed) {
+                            this.targetObj.blackholed = true; // Tekrar tetiklemeyi önle
+                            activateBlackHole(this.targetObj.x, this.targetObj.y);
+                        }
+                    }
+
                     let pullSpeed = gameState.hookSpeed;
                     if (this.targetObj) {
                         let weightFactor = this.targetObj.weight / gameState.hookPower;
@@ -631,7 +717,7 @@
             draw() {
                 ctx.save(); ctx.translate(this.x, this.y); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.sin(this.angle) * this.length, Math.cos(this.angle) * this.length); ctx.lineWidth = 2; ctx.strokeStyle = '#222'; ctx.stroke();
                 ctx.translate(Math.sin(this.angle) * this.length, Math.cos(this.angle) * this.length); ctx.rotate(-this.angle);
-                let currentSkin = skins.find(s => s.id === gameState.currentSkinId); ctx.strokeStyle = currentSkin.color; ctx.lineWidth = 5; ctx.lineCap = "round"; ctx.lineJoin = "round";
+                let currentSkin = hookSkins.find(s => s.id === gameState.currentSkinId); ctx.strokeStyle = currentSkin.color; ctx.lineWidth = 5; ctx.lineCap = "round"; ctx.lineJoin = "round";
                 if (currentSkin.type === 'neon') { ctx.shadowBlur = 15; ctx.shadowColor = currentSkin.color; }
                 ctx.beginPath();
                 if (this.targetObj) { ctx.arc(0, 4, 8, 0, Math.PI * 2); ctx.stroke(); } else { ctx.arc(0, 0, 12, 0, Math.PI, false); ctx.stroke(); }
@@ -639,98 +725,66 @@
             }
         }
 
+        class Mole {
+            constructor() {
+                this.active = false; this.caught = false; this.collected = false;
+                this.x = 0; this.y = 0; this.speed = 2; this.direction = 1; 
+                this.weight = 5; this.value = 800; this.type = 'mole';
+            }
+            spawn() {
+                this.active = true; this.caught = false; this.collected = false;
+                this.direction = Math.random() < 0.5 ? 1 : -1;
+                this.y = 180 + Math.random() * (canvas.height - 250);
+                this.speed = 1.5 + (gameState.level * 0.1);
+                this.x = this.direction === 1 ? -50 : canvas.width + 50;
+            }
+            update() {
+                if (!this.active || this.caught) return;
+                this.x += this.speed * this.direction;
+                if ((this.direction === 1 && this.x > canvas.width + 50) || (this.direction === -1 && this.x < -50)) this.active = false; 
+            }
+            draw() {
+                if (!this.active || this.collected) return;
+                ctx.save(); ctx.translate(this.x, this.y); if (this.direction === -1) ctx.scale(-1, 1);
+                ctx.fillStyle = '#795548'; ctx.beginPath(); ctx.ellipse(0, 0, 20, 15, 0, 0, Math.PI * 2); ctx.fill(); // Gövde
+                ctx.beginPath(); ctx.arc(15, -5, 10, 0, Math.PI * 2); ctx.fill(); // Kafa
+                ctx.fillStyle = '#00FFFF'; ctx.beginPath(); ctx.moveTo(15, 5); ctx.lineTo(25, 5); ctx.lineTo(20, 15); ctx.fill(); // Elmas
+                ctx.restore();
+            }
+        }
+
         class MineObject {
             constructor(type, x, y) {
                 this.type = type; this.x = x; this.y = y; this.caught = false; this.collected = false;
-                
-                // ENFLASYON ÇARPANI: Her seviyede maden değeri %10 artar
                 let inflation = 1 + (gameState.level * 0.1);
-
                 switch(type) {
                     case 'gold': 
-                        this.radius = 15 + Math.random() * 20; 
-                        this.value = Math.floor((this.radius * 12) * inflation); 
-                        this.weight = this.radius * 1.5; 
-                        break;
+                        this.radius = 15 + Math.random() * 20; this.value = Math.floor((this.radius * 12) * inflation); this.weight = this.radius * 1.5; break;
                     case 'rock': 
                         let sizeRoll = Math.random();
                         if (sizeRoll < 0.4) { this.radius = 20 + Math.random() * 8; this.damage = 30; } 
                         else if (sizeRoll < 0.8) { this.radius = 29 + Math.random() * 9; this.damage = 50; } 
                         else { this.radius = 39 + Math.random() * 11; this.damage = 100; }
-                        this.value = Math.floor((this.radius * 0.5) * inflation); 
-                        this.weight = this.radius * 3.5; 
-                        break;
+                        this.value = Math.floor((this.radius * 0.5) * inflation); this.weight = this.radius * 3.5; break;
                     case 'diamond': 
-                        this.radius = 12; 
-                        this.value = Math.floor(650 * inflation); 
-                        this.weight = 5; 
-                        break;
+                        this.radius = 12; this.value = Math.floor(650 * inflation); this.weight = 5; break;
                 }
             }
-
             draw() {
                 if (this.collected) return;
-                ctx.save();
-                ctx.translate(this.x, this.y);
-
+                ctx.save(); ctx.translate(this.x, this.y);
                 if (this.type === 'rock') {
-                    ctx.fillStyle = '#7f8c8d';
-                    ctx.beginPath();
-                    ctx.moveTo(-this.radius, -this.radius/2);
-                    ctx.lineTo(0, -this.radius);
-                    ctx.lineTo(this.radius, -this.radius*0.7);
-                    ctx.lineTo(this.radius*0.8, this.radius*0.8);
-                    ctx.lineTo(-this.radius*0.6, this.radius);
-                    ctx.closePath();
-                    ctx.fill();
-                    ctx.strokeStyle = '#555';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath(); 
-                    ctx.moveTo(-this.radius * 0.3, 0); 
-                    ctx.lineTo(this.radius * 0.2, this.radius * 0.2); 
-                    ctx.stroke();
-                    ctx.beginPath();
-                    ctx.moveTo(0, -this.radius * 0.4);
-                    ctx.lineTo(this.radius * 0.1, -this.radius * 0.1);
-                    ctx.stroke();
+                    ctx.fillStyle = '#7f8c8d'; ctx.beginPath(); ctx.moveTo(-this.radius, -this.radius/2); ctx.lineTo(0, -this.radius); ctx.lineTo(this.radius, -this.radius*0.7); ctx.lineTo(this.radius*0.8, this.radius*0.8); ctx.lineTo(-this.radius*0.6, this.radius); ctx.closePath(); ctx.fill();
+                    ctx.strokeStyle = '#555'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-this.radius * 0.3, 0); ctx.lineTo(this.radius * 0.2, this.radius * 0.2); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, -this.radius * 0.4); ctx.lineTo(this.radius * 0.1, -this.radius * 0.1); ctx.stroke();
                 } else if (this.type === 'gold') {
-                    let s = this.radius * 0.8;
-                    ctx.fillStyle = '#B8860B';
-                    ctx.beginPath();
-                    ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2); 
-                    ctx.lineTo(s*0.8, s); ctx.lineTo(-s*0.8, s);
-                    ctx.fill();
-                    ctx.fillStyle = '#FFD700';
-                    ctx.beginPath();
-                    ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2); 
-                    ctx.lineTo(s*0.7, -s); ctx.lineTo(-s*0.7, -s);
-                    ctx.fill();
-                    ctx.fillStyle = '#DAA520';
-                    ctx.beginPath();
-                    ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2);
-                    ctx.lineTo(s*0.8, s); ctx.lineTo(-s*0.8, s);
-                    ctx.fill();
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-                    ctx.beginPath(); 
-                    ctx.moveTo(-s+2, -s/2+2); ctx.lineTo(0, s-2); ctx.lineTo(2, s-2); ctx.lineTo(-s+5, -s/2+2); 
-                    ctx.fill();
+                    let s = this.radius * 0.8; ctx.fillStyle = '#B8860B'; ctx.beginPath(); ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2); ctx.lineTo(s*0.8, s); ctx.lineTo(-s*0.8, s); ctx.fill();
+                    ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2); ctx.lineTo(s*0.7, -s); ctx.lineTo(-s*0.7, -s); ctx.fill();
+                    ctx.fillStyle = '#DAA520'; ctx.beginPath(); ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2); ctx.lineTo(s*0.8, s); ctx.lineTo(-s*0.8, s); ctx.fill();
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)'; ctx.beginPath(); ctx.moveTo(-s+2, -s/2+2); ctx.lineTo(0, s-2); ctx.lineTo(2, s-2); ctx.lineTo(-s+5, -s/2+2); ctx.fill();
                 } else if (this.type === 'diamond') {
-                    ctx.fillStyle = '#00FFFF';
-                    ctx.beginPath();
-                    ctx.moveTo(0, -this.radius);
-                    ctx.lineTo(this.radius, 0);
-                    ctx.lineTo(0, this.radius);
-                    ctx.lineTo(-this.radius, 0);
-                    ctx.fill();
-                    ctx.fillStyle = 'rgba(255,255,255,0.6)';
-                    ctx.beginPath(); 
-                    ctx.moveTo(0, -this.radius/2); 
-                    ctx.lineTo(this.radius/2, 0); 
-                    ctx.lineTo(0, this.radius/2); 
-                    ctx.lineTo(-this.radius/2, 0); 
-                    ctx.fill();
-                    ctx.shadowBlur = 10; 
-                    ctx.shadowColor = '#00FFFF';
+                    ctx.fillStyle = '#00FFFF'; ctx.beginPath(); ctx.moveTo(0, -this.radius); ctx.lineTo(this.radius, 0); ctx.lineTo(0, this.radius); ctx.lineTo(-this.radius, 0); ctx.fill();
+                    ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.beginPath(); ctx.moveTo(0, -this.radius/2); ctx.lineTo(this.radius/2, 0); ctx.lineTo(0, this.radius/2); ctx.lineTo(-this.radius/2, 0); ctx.fill();
+                    ctx.shadowBlur = 10; ctx.shadowColor = '#00FFFF';
                 }
                 ctx.restore();
             }
@@ -739,39 +793,35 @@
         // --- GLOBAL DEĞİŞKENLER ---
         hook = new Hook(); 
         miner = new Miner();
-        mole = new Mole(); // FARE OLUŞTURULDU
+        mole = new Mole(); 
 
-        // --- KAYIT & SİSTEM FONKSİYONLARI ---
-        function saveGame() {
-            try { localStorage.setItem('goldMinerSave_v6', JSON.stringify(gameState)); } catch(e) { console.warn("Save hatası:", e); }
-        }
+        // --- KAYIT & SİSTEM ---
+        function saveGame() { try { localStorage.setItem('goldMinerSave_v7', JSON.stringify(gameState)); } catch(e) {} }
         function loadGame() {
-            try {
-                const saved = localStorage.getItem('goldMinerSave_v6');
-                if (saved) gameState = { ...defaultState, ...JSON.parse(saved) };
-            } catch(e) { console.warn("Load hatası, varsayılan yükleniyor:", e); }
+            try { const saved = localStorage.getItem('goldMinerSave_v7'); if (saved) gameState = { ...defaultState, ...JSON.parse(saved) }; } catch(e) {}
         }
-        function resetSave() {
-            try { localStorage.removeItem('goldMinerSave_v6'); } catch(e){}
-            location.reload();
-        }
+        function resetSave() { try { localStorage.removeItem('goldMinerSave_v7'); } catch(e){} location.reload(); }
 
         function getBoosterPrice(type) {
-            let base = 0;
-            if(type === 'dynamite') base = 200;
-            if(type === 'strength') base = 300;
-            if(type === 'polish') base = 150;
+            let base = 0; if(type==='dynamite') base=200; if(type==='strength') base=300; if(type==='polish') base=150;
             return Math.floor(base * Math.pow(1.10, gameState.level - 1));
         }
 
         // --- MENÜLER ---
         function showMainMenu() {
-            ui.mainMenu.classList.remove('hidden');
-            ui.startScreen.classList.add('hidden');
-            ui.shopScreen.classList.add('hidden');
-            ui.pauseScreen.classList.add('hidden');
+            ui.mainMenu.classList.remove('hidden'); ui.startScreen.classList.add('hidden'); ui.shopScreen.classList.add('hidden'); ui.pauseScreen.classList.add('hidden');
             document.getElementById('game-over-screen').classList.add('hidden');
             sessionState.inMenu = true;
+            // İlk kez oynuyorsa tutorial göster
+            if (!gameState.tutorialSeen) {
+                ui.tutorialScreen.classList.remove('hidden');
+            }
+        }
+
+        function closeTutorial() {
+            ui.tutorialScreen.classList.add('hidden');
+            gameState.tutorialSeen = true;
+            saveGame();
         }
 
         function startGameFlow() {
@@ -795,54 +845,34 @@
         }
 
         function initLevel(lvl) {
-            objects = [];
-            particles = [];
+            objects = []; particles = [];
             hook.state = 'swing'; hook.targetObj = null; hook.length = 50;
-            mole.active = false; // Farek reset
+            mole.active = false; 
             
             let durability = getSkinDurability(gameState.currentSkinId);
-            sessionState.currentHealth = durability;
-            sessionState.maxHealth = durability;
-            sessionState.storage = 0;
-            sessionState.levelEnding = false;
-            sessionState.inMenu = false;
+            sessionState.currentHealth = durability; sessionState.maxHealth = durability;
+            sessionState.storage = 0; sessionState.levelEnding = false; sessionState.inMenu = false;
             
             gameState.levelScore = 0;
             gameState.levelTarget = 400 + (lvl * 250); 
             
-            updateUI();
-            saveGame();
+            updateUI(); saveGame();
 
             let count = Math.min(12 + lvl, 35);
             for(let i=0; i<count; i++) {
                 let typeRand = Math.random();
                 let type = 'rock';
-                let rockProb = 0.3 + (lvl * 0.02);
-                if (rockProb > 0.6) rockProb = 0.6;
-
-                if (typeRand < rockProb) type = 'rock';
-                else if (typeRand < 0.85) type = 'gold';
-                else if (typeRand < 0.95 && lvl > 2) type = 'diamond';
-                else type = 'gold';
-
-                let ox = 50 + Math.random() * (canvas.width - 100);
-                let oy = 150 + Math.random() * (canvas.height - 200);
-                
-                let safe = true;
-                for(let o of objects) { if (Math.hypot(o.x - ox, o.y - oy) < 40) safe = false; }
+                let rockProb = 0.3 + (lvl * 0.02); if (rockProb > 0.6) rockProb = 0.6;
+                if (typeRand < rockProb) type = 'rock'; else if (typeRand < 0.85) type = 'gold'; else if (typeRand < 0.95 && lvl > 2) type = 'diamond'; else type = 'gold';
+                let ox = 50 + Math.random() * (canvas.width - 100); let oy = 150 + Math.random() * (canvas.height - 200);
+                let safe = true; for(let o of objects) { if (Math.hypot(o.x - ox, o.y - oy) < 40) safe = false; }
                 if(safe) objects.push(new MineObject(type, ox, oy));
             }
         }
 
         function createExplosion(x, y) {
             for(let i=0; i<10; i++) {
-                particles.push({
-                    x: x, y: y,
-                    vx: (Math.random() - 0.5) * 5,
-                    vy: (Math.random() - 0.5) * 5,
-                    life: 1.0,
-                    color: '#ff5722'
-                });
+                particles.push({ x: x, y: y, vx: (Math.random()-0.5)*5, vy: (Math.random()-0.5)*5, life: 1.0, color: '#ff5722' });
             }
         }
 
@@ -851,35 +881,15 @@
                 let damage = obj.damage || 30; 
                 sessionState.currentHealth -= damage;
                 showMessage(`HASAR: -${damage}`, "#e53935");
-                if (sessionState.currentHealth <= 0) {
-                    sessionState.currentHealth = 0;
-                    loseLevel("Kanca parçalandı! Çok büyük bir taşa çarptın.");
-                }
+                if (sessionState.currentHealth <= 0) { sessionState.currentHealth = 0; loseLevel("Kanca parçalandı!"); }
             } else {
-                if (sessionState.storage >= gameState.maxStorage) {
-                    showMessage("DEPO TAMAMEN DOLU!", "red");
-                    checkEnd(); return; 
-                }
-                
+                if (sessionState.storage >= gameState.maxStorage) { showMessage("DEPO TAMAMEN DOLU!", "red"); checkEnd(); return; }
                 let val = obj.value;
-                if (obj.type === 'diamond' && gameState.activeBoosters.polish) {
-                    val = Math.floor(val * 1.5);
-                    showMessage("Cila Bonusu!", "#00FFFF");
-                }
-                if (obj.type === 'mole') {
-                     showMessage("FARE YAKALANDI!", "#00FFFF");
-                     mole.active = false;
-                     mole.caught = false;
-                } else {
-                     showMessage(`+$${val}`, "#ffd700");
-                }
-
-                gameState.money += val;
-                gameState.levelScore += val;
-                sessionState.storage += obj.weight;
+                if (obj.type === 'diamond' && gameState.activeBoosters.polish) { val = Math.floor(val * 1.5); showMessage("Cila Bonusu!", "#00FFFF"); }
+                if (obj.type === 'mole') { showMessage("FARE YAKALANDI!", "#00FFFF"); mole.active = false; mole.caught = false; } else { showMessage(`+$${val}`, "#ffd700"); }
+                gameState.money += val; gameState.levelScore += val; sessionState.storage += obj.weight;
             }
-            obj.collected = true;
-            updateUI(); saveGame(); checkEnd();
+            obj.collected = true; updateUI(); saveGame(); checkEnd();
         }
 
         function checkEnd() {
@@ -889,16 +899,10 @@
             
             let remainingCapacity = gameState.maxStorage - sessionState.storage;
             let valuableExists = objects.some(o => !o.collected && o.type !== 'rock');
-            let minWeight = Infinity;
-            objects.forEach(o => { if(!o.collected && o.type!=='rock') minWeight = Math.min(minWeight, o.weight); });
 
             if (gameState.levelScore < gameState.levelTarget) {
-                if (!valuableExists && !mole.active) { // Fare de yoksa
-                    loseLevel("Maden tükendi.");
-                } 
-                else if (sessionState.storage >= gameState.maxStorage) {
-                    loseLevel("Depo doldu.");
-                }
+                if (!valuableExists && !mole.active) { loseLevel("Maden tükendi."); } 
+                else if (sessionState.storage >= gameState.maxStorage) { loseLevel("Depo doldu."); }
             }
         }
 
@@ -925,10 +929,8 @@
         function restartCurrentLevel() {
             gameState.money = gameState.levelMoneyStart; 
             gameState.levelScore = 0; 
-            ui.pauseScreen.classList.add('hidden');
-            sessionState.isPaused = false;
-            initLevel(sessionState.playingLevel);
-            loop();
+            ui.pauseScreen.classList.add('hidden'); sessionState.isPaused = false;
+            initLevel(sessionState.playingLevel); loop();
         }
 
         function updateUI() {
@@ -938,46 +940,33 @@
             
             let sPct = (sessionState.storage / gameState.maxStorage) * 100;
             let displayPct = Math.min(sPct, 100); 
-            ui.storageTextMini.innerText = `${Math.floor(sPct)}%`; 
-            ui.storageBar.style.width = `${displayPct}%`;
+            ui.storageTextMini.innerText = `${Math.floor(sPct)}%`; ui.storageBar.style.width = `${displayPct}%`;
             ui.storageBar.style.background = sPct > 90 ? '#f44336' : '#4caf50';
 
             let hPct = (sessionState.currentHealth / sessionState.maxHealth) * 100;
             ui.healthTextMini.innerText = `${Math.floor(sessionState.currentHealth)}`; ui.healthBar.style.width = `${Math.max(0, Math.min(hPct, 100))}%`;
             
             ui.activeBoosters.innerHTML = '';
-            if (gameState.activeBoosters.dynamite) ui.activeBoosters.innerHTML += '<div class="booster-icon" title="Dinamit Hazır">🧨</div>';
-            if (gameState.activeBoosters.strength) ui.activeBoosters.innerHTML += '<div class="booster-icon" title="Güçlü Çekim">💪</div>';
-            if (gameState.activeBoosters.polish) ui.activeBoosters.innerHTML += '<div class="booster-icon" title="Değerli Elmas">💎</div>';
+            if (gameState.activeBoosters.dynamite) ui.activeBoosters.innerHTML += '<div class="booster-icon" title="Dinamit">🧨</div>';
+            if (gameState.activeBoosters.strength) ui.activeBoosters.innerHTML += '<div class="booster-icon" title="Güç">💪</div>';
+            if (gameState.activeBoosters.polish) ui.activeBoosters.innerHTML += '<div class="booster-icon" title="Cila">💎</div>';
         }
 
         function openShop(fromMenu = false) {
-            sessionState.isShopping = true; 
-            sessionState.inMenu = true;
+            sessionState.isShopping = true; sessionState.inMenu = true;
             sessionState.shopMode = fromMenu ? 'menu' : 'level';
-
             let nextTarget = Math.floor(400 + (sessionState.playingLevel * 250)); 
             
-            if (fromMenu) {
-                ui.shopTitle.innerText = "MARKET";
-                ui.shopMsg.innerText = `Cüzdan: $${gameState.money}`;
-            } else {
-                ui.shopTitle.innerText = `SEVİYE ${sessionState.playingLevel} TAMAMLANDI!`;
-                ui.shopMsg.innerText = `Cüzdan: $${gameState.money} - Sonraki Hedef: ${nextTarget} Puan`;
-            }
+            if (fromMenu) { ui.shopTitle.innerText = "MARKET"; ui.shopMsg.innerText = `Cüzdan: $${gameState.money}`; } 
+            else { ui.shopTitle.innerText = `SEVİYE ${sessionState.playingLevel} TAMAMLANDI!`; ui.shopMsg.innerText = `Cüzdan: $${gameState.money} - Sonraki Hedef: ${nextTarget} Puan`; }
 
-            ui.pricePower.innerText = `$${gameState.prices.power}`; 
-            ui.priceStorage.innerText = `$${gameState.prices.storage}`;
+            ui.pricePower.innerText = `$${gameState.prices.power}`; ui.priceStorage.innerText = `$${gameState.prices.storage}`;
             
             const nextBtn = document.getElementById('next-level-btn');
-            if (fromMenu) {
-                nextBtn.innerText = "KAPAT";
-            } else {
-                nextBtn.innerText = "SONRAKİ SEVİYE >>";
-            }
+            if (fromMenu) nextBtn.innerText = "KAPAT"; else nextBtn.innerText = "SONRAKİ SEVİYE >>";
 
             ui.shopScreen.classList.remove('hidden');
-            saveGame(); renderSkinShop(); updateBoosterButtons();
+            saveGame(); renderShopItems(); updateBoosterButtons();
         }
 
         window.switchTab = function(tabName) {
@@ -987,9 +976,10 @@
             document.getElementById(`tab-${tabName}`).classList.add('active');
         }
 
-        function renderSkinShop() {
+        function renderShopItems() {
+            // Kanca Skinleri
             ui.skinGrid.innerHTML = '';
-            skins.forEach(skin => {
+            hookSkins.forEach(skin => {
                 let isOwned = gameState.unlockedSkins.includes(skin.id);
                 let isEquipped = gameState.currentSkinId === skin.id;
                 let btnText = isEquipped ? "KUŞANILDI" : (isOwned ? "KUŞAN" : "SATIN AL");
@@ -1001,16 +991,40 @@
                         <div class="item-name">${skin.name}</div>
                         <div class="item-desc">Dayanıklılık: ${skin.durability}</div>
                         <div class="item-price">${isOwned ? 'Sahipsin' : '$'+skin.price}</div>
-                        <button class="${btnClass}" ${disabled ? 'disabled' : ''} onclick="handleSkinClick('${skin.id}')">${btnText}</button>
+                        <button class="${btnClass}" ${disabled ? 'disabled' : ''} onclick="handleHookSkinClick('${skin.id}')">${btnText}</button>
+                    </div>`;
+            });
+
+            // Madenci Kostümleri
+            ui.minerSkinGrid.innerHTML = '';
+            minerSkins.forEach(skin => {
+                let isOwned = gameState.unlockedMinerSkins.includes(skin.id);
+                let isEquipped = gameState.currentMinerSkinId === skin.id;
+                let btnText = isEquipped ? "KUŞANILDI" : (isOwned ? "KUŞAN" : "SATIN AL");
+                let btnClass = isEquipped ? "buy-btn equipped" : "buy-btn";
+                let disabled = !isOwned && gameState.money < skin.price;
+                ui.minerSkinGrid.innerHTML += `
+                    <div class="item-card ${isOwned ? 'purchased' : ''}">
+                        <div class="item-icon">${getMinerSVG(skin.shirt, skin.hat)}</div>
+                        <div class="item-name">${skin.name}</div>
+                        <div class="item-price">${isOwned ? 'Sahipsin' : '$'+skin.price}</div>
+                        <button class="${btnClass}" ${disabled ? 'disabled' : ''} onclick="handleMinerSkinClick('${skin.id}')">${btnText}</button>
                     </div>`;
             });
         }
 
-        window.handleSkinClick = function(skinId) {
-            let skin = skins.find(s => s.id === skinId);
+        window.handleHookSkinClick = function(skinId) {
+            let skin = hookSkins.find(s => s.id === skinId);
             if (gameState.unlockedSkins.includes(skinId)) { gameState.currentSkinId = skinId; }
             else { if (gameState.money >= skin.price) { gameState.money -= skin.price; gameState.unlockedSkins.push(skinId); gameState.currentSkinId = skinId; updateUI(); } }
-            saveGame(); renderSkinShop();
+            saveGame(); renderShopItems();
+        }
+
+        window.handleMinerSkinClick = function(skinId) {
+            let skin = minerSkins.find(s => s.id === skinId);
+            if (gameState.unlockedMinerSkins.includes(skinId)) { gameState.currentMinerSkinId = skinId; }
+            else { if (gameState.money >= skin.price) { gameState.money -= skin.price; gameState.unlockedMinerSkins.push(skinId); gameState.currentMinerSkinId = skinId; updateUI(); } }
+            saveGame(); renderShopItems();
         }
 
         function buyBooster(type) {
@@ -1038,16 +1052,8 @@
         }
 
         // --- GLOBAL FUNCTIONS FOR LISTENERS ---
-        function openMap() { 
-            sessionState.isMapOpen = true; 
-            ui.mapScreen.classList.remove('hidden'); 
-            renderMap(); 
-        }
-
-        function closeMap() { 
-            sessionState.isMapOpen = false; 
-            ui.mapScreen.classList.add('hidden'); 
-        }
+        function openMap() { sessionState.isMapOpen = true; ui.mapScreen.classList.remove('hidden'); renderMap(); }
+        function closeMap() { sessionState.isMapOpen = false; ui.mapScreen.classList.add('hidden'); }
 
         function startLevelFromMap(lvl) {
             sessionState.playingLevel = lvl;
@@ -1064,28 +1070,14 @@
             let endLvl = gameState.level + 5;
             for (let i = endLvl; i >= 1; i--) {
                 const node = document.createElement('div'); node.className = 'map-node'; node.innerText = i;
-                if (i <= gameState.level) { 
-                    node.classList.add('completed'); 
-                    node.onclick = () => startLevelFromMap(i);
-                } 
-                else if (i === gameState.level) { 
-                    node.classList.add('current'); 
-                    node.id = 'current-level-node'; 
-                    node.onclick = () => startLevelFromMap(i);
-                } 
+                if (i <= gameState.level) { node.classList.add('completed'); node.onclick = () => startLevelFromMap(i); } 
+                else if (i === gameState.level) { node.classList.add('current'); node.id = 'current-level-node'; node.onclick = () => startLevelFromMap(i); } 
                 else node.style.opacity = "0.5";
                 
-                if (i === sessionState.playingLevel) {
-                    node.style.border = "3px solid #00FFFF";
-                    node.id = 'current-playing-node'; 
-                }
-
+                if (i === sessionState.playingLevel) { node.style.border = "3px solid #00FFFF"; node.id = 'current-playing-node'; }
                 ui.mapContent.appendChild(node);
             }
-            setTimeout(() => { 
-                const c = document.getElementById('current-playing-node') || document.getElementById('current-level-node'); 
-                if(c) c.scrollIntoView({block:"center"}); 
-            }, 100);
+            setTimeout(() => { const c = document.getElementById('current-playing-node') || document.getElementById('current-level-node'); if(c) c.scrollIntoView({block:"center"}); }, 100);
         }
 
         function initListeners() {
@@ -1096,6 +1088,8 @@
             document.getElementById('play-btn').onclick = startGameFlow;
             document.getElementById('main-reset-btn').onclick = resetSave;
             document.getElementById('main-market-btn').onclick = () => openShop(true);
+            document.getElementById('tutorial-btn').onclick = () => ui.tutorialScreen.classList.remove('hidden');
+            document.getElementById('close-tutorial-btn').onclick = closeTutorial;
             
             document.getElementById('pause-btn').onclick = () => { if (!sessionState.inMenu && !sessionState.levelEnding) { sessionState.isPaused = true; ui.pauseScreen.classList.remove('hidden'); } };
             document.getElementById('resume-btn').onclick = () => { sessionState.isPaused = false; ui.pauseScreen.classList.add('hidden'); };
@@ -1111,13 +1105,9 @@
             
             document.getElementById('next-level-btn').onclick = () => {
                 ui.shopScreen.classList.add('hidden');
-                if (sessionState.shopMode === 'menu') {
-                    sessionState.isShopping = false;
-                    showMainMenu();
-                } else {
-                    if (sessionState.playingLevel === gameState.level) {
-                        gameState.level++;
-                    }
+                if (sessionState.shopMode === 'menu') { sessionState.isShopping = false; showMainMenu(); } 
+                else {
+                    if (sessionState.playingLevel === gameState.level) gameState.level++;
                     sessionState.playingLevel++;
                     gameState.levelMoneyStart = gameState.money; 
                     sessionState.isShopping = false;
@@ -1128,10 +1118,7 @@
             document.getElementById('start-level-btn').onclick = () => {
                 ui.startScreen.classList.add('hidden');
                 initLevel(sessionState.playingLevel); 
-                if (!gameLoopRunning) {
-                    gameLoopRunning = true;
-                    loop();
-                }
+                if (!gameLoopRunning) { gameLoopRunning = true; loop(); }
             };
 
             document.getElementById('restart-level-btn').onclick = () => {
@@ -1145,16 +1132,13 @@
         }
 
         window.addEventListener('load', () => {
-            loadGame();
-            resize();
+            loadGame(); resize();
             window.addEventListener('resize', resize);
-            initListeners(); 
-            showMainMenu(); 
+            initListeners(); showMainMenu(); 
         });
 
         function loop() {
             requestAnimationFrame(loop);
-            
             if (sessionState.isPaused || sessionState.isMapOpen || sessionState.inMenu) return;
             
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -1162,15 +1146,11 @@
             ctx.fillStyle = '#5D4037'; ctx.fillRect(0, 110, canvas.width, canvas.height);
             ctx.fillStyle = '#333'; ctx.fillRect(canvas.width/2 - 25, 50, 50, 60); 
             
-            miner.update(); 
-            miner.draw();
+            miner.update(); miner.draw();
 
             // Fare Mantığı
-            if (!mole.active && !mole.caught && Math.random() < 0.001) { // Binde bir ihtimalle doğ
-                mole.spawn();
-            }
-            mole.update();
-            mole.draw();
+            if (!mole.active && !mole.caught && Math.random() < 0.001) mole.spawn();
+            mole.update(); mole.draw();
 
             objects.forEach(o => o.draw());
             
@@ -1191,34 +1171,24 @@
             if (sessionState.inMenu || sessionState.levelEnding || sessionState.isPaused || sessionState.isMapOpen) return;
 
             const rect = canvas.getBoundingClientRect();
-            let clientX = e.clientX;
-            let clientY = e.clientY;
-            if(e.touches && e.touches.length > 0) {
-                clientX = e.touches[0].clientX;
-                clientY = e.touches[0].clientY;
-            }
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-            const x = (clientX - rect.left) * scaleX;
-            const y = (clientY - rect.top) * scaleY;
+            let clientX = e.clientX; let clientY = e.clientY;
+            if(e.touches && e.touches.length > 0) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
+            const scaleX = canvas.width / rect.width; const scaleY = canvas.height / rect.height;
+            const x = (clientX - rect.left) * scaleX; const y = (clientY - rect.top) * scaleY;
 
             if (gameState.activeBoosters.dynamite) {
                 for (let i = 0; i < objects.length; i++) {
                     let o = objects[i];
                     if (!o.collected && o.type === 'rock') {
                         if (Math.hypot(o.x - x, o.y - y) < o.radius + 15) { 
-                            createExplosion(o.x, o.y);
-                            objects.splice(i, 1);
-                            gameState.activeBoosters.dynamite = false;
-                            showMessage("GÜM! Taş Yok Oldu", "#ff5722");
-                            updateUI();
-                            return; 
+                            createExplosion(o.x, o.y); objects.splice(i, 1);
+                            gameState.activeBoosters.dynamite = false; showMessage("GÜM! Taş Yok Oldu", "#ff5722");
+                            updateUI(); return; 
                         }
                     }
                 }
             }
-
-            if (hook.state === 'swing') { hook.state = 'shoot'; }
+            if (hook.state === 'swing') hook.state = 'shoot'; 
         }
         canvas.addEventListener('mousedown', inputAction);
         canvas.addEventListener('touchstart', inputAction, {passive: false});
