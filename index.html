@@ -377,12 +377,12 @@
             { id: 'default', name: 'Paslı Kanca', price: 0, color: '#555', type: 'basic', durability: 100 },
             { id: 'golden', name: 'Altın Kanca', price: 1500, color: '#FFD700', type: 'fancy', durability: 200 },
             { id: 'diamond', name: 'Elmas Uçlu', price: 3500, color: '#00FFFF', type: 'sharp', durability: 350 },
-            { id: 'laser', name: 'Lazer Kıskaç', price: 8000, color: '#FF0055', type: 'neon', durability: 600 },
+            { id: 'laser', name: 'Lazer Kıskaç', price: 8000, color: '#FF0055', type: 'neon', durability: 600, special: 'laser' },
             { id: 'plasma', name: 'Plazma Kanca', price: 15000, color: '#76ff03', type: 'neon', durability: 1000 },
             { id: 'void', name: 'Kara Delik', price: 1000000, color: '#e040fb', type: 'neon', durability: 2000, special: 'blackhole' },
-            { id: 'magnet', name: 'Mıknatıs K.', price: 45000, color: '#ff3d00', type: 'fancy', durability: 1500 },
-            { id: 'time', name: 'Zaman Kancası', price: 90000, color: '#2979ff', type: 'sharp', durability: 1800 },
-            { id: 'infinity', name: 'Sonsuzluk', price: 250000, color: '#ffd600', type: 'neon', durability: 3000 }
+            { id: 'magnet', name: 'Mıknatıs K.', price: 45000, color: '#ff3d00', type: 'fancy', durability: 1500, special: 'magnet' },
+            { id: 'time', name: 'Zaman Kancası', price: 90000, color: '#2979ff', type: 'sharp', durability: 1800, special: 'time' },
+            { id: 'infinity', name: 'Sonsuzluk', price: 250000, color: '#ffd600', type: 'neon', durability: 3000, special: 'infinity' }
         ];
 
         const minerSkins = [
@@ -433,23 +433,7 @@
         let mole = null;
         let gameLoopRunning = false;
         
-        // ASSET LOADER SİSTEMİ (Hazırlık)
-        const assets = {
-            gold: { src: 'gold.png', img: new Image(), loaded: false },
-            rock: { src: 'rock.png', img: new Image(), loaded: false },
-            diamond: { src: 'diamond.png', img: new Image(), loaded: false },
-            mole: { src: 'mole.png', img: new Image(), loaded: false },
-            miner: { src: 'miner.png', img: new Image(), loaded: false },
-            background: { src: 'background.png', img: new Image(), loaded: false },
-            dynamite: { src: 'dynamite.png', img: new Image(), loaded: false }
-        };
-
-        // Resimlerin yüklenmesini başlat (Eğer dosya varsa otomatik kullanır)
-        Object.keys(assets).forEach(key => {
-            assets[key].img.src = assets[key].src;
-            assets[key].img.onload = () => { assets[key].loaded = true; };
-        });
-
+        const CUSTOM_MINER_IMAGE_URL = 'image_cd5845.jpg'; 
 
         // --- YARDIMCI FONKSİYONLAR ---
         function getSkinDurability(skinId) { const s = hookSkins.find(x => x.id === skinId); return s ? s.durability : 100; }
@@ -516,7 +500,14 @@
         class Miner {
             constructor() {
                 this.x = 0; this.y = 45; this.armAngle = 0; this.waveSpeed = 0.1; 
-                this.mood = 'normal'; this.waveTimer = 0;
+                this.mood = 'normal'; this.waveTimer = 0; this.image = new Image(); 
+                this.imageLoaded = false;
+                
+                if(CUSTOM_MINER_IMAGE_URL && CUSTOM_MINER_IMAGE_URL.trim() !== '') {
+                    this.image.src = CUSTOM_MINER_IMAGE_URL;
+                    this.image.onload = () => { this.imageLoaded = true; };
+                    this.image.onerror = () => { this.imageLoaded = false; };
+                }
             }
             update() { 
                 this.waveTimer += this.waveSpeed; 
@@ -557,12 +548,34 @@
                         const currentSkin = hookSkins.find(s => s.id === gameState.currentSkinId);
                         if (currentSkin && currentSkin.special === 'blackhole' && !this.targetObj.blackholed) {
                             this.targetObj.blackholed = true; activateBlackHole(this.targetObj.x, this.targetObj.y);
+                        } else if (currentSkin && currentSkin.special === 'laser' && this.targetObj.type === 'rock') {
+                            this.state = 'shoot'; // Kanca geri dönmez, devam eder
+                            this.targetObj.collected = true; // Taşı yok et
+                            createExplosion(this.targetObj.x, this.targetObj.y);
+                            showMessage("Lazer!", "#FF0055");
+                            this.targetObj = null; // Hedefi bırak
+                            return; // Döngüden çık
+                        }
+                        
+                        // Mıknatıs Skill
+                        if (currentSkin && (currentSkin.special === 'magnet' || currentSkin.special === 'infinity')) {
+                            objects.forEach(o => {
+                                if (!o.collected && o.type !== 'rock' && Math.hypot(this.x - o.x, this.y - o.y) < 100) {
+                                    o.x += (this.x - o.x) * 0.1;
+                                    o.y += (this.y - o.y) * 0.1;
+                                    if (Math.hypot(this.x - o.x, this.y - o.y) < 20) { o.collected = true; collectObject(o); }
+                                }
+                            });
                         }
                     }
+                    
                     let pullSpeed = gameState.hookSpeed;
                     if (this.targetObj) {
                         let weightFactor = this.targetObj.weight / gameState.hookPower;
                         let speedMult = gameState.activeBoosters.strength ? 1.5 : 1.0;
+                        const currentSkin = hookSkins.find(s => s.id === gameState.currentSkinId);
+                        if (currentSkin && (currentSkin.special === 'time' || currentSkin.special === 'infinity')) speedMult *= 1.5;
+
                         pullSpeed = Math.max(0.5, (gameState.hookSpeed * (15 / (weightFactor + 10))) * speedMult);
                         this.targetObj.x = this.x + Math.sin(this.angle) * this.length; this.targetObj.y = this.y + Math.cos(this.angle) * this.length;
                     } else { pullSpeed = gameState.hookSpeed * 4; }
@@ -644,7 +657,6 @@
                 ctx.save();
                 ctx.translate(this.x, this.y);
 
-                // Eğer asset (resim) yüklüyse onu kullan
                 if (this.type === 'gold' && assets.gold.loaded) {
                     ctx.drawImage(assets.gold.img, -this.radius, -this.radius, this.radius*2, this.radius*2);
                 } else if (this.type === 'rock' && assets.rock.loaded) {
@@ -652,9 +664,7 @@
                 } else if (this.type === 'diamond' && assets.diamond.loaded) {
                     ctx.drawImage(assets.diamond.img, -this.radius, -this.radius, this.radius*2, this.radius*2);
                 } else {
-                    // --- DETAYLI PROCEDURAL ÇİZİM (ESKİ GÖRÜNÜM) ---
                     if (this.type === 'rock') {
-                        // KAYA
                         ctx.fillStyle = '#7f8c8d';
                         ctx.beginPath();
                         ctx.moveTo(-this.radius, -this.radius/2);
@@ -665,7 +675,6 @@
                         ctx.closePath();
                         ctx.fill();
                         
-                        // Kaya detayları
                         ctx.strokeStyle = '#555';
                         ctx.lineWidth = 2;
                         ctx.beginPath(); 
@@ -678,37 +687,31 @@
                         ctx.stroke();
 
                     } else if (this.type === 'gold') {
-                        // ALTIN KÜLÇESİ
                         let s = this.radius * 0.8;
-                        // Alt Yüzey
                         ctx.fillStyle = '#B8860B';
                         ctx.beginPath();
                         ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2); 
                         ctx.lineTo(s*0.8, s); ctx.lineTo(-s*0.8, s);
                         ctx.fill();
 
-                        // Üst Yüzey
                         ctx.fillStyle = '#FFD700';
                         ctx.beginPath();
                         ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2); 
                         ctx.lineTo(s*0.7, -s); ctx.lineTo(-s*0.7, -s);
                         ctx.fill();
 
-                        // Ön Yüzey
                         ctx.fillStyle = '#DAA520';
                         ctx.beginPath();
                         ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2);
                         ctx.lineTo(s*0.8, s); ctx.lineTo(-s*0.8, s);
                         ctx.fill();
 
-                        // Parlama
                         ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
                         ctx.beginPath(); 
                         ctx.moveTo(-s+2, -s/2+2); ctx.lineTo(0, s-2); ctx.lineTo(2, s-2); ctx.lineTo(-s+5, -s/2+2); 
                         ctx.fill();
 
                     } else if (this.type === 'diamond') {
-                        // ELMAS
                         ctx.fillStyle = '#00FFFF';
                         ctx.beginPath();
                         ctx.moveTo(0, -this.radius);
@@ -717,7 +720,6 @@
                         ctx.lineTo(-this.radius, 0);
                         ctx.fill();
                         
-                        // İç detay
                         ctx.fillStyle = 'rgba(255,255,255,0.6)';
                         ctx.beginPath(); 
                         ctx.moveTo(0, -this.radius/2); 
@@ -1033,6 +1035,7 @@
             document.getElementById('btn-boost-dynamite').onclick = () => buyBooster('dynamite');
             document.getElementById('btn-boost-strength').onclick = () => buyBooster('strength');
             document.getElementById('btn-boost-polish').onclick = () => buyBooster('polish');
+
             document.getElementById('play-btn').onclick = startGameFlow;
             document.getElementById('main-reset-btn').onclick = resetSave;
             document.getElementById('main-market-btn').onclick = () => openShop(true);
