@@ -434,6 +434,24 @@
         let gameLoopRunning = false;
         
         const CUSTOM_MINER_IMAGE_URL = 'image_cd5845.jpg'; 
+        
+        // ASSET LOADER SİSTEMİ (Hazırlık)
+        const assets = {
+            gold: { src: 'gold.png', img: new Image(), loaded: false },
+            rock: { src: 'rock.png', img: new Image(), loaded: false },
+            diamond: { src: 'diamond.png', img: new Image(), loaded: false },
+            mole: { src: 'mole.png', img: new Image(), loaded: false },
+            miner: { src: 'miner.png', img: new Image(), loaded: false },
+            background: { src: 'background.png', img: new Image(), loaded: false },
+            dynamite: { src: 'dynamite.png', img: new Image(), loaded: false }
+        };
+
+        // Resimlerin yüklenmesini başlat (Eğer dosya varsa otomatik kullanır)
+        Object.keys(assets).forEach(key => {
+            assets[key].img.src = assets[key].src;
+            assets[key].img.onload = () => { assets[key].loaded = true; };
+        });
+
 
         // --- YARDIMCI FONKSİYONLAR ---
         function getSkinDurability(skinId) { const s = hookSkins.find(x => x.id === skinId); return s ? s.durability : 100; }
@@ -588,8 +606,20 @@
                 ctx.translate(Math.sin(this.angle) * this.length, Math.cos(this.angle) * this.length); ctx.rotate(-this.angle);
                 let currentSkin = hookSkins.find(s => s.id === gameState.currentSkinId); ctx.strokeStyle = currentSkin.color; ctx.lineWidth = 5; ctx.lineCap = "round"; ctx.lineJoin = "round";
                 if (currentSkin.type === 'neon') { ctx.shadowBlur = 15; ctx.shadowColor = currentSkin.color; }
-                ctx.beginPath();
-                if (this.targetObj) { ctx.arc(0, 4, 8, 0, Math.PI * 2); ctx.stroke(); } else { ctx.arc(0, 0, 12, 0, Math.PI, false); ctx.stroke(); }
+                
+                // VISUAL FOR HOOK
+                if (currentSkin.special === 'laser' || currentSkin.type === 'sharp') {
+                    // Triangle / Sharp Hook
+                    ctx.beginPath(); ctx.moveTo(-10, -8); ctx.lineTo(0, 15); ctx.lineTo(10, -8); ctx.stroke();
+                } else if (currentSkin.special === 'blackhole') {
+                    // Circle with inner void
+                    ctx.beginPath(); ctx.arc(0, 0, 12, 0, Math.PI * 2); ctx.fillStyle = '#000'; ctx.fill(); ctx.stroke();
+                } else {
+                    // Default Arc Hook
+                    ctx.beginPath(); 
+                    if (this.targetObj) { ctx.arc(0, 4, 8, 0, Math.PI * 2); ctx.stroke(); } 
+                    else { ctx.arc(0, 0, 12, 0, Math.PI, false); ctx.stroke(); }
+                }
                 ctx.restore();
             }
         }
@@ -632,23 +662,15 @@
                 let inflation = 1 + (gameState.level * 0.1);
                 switch(type) {
                     case 'gold': 
-                        this.radius = 15 + Math.random() * 20; 
-                        this.value = Math.floor((this.radius * 12) * inflation); 
-                        this.weight = this.radius * 1.5; 
-                        break;
+                        this.radius = 15 + Math.random() * 20; this.value = Math.floor((this.radius * 12) * inflation); this.weight = this.radius * 1.5; break;
                     case 'rock': 
                         let sizeRoll = Math.random();
                         if (sizeRoll < 0.4) { this.radius = 20 + Math.random() * 8; this.damage = 30; } 
                         else if (sizeRoll < 0.8) { this.radius = 29 + Math.random() * 9; this.damage = 50; } 
                         else { this.radius = 39 + Math.random() * 11; this.damage = 100; }
-                        this.value = Math.floor((this.radius * 0.5) * inflation); 
-                        this.weight = this.radius * 3.5; 
-                        break;
+                        this.value = Math.floor((this.radius * 0.5) * inflation); this.weight = this.radius * 3.5; break;
                     case 'diamond': 
-                        this.radius = 12; 
-                        this.value = Math.floor(650 * inflation); 
-                        this.weight = 5; 
-                        break;
+                        this.radius = 12; this.value = Math.floor(650 * inflation); this.weight = 5; break;
                 }
             }
 
@@ -657,6 +679,7 @@
                 ctx.save();
                 ctx.translate(this.x, this.y);
 
+                // Asset varsa çiz, yoksa procedural
                 if (this.type === 'gold' && assets.gold.loaded) {
                     ctx.drawImage(assets.gold.img, -this.radius, -this.radius, this.radius*2, this.radius*2);
                 } else if (this.type === 'rock' && assets.rock.loaded) {
@@ -665,71 +688,17 @@
                     ctx.drawImage(assets.diamond.img, -this.radius, -this.radius, this.radius*2, this.radius*2);
                 } else {
                     if (this.type === 'rock') {
-                        ctx.fillStyle = '#7f8c8d';
-                        ctx.beginPath();
-                        ctx.moveTo(-this.radius, -this.radius/2);
-                        ctx.lineTo(0, -this.radius);
-                        ctx.lineTo(this.radius, -this.radius*0.7);
-                        ctx.lineTo(this.radius*0.8, this.radius*0.8);
-                        ctx.lineTo(-this.radius*0.6, this.radius);
-                        ctx.closePath();
-                        ctx.fill();
-                        
-                        ctx.strokeStyle = '#555';
-                        ctx.lineWidth = 2;
-                        ctx.beginPath(); 
-                        ctx.moveTo(-this.radius * 0.3, 0); 
-                        ctx.lineTo(this.radius * 0.2, this.radius * 0.2); 
-                        ctx.stroke();
-                        ctx.beginPath();
-                        ctx.moveTo(0, -this.radius * 0.4);
-                        ctx.lineTo(this.radius * 0.1, -this.radius * 0.1);
-                        ctx.stroke();
-
+                        ctx.fillStyle = '#7f8c8d'; ctx.beginPath(); ctx.moveTo(-this.radius, -this.radius/2); ctx.lineTo(0, -this.radius); ctx.lineTo(this.radius, -this.radius*0.7); ctx.lineTo(this.radius*0.8, this.radius*0.8); ctx.lineTo(-this.radius*0.6, this.radius); ctx.closePath(); ctx.fill();
+                        ctx.strokeStyle = '#555'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-this.radius * 0.3, 0); ctx.lineTo(this.radius * 0.2, this.radius * 0.2); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, -this.radius * 0.4); ctx.lineTo(this.radius * 0.1, -this.radius * 0.1); ctx.stroke();
                     } else if (this.type === 'gold') {
-                        let s = this.radius * 0.8;
-                        ctx.fillStyle = '#B8860B';
-                        ctx.beginPath();
-                        ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2); 
-                        ctx.lineTo(s*0.8, s); ctx.lineTo(-s*0.8, s);
-                        ctx.fill();
-
-                        ctx.fillStyle = '#FFD700';
-                        ctx.beginPath();
-                        ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2); 
-                        ctx.lineTo(s*0.7, -s); ctx.lineTo(-s*0.7, -s);
-                        ctx.fill();
-
-                        ctx.fillStyle = '#DAA520';
-                        ctx.beginPath();
-                        ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2);
-                        ctx.lineTo(s*0.8, s); ctx.lineTo(-s*0.8, s);
-                        ctx.fill();
-
-                        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-                        ctx.beginPath(); 
-                        ctx.moveTo(-s+2, -s/2+2); ctx.lineTo(0, s-2); ctx.lineTo(2, s-2); ctx.lineTo(-s+5, -s/2+2); 
-                        ctx.fill();
-
+                        let s = this.radius * 0.8; ctx.fillStyle = '#B8860B'; ctx.beginPath(); ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2); ctx.lineTo(s*0.8, s); ctx.lineTo(-s*0.8, s); ctx.fill();
+                        ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2); ctx.lineTo(s*0.7, -s); ctx.lineTo(-s*0.7, -s); ctx.fill();
+                        ctx.fillStyle = '#DAA520'; ctx.beginPath(); ctx.moveTo(-s, -s/2); ctx.lineTo(s, -s/2); ctx.lineTo(s*0.8, s); ctx.lineTo(-s*0.8, s); ctx.fill();
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)'; ctx.beginPath(); ctx.moveTo(-s+2, -s/2+2); ctx.lineTo(0, s-2); ctx.lineTo(2, s-2); ctx.lineTo(-s+5, -s/2+2); ctx.fill();
                     } else if (this.type === 'diamond') {
-                        ctx.fillStyle = '#00FFFF';
-                        ctx.beginPath();
-                        ctx.moveTo(0, -this.radius);
-                        ctx.lineTo(this.radius, 0);
-                        ctx.lineTo(0, this.radius);
-                        ctx.lineTo(-this.radius, 0);
-                        ctx.fill();
-                        
-                        ctx.fillStyle = 'rgba(255,255,255,0.6)';
-                        ctx.beginPath(); 
-                        ctx.moveTo(0, -this.radius/2); 
-                        ctx.lineTo(this.radius/2, 0); 
-                        ctx.lineTo(0, this.radius/2); 
-                        ctx.lineTo(-this.radius/2, 0); 
-                        ctx.fill();
-                        
-                        ctx.shadowBlur = 10; 
-                        ctx.shadowColor = '#00FFFF';
+                        ctx.fillStyle = '#00FFFF'; ctx.beginPath(); ctx.moveTo(0, -this.radius); ctx.lineTo(this.radius, 0); ctx.lineTo(0, this.radius); ctx.lineTo(-this.radius, 0); ctx.fill();
+                        ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.beginPath(); ctx.moveTo(0, -this.radius/2); ctx.lineTo(this.radius/2, 0); ctx.lineTo(0, this.radius/2); ctx.lineTo(-this.radius/2, 0); ctx.fill();
+                        ctx.shadowBlur = 10; ctx.shadowColor = '#00FFFF';
                     }
                 }
                 ctx.restore();
@@ -918,7 +887,8 @@
             gameState.money = gameState.levelMoneyStart; 
             gameState.levelScore = 0; 
             ui.pauseScreen.classList.add('hidden'); sessionState.isPaused = false;
-            initLevel(sessionState.playingLevel); loop();
+            initLevel(sessionState.playingLevel); 
+            // loop çağrısı kaldırıldı
         }
 
         function updateUI() {
@@ -963,18 +933,58 @@
             ui.skinGrid.innerHTML = '';
             hookSkins.forEach(skin => {
                 let isOwned = gameState.unlockedSkins.includes(skin.id);
-                let btnText = isEquipped = gameState.currentSkinId === skin.id ? "KUŞANILDI" : (isOwned ? "KUŞAN" : "SATIN AL");
-                let btnClass = isEquipped === "KUŞANILDI" ? "buy-btn equipped" : "buy-btn";
-                let disabled = !isOwned && gameState.money < skin.price;
-                ui.skinGrid.innerHTML += `<div class="item-card ${isOwned ? 'purchased' : ''}"><div class="item-icon">${getHookSVG(skin.type, skin.color)}</div><div class="item-name">${skin.name}</div><div class="item-desc">Dayanıklılık: ${skin.durability}</div><div class="item-price">${isOwned ? 'Sahipsin' : '$'+skin.price}</div><button class="${btnClass}" ${disabled ? 'disabled' : ''} onclick="handleHookSkinClick('${skin.id}')">${btnText}</button></div>`;
+                let btnText = "", btnClass = "", disabled = false;
+                
+                if (gameState.currentSkinId === skin.id) {
+                    btnText = "KUŞANILDI";
+                    btnClass = "buy-btn equipped";
+                    disabled = true;
+                } else if (isOwned) {
+                    btnText = "KUŞAN";
+                    btnClass = "buy-btn";
+                    disabled = false;
+                } else {
+                    btnText = "SATIN AL";
+                    btnClass = "buy-btn";
+                    disabled = gameState.money < skin.price;
+                }
+
+                ui.skinGrid.innerHTML += `
+                    <div class="item-card ${isOwned ? 'purchased' : ''}">
+                        <div class="item-icon">${getHookSVG(skin.type, skin.color)}</div>
+                        <div class="item-name">${skin.name}</div>
+                        <div class="item-desc">Dayanıklılık: ${skin.durability}</div>
+                        <div class="item-price">${isOwned ? 'Sahipsin' : '$'+skin.price}</div>
+                        <button class="${btnClass}" ${disabled ? 'disabled' : ''} onclick="handleHookSkinClick('${skin.id}')">${btnText}</button>
+                    </div>`;
             });
+
             ui.minerSkinGrid.innerHTML = '';
             minerSkins.forEach(skin => {
                 let isOwned = gameState.unlockedMinerSkins.includes(skin.id);
-                let btnText = isEquipped = gameState.currentMinerSkinId === skin.id ? "KUŞANILDI" : (isOwned ? "KUŞAN" : "SATIN AL");
-                let btnClass = isEquipped === "KUŞANILDI" ? "buy-btn equipped" : "buy-btn";
-                let disabled = !isOwned && gameState.money < skin.price;
-                ui.minerSkinGrid.innerHTML += `<div class="item-card ${isOwned ? 'purchased' : ''}"><div class="item-icon">${getMinerSVG(skin.shirt, skin.hat)}</div><div class="item-name">${skin.name}</div><div class="item-price">${isOwned ? 'Sahipsin' : '$'+skin.price}</div><button class="${btnClass}" ${disabled ? 'disabled' : ''} onclick="handleMinerSkinClick('${skin.id}')">${btnText}</button></div>`;
+                let btnText = "", btnClass = "", disabled = false;
+                
+                if (gameState.currentMinerSkinId === skin.id) {
+                    btnText = "KUŞANILDI";
+                    btnClass = "buy-btn equipped";
+                    disabled = true;
+                } else if (isOwned) {
+                    btnText = "KUŞAN";
+                    btnClass = "buy-btn";
+                    disabled = false;
+                } else {
+                    btnText = "SATIN AL";
+                    btnClass = "buy-btn";
+                    disabled = gameState.money < skin.price;
+                }
+
+                ui.minerSkinGrid.innerHTML += `
+                    <div class="item-card ${isOwned ? 'purchased' : ''}">
+                        <div class="item-icon">${getMinerSVG(skin.shirt, skin.hat)}</div>
+                        <div class="item-name">${skin.name}</div>
+                        <div class="item-price">${isOwned ? 'Sahipsin' : '$'+skin.price}</div>
+                        <button class="${btnClass}" ${disabled ? 'disabled' : ''} onclick="handleMinerSkinClick('${skin.id}')">${btnText}</button>
+                    </div>`;
             });
         }
 
@@ -995,7 +1005,8 @@
         function buyBooster(type) {
             let price = getBoosterPrice(type);
             if (gameState.money >= price && !gameState.activeBoosters[type]) {
-                gameState.money -= price; gameState.activeBoosters[type] = true; updateBoosterButtons(); updateUI(); saveGame();
+                gameState.money -= price; gameState.activeBoosters[type] = true;
+                updateBoosterButtons(); updateUI(); saveGame();
             }
         }
 
@@ -1003,7 +1014,10 @@
             setBtnState('btn-boost-dynamite', 'dynamite', getBoosterPrice('dynamite'));
             setBtnState('btn-boost-strength', 'strength', getBoosterPrice('strength'));
             setBtnState('btn-boost-polish', 'polish', getBoosterPrice('polish'));
-            ui.priceDynamite.innerText = `$${getBoosterPrice('dynamite')}`; ui.priceStrength.innerText = `$${getBoosterPrice('strength')}`; ui.pricePolish.innerText = `$${getBoosterPrice('polish')}`;
+            
+            ui.priceDynamite.innerText = `$${getBoosterPrice('dynamite')}`;
+            ui.priceStrength.innerText = `$${getBoosterPrice('strength')}`;
+            ui.pricePolish.innerText = `$${getBoosterPrice('polish')}`;
         }
 
         function setBtnState(btnId, type, price) {
@@ -1014,18 +1028,38 @@
 
         function openMap() { sessionState.isMapOpen = true; ui.mapScreen.classList.remove('hidden'); renderMap(); }
         function closeMap() { sessionState.isMapOpen = false; ui.mapScreen.classList.add('hidden'); }
+
         function startLevelFromMap(lvl) {
-            sessionState.playingLevel = lvl; closeMap(); ui.mainMenu.classList.add('hidden'); ui.pauseScreen.classList.add('hidden'); sessionState.isPaused = false; gameState.levelMoneyStart = gameState.money; showStartScreen();
+            sessionState.playingLevel = lvl;
+            closeMap();
+            ui.mainMenu.classList.add('hidden');
+            ui.pauseScreen.classList.add('hidden');
+            sessionState.isPaused = false;
+            gameState.levelMoneyStart = gameState.money; 
+            showStartScreen();
         }
+
         function renderMap() { 
             ui.mapContent.innerHTML = '';
             let endLvl = gameState.level + 5;
             for (let i = endLvl; i >= 1; i--) {
                 const node = document.createElement('div'); node.className = 'map-node'; node.innerText = i;
-                if (i <= gameState.level) { node.classList.add('completed'); node.onclick = () => startLevelFromMap(i); } 
-                else if (i === gameState.level) { node.classList.add('current'); node.id = 'current-level-node'; node.onclick = () => startLevelFromMap(i); } 
+                if (i <= gameState.level) { 
+                    node.classList.add('completed'); 
+                    node.onclick = () => startLevelFromMap(i);
+                } 
+                else if (i === gameState.level) { 
+                    node.classList.add('current'); 
+                    node.id = 'current-level-node'; 
+                    node.onclick = () => startLevelFromMap(i);
+                } 
                 else node.style.opacity = "0.5";
-                if (i === sessionState.playingLevel) { node.style.border = "3px solid #00FFFF"; node.id = 'current-playing-node'; }
+                
+                if (i === sessionState.playingLevel) {
+                    node.style.border = "3px solid #00FFFF";
+                    node.id = 'current-playing-node'; 
+                }
+
                 ui.mapContent.appendChild(node);
             }
             setTimeout(() => { const c = document.getElementById('current-playing-node') || document.getElementById('current-level-node'); if(c) c.scrollIntoView({block:"center"}); }, 100);
@@ -1041,15 +1075,19 @@
             document.getElementById('main-market-btn').onclick = () => openShop(true);
             document.getElementById('tutorial-btn').onclick = () => ui.tutorialScreen.classList.remove('hidden');
             document.getElementById('close-tutorial-btn').onclick = closeTutorial;
-            document.getElementById('pause-btn').onclick = () => { if (!sessionState.inMenu && !sessionState.levelEnding && !sessionState.inMiniGame) { sessionState.isPaused = true; ui.pauseScreen.classList.remove('hidden'); } };
+            
+            document.getElementById('pause-btn').onclick = () => { if (!sessionState.inMenu && !sessionState.levelEnding) { sessionState.isPaused = true; ui.pauseScreen.classList.remove('hidden'); } };
             document.getElementById('resume-btn').onclick = () => { sessionState.isPaused = false; ui.pauseScreen.classList.add('hidden'); };
             document.getElementById('pause-restart-btn').onclick = restartCurrentLevel; 
             document.getElementById('main-menu-btn').onclick = () => { ui.pauseScreen.classList.add('hidden'); showMainMenu(); };
+            
             document.getElementById('map-btn-start').onclick = openMap;
             document.getElementById('map-btn-pause').onclick = openMap;
             document.getElementById('close-map-btn').onclick = closeMap;
+
             document.getElementById('btn-power').onclick = () => { if (gameState.money >= gameState.prices.power) { gameState.money -= gameState.prices.power; gameState.hookSpeed *= 1.1; gameState.hookPower *= 1.1; gameState.prices.power = Math.floor(gameState.prices.power * 1.4); updateUI(); openShop(sessionState.shopMode === 'menu'); } };
             document.getElementById('btn-storage').onclick = () => { if (gameState.money >= gameState.prices.storage) { gameState.money -= gameState.prices.storage; gameState.maxStorage += 20; gameState.prices.storage = Math.floor(gameState.prices.storage * 1.4); updateUI(); openShop(sessionState.shopMode === 'menu'); } };
+            
             document.getElementById('next-level-btn').onclick = () => {
                 ui.shopScreen.classList.add('hidden');
                 if (sessionState.shopMode === 'menu') { sessionState.isShopping = false; showMainMenu(); } 
@@ -1061,11 +1099,16 @@
                     showStartScreen(); 
                 }
             };
+
             document.getElementById('start-level-btn').onclick = () => {
                 ui.startScreen.classList.add('hidden');
                 initLevel(sessionState.playingLevel); 
-                if (!gameLoopRunning) { gameLoopRunning = true; loop(); }
+                if (!gameLoopRunning) {
+                    gameLoopRunning = true;
+                    loop();
+                }
             };
+
             document.getElementById('restart-level-btn').onclick = () => {
                 document.getElementById('game-over-screen').classList.add('hidden');
                 showStartScreen();
@@ -1077,24 +1120,25 @@
         }
 
         window.addEventListener('load', () => {
-            loadGame(); resize();
+            loadGame();
+            resize();
             window.addEventListener('resize', resize);
-            initListeners(); showMainMenu(); 
+            initListeners(); 
+            showMainMenu(); 
         });
 
         function loop() {
             requestAnimationFrame(loop);
-            if (sessionState.isPaused || sessionState.isMapOpen || sessionState.inMenu || sessionState.inMiniGame) return;
+            
+            if (sessionState.isPaused || sessionState.isMapOpen || sessionState.inMenu) return;
             
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = '#87CEEB'; ctx.fillRect(0, 0, canvas.width, 110);
             ctx.fillStyle = '#5D4037'; ctx.fillRect(0, 110, canvas.width, canvas.height);
             ctx.fillStyle = '#333'; ctx.fillRect(canvas.width/2 - 25, 50, 50, 60); 
-            
             miner.update(); miner.draw();
-            if (!mole.active && !mole.caught && Math.random() < 0.001) mole.spawn();
-            mole.update(); mole.draw();
             objects.forEach(o => o.draw());
+            
             for(let i = particles.length - 1; i >= 0; i--) {
                 let p = particles[i];
                 p.x += p.vx; p.y += p.vy; p.life -= 0.05;
@@ -1103,32 +1147,43 @@
                 ctx.globalAlpha = 1.0;
                 if(p.life <= 0) particles.splice(i, 1);
             }
+
             hook.update(); hook.draw();
         }
 
         function inputAction(e) {
             if(e.type === 'touchstart') e.preventDefault(); 
-            if (sessionState.inMenu || sessionState.levelEnding || sessionState.isPaused || sessionState.isMapOpen || sessionState.inMiniGame) return;
+            if (sessionState.inMenu || sessionState.levelEnding || sessionState.isPaused || sessionState.isMapOpen) return;
 
             const rect = canvas.getBoundingClientRect();
-            let clientX = e.clientX; let clientY = e.clientY;
-            if(e.touches && e.touches.length > 0) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
-            const scaleX = canvas.width / rect.width; const scaleY = canvas.height / rect.height;
-            const x = (clientX - rect.left) * scaleX; const y = (clientY - rect.top) * scaleY;
+            let clientX = e.clientX;
+            let clientY = e.clientY;
+            if(e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            }
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const x = (clientX - rect.left) * scaleX;
+            const y = (clientY - rect.top) * scaleY;
 
             if (gameState.activeBoosters.dynamite) {
                 for (let i = 0; i < objects.length; i++) {
                     let o = objects[i];
                     if (!o.collected && o.type === 'rock') {
                         if (Math.hypot(o.x - x, o.y - y) < o.radius + 15) { 
-                            createExplosion(o.x, o.y); objects.splice(i, 1);
-                            gameState.activeBoosters.dynamite = false; showMessage("GÜM! Taş Yok Oldu", "#ff5722");
-                            updateUI(); return; 
+                            createExplosion(o.x, o.y);
+                            objects.splice(i, 1);
+                            gameState.activeBoosters.dynamite = false;
+                            showMessage("GÜM! Taş Yok Oldu", "#ff5722");
+                            updateUI();
+                            return; 
                         }
                     }
                 }
             }
-            if (hook.state === 'swing') hook.state = 'shoot'; 
+
+            if (hook.state === 'swing') { hook.state = 'shoot'; }
         }
         canvas.addEventListener('mousedown', inputAction);
         canvas.addEventListener('touchstart', inputAction, {passive: false});
