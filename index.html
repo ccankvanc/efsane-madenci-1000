@@ -15,7 +15,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;700;900&display=swap');
 
-        * { box-sizing: border-box; user-select: none; -webkit-user-select: none; }
+        * { box-sizing: border-box; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
 
         body {
             margin: 0; padding: 0; background-color: #2c3e50;
@@ -30,68 +30,120 @@
 
         canvas { display: block; width: 100%; height: 100%; }
 
-        /* UI */
+        /* --- UI DÜZENİ --- */
         #ui-layer {
-            position: absolute; top: 0; left: 0; width: 100%; padding: 10px;
+            position: absolute;
+            top: 0; left: 0; width: 100%;
+            padding: 10px;
             padding-top: max(10px, env(safe-area-inset-top));
             display: flex; justify-content: space-between; align-items: flex-start;
             pointer-events: none; text-shadow: 1px 1px 0 #000; color: white; z-index: 5;
         }
+
         .ui-panel { display: flex; flex-direction: column; gap: 6px; width: 48%; }
         .ui-panel.left { align-items: flex-start; }
         .ui-panel.right { align-items: flex-end; }
+
         .stat-group { display: flex; gap: 6px; align-items: center; }
+
         .stat-box {
-            background: rgba(0, 0, 0, 0.6); padding: 5px 10px; border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.3); display: flex; flex-direction: column; align-items: center;
-            backdrop-filter: blur(2px); white-space: nowrap;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 5px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.3);
+            display: flex; flex-direction: column; align-items: center;
+            backdrop-filter: blur(2px);
+            white-space: nowrap;
         }
+
         .stat-label { font-size: 10px; color: #ffd700; font-weight: bold; letter-spacing: 0.5px; margin-bottom: 2px; }
         .stat-value { font-size: 16px; font-weight: 900; line-height: 1; }
+
         .mini-bar-wrapper {
-            width: auto; min-width: 100px; background: rgba(0, 0, 0, 0.7);
-            padding: 4px 8px; border-radius: 6px; display: flex; align-items: center; gap: 6px;
-            backdrop-filter: blur(2px); box-sizing: border-box;
+            width: auto; min-width: 100px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 4px 8px;
+            border-radius: 6px;
+            display: flex; align-items: center; gap: 6px;
+            backdrop-filter: blur(2px);
+            box-sizing: border-box;
         }
-        .mini-bar-track { flex-grow: 1; height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; overflow: hidden; min-width: 50px; }
+
+        .mini-bar-track {
+            flex-grow: 1; height: 6px; background: rgba(255,255,255,0.2);
+            border-radius: 3px; overflow: hidden; min-width: 50px;
+        }
+
         .mini-bar-fill { height: 100%; width: 100%; border-radius: 3px; transition: width 0.3s ease; }
         #health-bar-fill { background: #e53935; box-shadow: 0 0 5px #e53935; }
         #storage-bar-fill { background: #4caf50; box-shadow: 0 0 5px #4caf50; }
         .mini-bar-text { font-size: 10px; font-weight: bold; min-width: 25px; text-align: right; }
+
         .icon-btn {
-            pointer-events: auto; background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255,255,255,0.3);
-            color: white; width: 40px; height: 40px; border-radius: 8px; font-size: 20px;
-            cursor: pointer; display: flex; justify-content: center; align-items: center; transition: all 0.2s;
+            pointer-events: auto; background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255,255,255,0.3); color: white;
+            width: 40px; height: 40px; border-radius: 8px;
+            font-size: 20px; cursor: pointer; display: flex; justify-content: center; align-items: center;
+            transition: all 0.2s; margin: 0; padding: 0;
         }
         .icon-btn:hover { background: #f44336; transform: scale(1.05); }
         .icon-btn:active { transform: scale(0.95); }
+
+        @media (max-width: 480px) {
+            #ui-layer { padding: 5px; padding-top: max(5px, env(safe-area-inset-top)); }
+            .ui-panel { gap: 4px; }
+            .stat-group { gap: 4px; }
+            .stat-box { padding: 3px 6px; }
+            .stat-label { font-size: 8px; }
+            .stat-value { font-size: 13px; }
+            .mini-bar-wrapper { padding: 2px 5px; min-width: 80px; }
+            .mini-bar-track { height: 4px; min-width: 30px; }
+            .mini-bar-text { font-size: 9px; }
+            .icon-btn { width: 32px; height: 32px; font-size: 16px; }
+            .booster-icon { width: 20px; height: 20px; font-size: 12px; }
+            h1 { font-size: 32px; }
+            h2 { font-size: 22px; }
+        }
+
         #active-boosters { display: flex; gap: 4px; margin-top: 2px; }
         .booster-icon {
-            font-size: 14px; background: rgba(0,0,0,0.6); border-radius: 50%; width: 24px; height: 24px;
-            display: flex; justify-content: center; align-items: center; border: 1px solid #ffd700; box-shadow: 0 0 3px #ffd700; cursor: help;
+            font-size: 14px; background: rgba(0,0,0,0.6); border-radius: 50%;
+            width: 24px; height: 24px; display: flex; justify-content: center; align-items: center;
+            border: 1px solid #ffd700; box-shadow: 0 0 3px #ffd700; cursor: help;
         }
+
+        /* Menüler */
         .overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9);
-            display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 20; color: white; backdrop-filter: blur(5px);
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 20; color: white; backdrop-filter: blur(5px);
         }
         .hidden { display: none !important; }
+
         h1 { font-size: 36px; margin-bottom: 5px; color: #ffd700; text-shadow: 3px 3px 0 #d35400; text-align: center; font-weight: 900; }
         h2 { font-size: 24px; margin-bottom: 15px; color: #fff; font-weight: 700; }
         p { font-size: 14px; margin: 8px; text-align: center; max-width: 85%; color: #ccc; line-height: 1.4; }
+
         button.main-btn {
-            background: linear-gradient(to bottom, #ff9800, #e65100); border: none; border-bottom: 4px solid #bf360c; color: white;
+            background: linear-gradient(to bottom, #ff9800, #e65100);
+            border: none; border-bottom: 4px solid #bf360c; color: white;
             padding: 12px 40px; font-size: 18px; font-family: 'Rubik', sans-serif; font-weight: bold;
             border-radius: 25px; cursor: pointer; margin-top: 15px; transition: all 0.1s;
         }
         button.main-btn:active { transform: translateY(4px); border-bottom: 0px solid transparent; margin-bottom: 5px; }
+        
         button.secondary-btn {
             background: #455a64; border: none; border-bottom: 3px solid #263238; color: white;
             padding: 8px 25px; font-size: 14px; font-family: 'Rubik', sans-serif; font-weight: bold;
             border-radius: 15px; cursor: pointer; margin-top: 10px;
         }
+
+        /* Market */
         .shop-container {
-            display: flex; flex-direction: column; background: #2c3e50; padding: 15px; border-radius: 15px;
-            border: 3px solid #ffd700; width: 95%; max-width: 500px; max-height: 75vh; overflow-y: auto;
+            display: flex; flex-direction: column; background: #2c3e50; padding: 15px;
+            border-radius: 15px; border: 3px solid #ffd700; width: 95%; max-width: 500px;
+            max-height: 75vh; overflow-y: auto;
         }
         .shop-tabs { display: flex; justify-content: center; gap: 5px; margin-bottom: 10px; flex-wrap: wrap; }
         .tab-btn {
@@ -102,6 +154,7 @@
         .shop-section { display: none; width: 100%; }
         .shop-section.active { display: block; }
         .upgrade-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; }
+        
         .item-card {
             background: #37474f; border: 2px solid #546e7a; border-radius: 8px; padding: 8px;
             display: flex; flex-direction: column; align-items: center; text-align: center;
@@ -113,18 +166,34 @@
         .item-name { font-size: 12px; font-weight: bold; margin-bottom: 2px; color: #fff; }
         .item-desc { font-size: 9px; color: #aaa; margin-bottom: 4px; min-height: 20px; display: flex; align-items: center; justify-content: center; }
         .item-price { font-size: 12px; color: #ffd700; font-weight: bold; }
+        
         .buy-btn {
             padding: 4px 8px; font-size: 11px; margin-top: 4px; width: 100%; background: #0288d1;
             border-bottom: 3px solid #01579b; color: #fff; border: none; cursor: pointer; border-radius: 4px;
         }
         .buy-btn:disabled { background: #555; border-bottom: 3px solid #333; color: #999; cursor: not-allowed; }
         .buy-btn.equipped { background: #4caf50; border-bottom: 3px solid #2e7d32; pointer-events: none; }
+
+        /* Nasıl Oynanır */
+        #tutorial-screen { text-align: left; }
+        .tutorial-content {
+            background: #3e2723; padding: 20px; border-radius: 15px; border: 2px solid #8d6e63;
+            width: 90%; max-width: 500px; max-height: 70vh; overflow-y: auto; color: #fff;
+        }
+        .tut-item { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+        .tut-icon { width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; }
+        .tut-icon svg { width: 100%; height: 100%; }
+        .tut-text h3 { margin: 0 0 5px 0; color: #ffd700; font-size: 16px; }
+        .tut-text p { margin: 0; font-size: 13px; color: #ccc; text-align: left; max-width: 100%; }
+
         #messages {
             position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
             font-size: 28px; color: #fff; text-shadow: 0 0 10px rgba(0,0,0,0.8);
             pointer-events: none; opacity: 0; transition: opacity 0.5s, transform 0.5s;
             z-index: 15; text-align: center; width: 100%; font-weight: 900;
         }
+        
+        /* Harita */
         .map-container {
             width: 85%; max-width: 350px; height: 50vh; background: #3e2723;
             border: 3px solid #8d6e63; border-radius: 12px; overflow-y: auto;
@@ -146,14 +215,6 @@
         .map-node.current {
             background: #ffd700; border-color: #ff6f00; color: #3e2723;
             transform: scale(1.2); box-shadow: 0 0 10px #ffd700; animation: pulseNode 1.5s infinite; cursor: pointer;
-        }
-        @media (max-width: 480px) {
-            #ui-layer { padding: 5px; padding-top: max(5px, env(safe-area-inset-top)); }
-            .ui-panel { gap: 4px; } .stat-group { gap: 4px; }
-            .stat-box { padding: 3px 6px; } .stat-label { font-size: 8px; } .stat-value { font-size: 13px; }
-            .mini-bar-wrapper { padding: 2px 5px; min-width: 80px; } .mini-bar-track { height: 4px; min-width: 30px; } .mini-bar-text { font-size: 9px; }
-            .icon-btn { width: 32px; height: 32px; font-size: 16px; } .booster-icon { width: 20px; height: 20px; font-size: 12px; }
-            h1 { font-size: 32px; } h2 { font-size: 22px; }
         }
 
         /* --- MINI GAME (ATÖLYE) --- */
@@ -182,17 +243,6 @@
             width: 4px; height: 100%; background: #fff; position: absolute; top: 0; left: 50%; box-shadow: 0 0 5px #000; z-index: 2;
         }
         .menu-logo { font-size: 60px; margin-bottom: 10px; }
-        /* Nasıl Oynanır */
-        #tutorial-screen { text-align: left; }
-        .tutorial-content {
-            background: #3e2723; padding: 20px; border-radius: 15px; border: 2px solid #8d6e63;
-            width: 90%; max-width: 500px; max-height: 70vh; overflow-y: auto; color: #fff;
-        }
-        .tut-item { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
-        .tut-icon { width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; }
-        .tut-icon svg { width: 100%; height: 100%; }
-        .tut-text h3 { margin: 0 0 5px 0; color: #ffd700; font-size: 16px; }
-        .tut-text p { margin: 0; font-size: 13px; color: #ccc; text-align: left; max-width: 100%; }
     </style>
 </head>
 <body>
@@ -257,7 +307,7 @@
             <div class="tutorial-content">
                 <div class="tut-item"><div class="tut-icon"><svg viewBox="0 0 50 50"><path d="M15 10 L15 35 C15 45 35 45 35 35 L35 10" stroke="#ffd700" stroke-width="4" fill="none" stroke-linecap="round"/></svg></div><div class="tut-text"><h3>Kancayı Fırlat</h3><p>Ekrana dokunarak veya tıklayarak sallanan kancayı fırlat. Altınları ve elmasları hedefle.</p></div></div>
                 <div class="tut-item"><div class="tut-icon"><svg viewBox="0 0 50 50"><path d="M10 20 L20 10 L40 15 L45 35 L25 45 L5 35 Z" fill="#7f8c8d" stroke="#555" stroke-width="2"/></svg></div><div class="tut-text"><h3>Taşlardan Kaçın!</h3><p>Taşlar değersizdir ve kancanın <b>canını azaltır</b>. Çok büyük taşlar kancanı kırabilir!</p></div></div>
-                <div class="tut-item"><div class="tut-icon"><svg viewBox="0 0 50 50"><text x="10" y="35" font-size="30">🧨</text></svg></div><div class="tut-text"><h3>Dinamit Kullan</h3><p>Eğer "Dinamit" aldıysan, oyun sırasında <b>taşa dokunarak</b> onu patlatabilirsin.</p></div></div>
+                <div class="tut-item"><div class="tut-icon"><svg viewBox="0 0 50 50"><text x="10" y="35" font-size="30">🧨</text></svg></div><div class="tut-text"><h3>Dinamit ve TNT</h3><p>Taşlara dokunarak patlatabilirsin. <b>TNT varillerine DİKKAT ET!</b> Vurursan patlar ve büyük hasar verir.</p></div></div>
                 <div class="tut-item"><div class="tut-icon"><svg viewBox="0 0 50 50"><text x="10" y="35" font-size="30">🔨</text></svg></div><div class="tut-text"><h3>Mücevher Atölyesi</h3><p>Her 10 bölümde bir açılır. İbreyi yeşilde durdurursan büyük ödül kazanırsın!</p></div></div>
             </div>
             <button id="close-tutorial-btn" class="main-btn" style="margin-top:15px;">ANLADIM</button>
@@ -340,6 +390,22 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
+        // --- MOBİL UYUMLULUK YAMASI (Polyfill) ---
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+                if (w < 2 * r) r = w / 2;
+                if (h < 2 * r) r = h / 2;
+                this.beginPath();
+                this.moveTo(x + r, y);
+                this.arcTo(x + w, y, x + w, y + h, r);
+                this.arcTo(x + w, y + h, x, y + h, r);
+                this.arcTo(x, y + h, x, y, r);
+                this.arcTo(x, y, x + w, y, r);
+                this.closePath();
+                return this;
+            };
+        }
+
         // UI
         const ui = {
             money: document.getElementById('current-score'),
@@ -435,7 +501,7 @@
         
         const CUSTOM_MINER_IMAGE_URL = 'image_cd5845.jpg'; 
         
-        // ASSET LOADER SİSTEMİ (Hazırlık)
+        // ASSET LOADER
         const assets = {
             gold: { src: 'gold.png', img: new Image(), loaded: false },
             rock: { src: 'rock.png', img: new Image(), loaded: false },
@@ -446,12 +512,10 @@
             dynamite: { src: 'dynamite.png', img: new Image(), loaded: false }
         };
 
-        // Resimlerin yüklenmesini başlat (Eğer dosya varsa otomatik kullanır)
         Object.keys(assets).forEach(key => {
             assets[key].img.src = assets[key].src;
             assets[key].img.onload = () => { assets[key].loaded = true; };
         });
-
 
         // --- YARDIMCI FONKSİYONLAR ---
         function getSkinDurability(skinId) { const s = hookSkins.find(x => x.id === skinId); return s ? s.durability : 100; }
@@ -502,7 +566,9 @@
                 let dist = Math.hypot(obj.x - centerX, obj.y - centerY);
                 if (dist < 200) { 
                     obj.collected = true; 
-                    if (obj.type === 'rock') { createExplosion(obj.x, obj.y); } else {
+                    if (obj.type === 'rock' || obj.type === 'tnt') { 
+                        createExplosion(obj.x, obj.y); 
+                    } else {
                         let val = obj.value;
                         if (obj.type === 'diamond' && gameState.activeBoosters.polish) val = Math.floor(val * 1.5);
                         gameState.money += val; gameState.levelScore += val; sessionState.storage += 0.1;
@@ -552,14 +618,26 @@
         }
 
         class Hook {
-            constructor() { this.x = 0; this.y = 80; this.angle = 0; this.angleSpeed = 0.015; this.length = 50; this.state = 'swing'; this.targetObj = null; }
+            constructor() { 
+                this.x = 0; 
+                this.y = 80; 
+                this.angle = 0; 
+                this.angleSpeed = 0.015; 
+                this.length = 50; 
+                this.state = 'swing'; 
+                this.targetObj = null; 
+            }
             update() {
                 if (this.state === 'swing') { this.angle += this.angleSpeed; if (this.angle > 1.3 || this.angle < -1.3) this.angleSpeed *= -1; }
                 else if (this.state === 'shoot') {
                     this.length += gameState.hookSpeed * 2.0; 
                     if (this.length > canvas.height * 1.3 || this.x + Math.sin(this.angle) * this.length < 0 || this.x + Math.sin(this.angle) * this.length > canvas.width) this.state = 'pull';
                     let tipX = this.x + Math.sin(this.angle) * this.length; let tipY = this.y + Math.cos(this.angle) * this.length;
-                    if (mole.active && !mole.caught && Math.hypot(tipX - mole.x, tipY - mole.y) < 30) { this.targetObj = mole; this.state = 'pull'; mole.caught = true; miner.mood = 'happy'; miner.waveTimer = 0; return; }
+                    
+                    if (mole.active && !mole.caught && Math.hypot(tipX - mole.x, tipY - mole.y) < 30) {
+                        this.targetObj = mole; this.state = 'pull'; mole.caught = true; miner.mood = 'happy'; miner.waveTimer = 0; return;
+                    }
+
                     for (let obj of objects) { if (!obj.collected && Math.hypot(tipX - obj.x, tipY - obj.y) < obj.radius) { this.targetObj = obj; this.state = 'pull'; obj.caught = true; miner.mood = 'happy'; miner.waveTimer = 0; break; } }
                 } else if (this.state === 'pull') {
                     if (this.targetObj && this.targetObj.caught) {
@@ -567,18 +645,26 @@
                         if (currentSkin && currentSkin.special === 'blackhole' && !this.targetObj.blackholed) {
                             this.targetObj.blackholed = true; activateBlackHole(this.targetObj.x, this.targetObj.y);
                         } else if (currentSkin && currentSkin.special === 'laser' && this.targetObj.type === 'rock') {
-                            this.state = 'shoot'; // Kanca geri dönmez, devam eder
-                            this.targetObj.collected = true; // Taşı yok et
+                            this.state = 'shoot'; 
+                            this.targetObj.collected = true; 
                             createExplosion(this.targetObj.x, this.targetObj.y);
                             showMessage("Lazer!", "#FF0055");
-                            this.targetObj = null; // Hedefi bırak
-                            return; // Döngüden çık
+                            this.targetObj = null; 
+                            return; 
+                        } else if (this.targetObj.type === 'tnt') {
+                             // TNT always explodes, even with laser hook
+                            createExplosion(this.targetObj.x, this.targetObj.y);
+                            this.targetObj.collected = true;
+                            collectObject(this.targetObj); // Handle damage in collectObject
+                            this.targetObj = null;
+                            this.state = 'pull'; // Hook returns damaged
+                            return;
                         }
                         
                         // Mıknatıs Skill
                         if (currentSkin && (currentSkin.special === 'magnet' || currentSkin.special === 'infinity')) {
                             objects.forEach(o => {
-                                if (!o.collected && o.type !== 'rock' && Math.hypot(this.x - o.x, this.y - o.y) < 100) {
+                                if (!o.collected && o.type !== 'rock' && o.type !== 'tnt' && Math.hypot(this.x - o.x, this.y - o.y) < 100) {
                                     o.x += (this.x - o.x) * 0.1;
                                     o.y += (this.y - o.y) * 0.1;
                                     if (Math.hypot(this.x - o.x, this.y - o.y) < 20) { o.collected = true; collectObject(o); }
@@ -606,20 +692,10 @@
                 ctx.translate(Math.sin(this.angle) * this.length, Math.cos(this.angle) * this.length); ctx.rotate(-this.angle);
                 let currentSkin = hookSkins.find(s => s.id === gameState.currentSkinId); ctx.strokeStyle = currentSkin.color; ctx.lineWidth = 5; ctx.lineCap = "round"; ctx.lineJoin = "round";
                 if (currentSkin.type === 'neon') { ctx.shadowBlur = 15; ctx.shadowColor = currentSkin.color; }
-                
-                // VISUAL FOR HOOK
-                if (currentSkin.special === 'laser' || currentSkin.type === 'sharp') {
-                    // Triangle / Sharp Hook
-                    ctx.beginPath(); ctx.moveTo(-10, -8); ctx.lineTo(0, 15); ctx.lineTo(10, -8); ctx.stroke();
-                } else if (currentSkin.special === 'blackhole') {
-                    // Circle with inner void
-                    ctx.beginPath(); ctx.arc(0, 0, 12, 0, Math.PI * 2); ctx.fillStyle = '#000'; ctx.fill(); ctx.stroke();
-                } else {
-                    // Default Arc Hook
-                    ctx.beginPath(); 
-                    if (this.targetObj) { ctx.arc(0, 4, 8, 0, Math.PI * 2); ctx.stroke(); } 
-                    else { ctx.arc(0, 0, 12, 0, Math.PI, false); ctx.stroke(); }
-                }
+                ctx.beginPath();
+                if (currentSkin.special === 'laser' || currentSkin.type === 'sharp') { ctx.beginPath(); ctx.moveTo(-10, -8); ctx.lineTo(0, 15); ctx.lineTo(10, -8); ctx.stroke(); } 
+                else if (currentSkin.special === 'blackhole') { ctx.beginPath(); ctx.arc(0, 0, 12, 0, Math.PI * 2); ctx.fillStyle = '#000'; ctx.fill(); ctx.stroke(); } 
+                else { ctx.beginPath(); if (this.targetObj) { ctx.arc(0, 4, 8, 0, Math.PI * 2); ctx.stroke(); } else { ctx.arc(0, 0, 12, 0, Math.PI, false); ctx.stroke(); } }
                 ctx.restore();
             }
         }
@@ -662,15 +738,28 @@
                 let inflation = 1 + (gameState.level * 0.1);
                 switch(type) {
                     case 'gold': 
-                        this.radius = 15 + Math.random() * 20; this.value = Math.floor((this.radius * 12) * inflation); this.weight = this.radius * 1.5; break;
+                        this.radius = 15 + Math.random() * 20; 
+                        this.value = Math.floor((this.radius * 12) * inflation); 
+                        this.weight = this.radius * 1.5; 
+                        break;
                     case 'rock': 
                         let sizeRoll = Math.random();
                         if (sizeRoll < 0.4) { this.radius = 20 + Math.random() * 8; this.damage = 30; } 
                         else if (sizeRoll < 0.8) { this.radius = 29 + Math.random() * 9; this.damage = 50; } 
                         else { this.radius = 39 + Math.random() * 11; this.damage = 100; }
-                        this.value = Math.floor((this.radius * 0.5) * inflation); this.weight = this.radius * 3.5; break;
+                        this.value = Math.floor((this.radius * 0.5) * inflation); 
+                        this.weight = this.radius * 3.5; 
+                        break;
                     case 'diamond': 
-                        this.radius = 12; this.value = Math.floor(650 * inflation); this.weight = 5; break;
+                        this.radius = 12; 
+                        this.value = Math.floor(650 * inflation); 
+                        this.weight = 5; 
+                        break;
+                    case 'tnt':
+                        this.radius = 18;
+                        this.damage = 150; // High damage
+                        this.weight = 10;
+                        break;
                 }
             }
 
@@ -699,6 +788,31 @@
                         ctx.fillStyle = '#00FFFF'; ctx.beginPath(); ctx.moveTo(0, -this.radius); ctx.lineTo(this.radius, 0); ctx.lineTo(0, this.radius); ctx.lineTo(-this.radius, 0); ctx.fill();
                         ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.beginPath(); ctx.moveTo(0, -this.radius/2); ctx.lineTo(this.radius/2, 0); ctx.lineTo(0, this.radius/2); ctx.lineTo(-this.radius/2, 0); ctx.fill();
                         ctx.shadowBlur = 10; ctx.shadowColor = '#00FFFF';
+                    } else if (this.type === 'tnt') {
+                         // TNT Varili
+                         ctx.fillStyle = '#d32f2f'; // Kırmızı gövde
+                         ctx.fillRect(-15, -20, 30, 40);
+                         // Şeritler
+                         ctx.fillStyle = '#fbc02d'; // Sarı şeritler
+                         ctx.fillRect(-15, -10, 30, 5);
+                         ctx.fillRect(-15, 5, 30, 5);
+                         // Yazı
+                         ctx.fillStyle = 'white';
+                         ctx.font = 'bold 10px sans-serif';
+                         ctx.textAlign = 'center';
+                         ctx.fillText('TNT', 0, 3);
+                         // Fitil
+                         ctx.strokeStyle = '#5d4037';
+                         ctx.lineWidth = 2;
+                         ctx.beginPath();
+                         ctx.moveTo(0, -20);
+                         ctx.lineTo(5, -28);
+                         ctx.stroke();
+                         // Kıvılcım
+                         ctx.fillStyle = '#ffeb3b';
+                         ctx.beginPath();
+                         ctx.arc(5, -28, 2, 0, Math.PI*2);
+                         ctx.fill();
                     }
                 }
                 ctx.restore();
@@ -774,6 +888,12 @@
                 let type = 'rock';
                 let rockProb = 0.3 + (lvl * 0.02); if (rockProb > 0.6) rockProb = 0.6;
                 if (typeRand < rockProb) type = 'rock'; else if (typeRand < 0.85) type = 'gold'; else if (typeRand < 0.95 && lvl > 2) type = 'diamond'; else type = 'gold';
+                
+                // 10. Seviye ve üzeri TNT şansı
+                if (lvl >= 10 && Math.random() < 0.1) {
+                    type = 'tnt';
+                }
+
                 let ox = 50 + Math.random() * (canvas.width - 100); let oy = 150 + Math.random() * (canvas.height - 200);
                 let safe = true; for(let o of objects) { if (Math.hypot(o.x - ox, o.y - oy) < 40) safe = false; }
                 if(safe) objects.push(new MineObject(type, ox, oy));
@@ -781,16 +901,23 @@
         }
 
         function createExplosion(x, y) {
-            for(let i=0; i<10; i++) {
-                particles.push({ x: x, y: y, vx: (Math.random()-0.5)*5, vy: (Math.random()-0.5)*5, life: 1.0, color: '#ff5722' });
+            for(let i=0; i<15; i++) {
+                particles.push({ x: x, y: y, vx: (Math.random()-0.5)*7, vy: (Math.random()-0.5)*7, life: 1.0, color: '#ff5722' });
+            }
+             for(let i=0; i<5; i++) {
+                particles.push({ x: x, y: y, vx: (Math.random()-0.5)*5, vy: (Math.random()-0.5)*5, life: 1.0, color: '#ffeb3b' });
             }
         }
 
         function collectObject(obj) {
-            if (obj.type === 'rock') {
+            if (obj.type === 'rock' || obj.type === 'tnt') {
                 let damage = obj.damage || 30; 
                 sessionState.currentHealth -= damage;
-                showMessage(`HASAR: -${damage}`, "#e53935");
+                let msg = obj.type === 'tnt' ? `TNT PATLADI! -${damage}` : `HASAR: -${damage}`;
+                let color = obj.type === 'tnt' ? '#b71c1c' : '#e53935';
+                
+                showMessage(msg, color);
+                
                 if (sessionState.currentHealth <= 0) { sessionState.currentHealth = 0; loseLevel("Kanca parçalandı!"); }
             } else {
                 if (sessionState.storage >= gameState.maxStorage) { showMessage("DEPO TAMAMEN DOLU!", "red"); checkEnd(); return; }
@@ -808,7 +935,7 @@
             if (sessionState.currentHealth <= 0) return;
             
             let remainingCapacity = gameState.maxStorage - sessionState.storage;
-            let valuableExists = objects.some(o => !o.collected && o.type !== 'rock');
+            let valuableExists = objects.some(o => !o.collected && o.type !== 'rock' && o.type !== 'tnt');
 
             if (gameState.levelScore < gameState.levelTarget) {
                 if (!valuableExists && !mole.active) { loseLevel("Maden tükendi."); } 
@@ -933,58 +1060,18 @@
             ui.skinGrid.innerHTML = '';
             hookSkins.forEach(skin => {
                 let isOwned = gameState.unlockedSkins.includes(skin.id);
-                let btnText = "", btnClass = "", disabled = false;
-                
-                if (gameState.currentSkinId === skin.id) {
-                    btnText = "KUŞANILDI";
-                    btnClass = "buy-btn equipped";
-                    disabled = true;
-                } else if (isOwned) {
-                    btnText = "KUŞAN";
-                    btnClass = "buy-btn";
-                    disabled = false;
-                } else {
-                    btnText = "SATIN AL";
-                    btnClass = "buy-btn";
-                    disabled = gameState.money < skin.price;
-                }
-
-                ui.skinGrid.innerHTML += `
-                    <div class="item-card ${isOwned ? 'purchased' : ''}">
-                        <div class="item-icon">${getHookSVG(skin.type, skin.color)}</div>
-                        <div class="item-name">${skin.name}</div>
-                        <div class="item-desc">Dayanıklılık: ${skin.durability}</div>
-                        <div class="item-price">${isOwned ? 'Sahipsin' : '$'+skin.price}</div>
-                        <button class="${btnClass}" ${disabled ? 'disabled' : ''} onclick="handleHookSkinClick('${skin.id}')">${btnText}</button>
-                    </div>`;
+                let btnText = isEquipped = gameState.currentSkinId === skin.id ? "KUŞANILDI" : (isOwned ? "KUŞAN" : "SATIN AL");
+                let btnClass = isEquipped === "KUŞANILDI" ? "buy-btn equipped" : "buy-btn";
+                let disabled = !isOwned && gameState.money < skin.price;
+                ui.skinGrid.innerHTML += `<div class="item-card ${isOwned ? 'purchased' : ''}"><div class="item-icon">${getHookSVG(skin.type, skin.color)}</div><div class="item-name">${skin.name}</div><div class="item-desc">Dayanıklılık: ${skin.durability}</div><div class="item-price">${isOwned ? 'Sahipsin' : '$'+skin.price}</div><button class="${btnClass}" ${disabled ? 'disabled' : ''} onclick="handleHookSkinClick('${skin.id}')">${btnText}</button></div>`;
             });
-
             ui.minerSkinGrid.innerHTML = '';
             minerSkins.forEach(skin => {
                 let isOwned = gameState.unlockedMinerSkins.includes(skin.id);
-                let btnText = "", btnClass = "", disabled = false;
-                
-                if (gameState.currentMinerSkinId === skin.id) {
-                    btnText = "KUŞANILDI";
-                    btnClass = "buy-btn equipped";
-                    disabled = true;
-                } else if (isOwned) {
-                    btnText = "KUŞAN";
-                    btnClass = "buy-btn";
-                    disabled = false;
-                } else {
-                    btnText = "SATIN AL";
-                    btnClass = "buy-btn";
-                    disabled = gameState.money < skin.price;
-                }
-
-                ui.minerSkinGrid.innerHTML += `
-                    <div class="item-card ${isOwned ? 'purchased' : ''}">
-                        <div class="item-icon">${getMinerSVG(skin.shirt, skin.hat)}</div>
-                        <div class="item-name">${skin.name}</div>
-                        <div class="item-price">${isOwned ? 'Sahipsin' : '$'+skin.price}</div>
-                        <button class="${btnClass}" ${disabled ? 'disabled' : ''} onclick="handleMinerSkinClick('${skin.id}')">${btnText}</button>
-                    </div>`;
+                let btnText = isEquipped = gameState.currentMinerSkinId === skin.id ? "KUŞANILDI" : (isOwned ? "KUŞAN" : "SATIN AL");
+                let btnClass = isEquipped === "KUŞANILDI" ? "buy-btn equipped" : "buy-btn";
+                let disabled = !isOwned && gameState.money < skin.price;
+                ui.minerSkinGrid.innerHTML += `<div class="item-card ${isOwned ? 'purchased' : ''}"><div class="item-icon">${getMinerSVG(skin.shirt, skin.hat)}</div><div class="item-name">${skin.name}</div><div class="item-price">${isOwned ? 'Sahipsin' : '$'+skin.price}</div><button class="${btnClass}" ${disabled ? 'disabled' : ''} onclick="handleMinerSkinClick('${skin.id}')">${btnText}</button></div>`;
             });
         }
 
@@ -1005,8 +1092,7 @@
         function buyBooster(type) {
             let price = getBoosterPrice(type);
             if (gameState.money >= price && !gameState.activeBoosters[type]) {
-                gameState.money -= price; gameState.activeBoosters[type] = true;
-                updateBoosterButtons(); updateUI(); saveGame();
+                gameState.money -= price; gameState.activeBoosters[type] = true; updateBoosterButtons(); updateUI(); saveGame();
             }
         }
 
@@ -1014,10 +1100,7 @@
             setBtnState('btn-boost-dynamite', 'dynamite', getBoosterPrice('dynamite'));
             setBtnState('btn-boost-strength', 'strength', getBoosterPrice('strength'));
             setBtnState('btn-boost-polish', 'polish', getBoosterPrice('polish'));
-            
-            ui.priceDynamite.innerText = `$${getBoosterPrice('dynamite')}`;
-            ui.priceStrength.innerText = `$${getBoosterPrice('strength')}`;
-            ui.pricePolish.innerText = `$${getBoosterPrice('polish')}`;
+            ui.priceDynamite.innerText = `$${getBoosterPrice('dynamite')}`; ui.priceStrength.innerText = `$${getBoosterPrice('strength')}`; ui.pricePolish.innerText = `$${getBoosterPrice('polish')}`;
         }
 
         function setBtnState(btnId, type, price) {
@@ -1028,38 +1111,18 @@
 
         function openMap() { sessionState.isMapOpen = true; ui.mapScreen.classList.remove('hidden'); renderMap(); }
         function closeMap() { sessionState.isMapOpen = false; ui.mapScreen.classList.add('hidden'); }
-
         function startLevelFromMap(lvl) {
-            sessionState.playingLevel = lvl;
-            closeMap();
-            ui.mainMenu.classList.add('hidden');
-            ui.pauseScreen.classList.add('hidden');
-            sessionState.isPaused = false;
-            gameState.levelMoneyStart = gameState.money; 
-            showStartScreen();
+            sessionState.playingLevel = lvl; closeMap(); ui.mainMenu.classList.add('hidden'); ui.pauseScreen.classList.add('hidden'); sessionState.isPaused = false; gameState.levelMoneyStart = gameState.money; showStartScreen();
         }
-
         function renderMap() { 
             ui.mapContent.innerHTML = '';
             let endLvl = gameState.level + 5;
             for (let i = endLvl; i >= 1; i--) {
                 const node = document.createElement('div'); node.className = 'map-node'; node.innerText = i;
-                if (i <= gameState.level) { 
-                    node.classList.add('completed'); 
-                    node.onclick = () => startLevelFromMap(i);
-                } 
-                else if (i === gameState.level) { 
-                    node.classList.add('current'); 
-                    node.id = 'current-level-node'; 
-                    node.onclick = () => startLevelFromMap(i);
-                } 
+                if (i <= gameState.level) { node.classList.add('completed'); node.onclick = () => startLevelFromMap(i); } 
+                else if (i === gameState.level) { node.classList.add('current'); node.id = 'current-level-node'; node.onclick = () => startLevelFromMap(i); } 
                 else node.style.opacity = "0.5";
-                
-                if (i === sessionState.playingLevel) {
-                    node.style.border = "3px solid #00FFFF";
-                    node.id = 'current-playing-node'; 
-                }
-
+                if (i === sessionState.playingLevel) { node.style.border = "3px solid #00FFFF"; node.id = 'current-playing-node'; }
                 ui.mapContent.appendChild(node);
             }
             setTimeout(() => { const c = document.getElementById('current-playing-node') || document.getElementById('current-level-node'); if(c) c.scrollIntoView({block:"center"}); }, 100);
@@ -1075,8 +1138,7 @@
             document.getElementById('main-market-btn').onclick = () => openShop(true);
             document.getElementById('tutorial-btn').onclick = () => ui.tutorialScreen.classList.remove('hidden');
             document.getElementById('close-tutorial-btn').onclick = closeTutorial;
-            
-            document.getElementById('pause-btn').onclick = () => { if (!sessionState.inMenu && !sessionState.levelEnding) { sessionState.isPaused = true; ui.pauseScreen.classList.remove('hidden'); } };
+            document.getElementById('pause-btn').onclick = () => { if (!sessionState.inMenu && !sessionState.levelEnding && !sessionState.inMiniGame) { sessionState.isPaused = true; ui.pauseScreen.classList.remove('hidden'); } };
             document.getElementById('resume-btn').onclick = () => { sessionState.isPaused = false; ui.pauseScreen.classList.add('hidden'); };
             document.getElementById('pause-restart-btn').onclick = restartCurrentLevel; 
             document.getElementById('main-menu-btn').onclick = () => { ui.pauseScreen.classList.add('hidden'); showMainMenu(); };
@@ -1099,16 +1161,11 @@
                     showStartScreen(); 
                 }
             };
-
             document.getElementById('start-level-btn').onclick = () => {
                 ui.startScreen.classList.add('hidden');
                 initLevel(sessionState.playingLevel); 
-                if (!gameLoopRunning) {
-                    gameLoopRunning = true;
-                    loop();
-                }
+                if (!gameLoopRunning) { gameLoopRunning = true; loop(); }
             };
-
             document.getElementById('restart-level-btn').onclick = () => {
                 document.getElementById('game-over-screen').classList.add('hidden');
                 showStartScreen();
@@ -1120,25 +1177,24 @@
         }
 
         window.addEventListener('load', () => {
-            loadGame();
-            resize();
+            loadGame(); resize();
             window.addEventListener('resize', resize);
-            initListeners(); 
-            showMainMenu(); 
+            initListeners(); showMainMenu(); 
         });
 
         function loop() {
             requestAnimationFrame(loop);
-            
-            if (sessionState.isPaused || sessionState.isMapOpen || sessionState.inMenu) return;
+            if (sessionState.isPaused || sessionState.isMapOpen || sessionState.inMenu || sessionState.inMiniGame) return;
             
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = '#87CEEB'; ctx.fillRect(0, 0, canvas.width, 110);
             ctx.fillStyle = '#5D4037'; ctx.fillRect(0, 110, canvas.width, canvas.height);
             ctx.fillStyle = '#333'; ctx.fillRect(canvas.width/2 - 25, 50, 50, 60); 
-            miner.update(); miner.draw();
-            objects.forEach(o => o.draw());
             
+            miner.update(); miner.draw();
+            if (!mole.active && !mole.caught && Math.random() < 0.001) mole.spawn();
+            mole.update(); mole.draw();
+            objects.forEach(o => o.draw());
             for(let i = particles.length - 1; i >= 0; i--) {
                 let p = particles[i];
                 p.x += p.vx; p.y += p.vy; p.life -= 0.05;
@@ -1147,43 +1203,32 @@
                 ctx.globalAlpha = 1.0;
                 if(p.life <= 0) particles.splice(i, 1);
             }
-
             hook.update(); hook.draw();
         }
 
         function inputAction(e) {
             if(e.type === 'touchstart') e.preventDefault(); 
-            if (sessionState.inMenu || sessionState.levelEnding || sessionState.isPaused || sessionState.isMapOpen) return;
+            if (sessionState.inMenu || sessionState.levelEnding || sessionState.isPaused || sessionState.isMapOpen || sessionState.inMiniGame) return;
 
             const rect = canvas.getBoundingClientRect();
-            let clientX = e.clientX;
-            let clientY = e.clientY;
-            if(e.touches && e.touches.length > 0) {
-                clientX = e.touches[0].clientX;
-                clientY = e.touches[0].clientY;
-            }
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-            const x = (clientX - rect.left) * scaleX;
-            const y = (clientY - rect.top) * scaleY;
+            let clientX = e.clientX; let clientY = e.clientY;
+            if(e.touches && e.touches.length > 0) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
+            const scaleX = canvas.width / rect.width; const scaleY = canvas.height / rect.height;
+            const x = (clientX - rect.left) * scaleX; const y = (clientY - rect.top) * scaleY;
 
             if (gameState.activeBoosters.dynamite) {
                 for (let i = 0; i < objects.length; i++) {
                     let o = objects[i];
                     if (!o.collected && o.type === 'rock') {
                         if (Math.hypot(o.x - x, o.y - y) < o.radius + 15) { 
-                            createExplosion(o.x, o.y);
-                            objects.splice(i, 1);
-                            gameState.activeBoosters.dynamite = false;
-                            showMessage("GÜM! Taş Yok Oldu", "#ff5722");
-                            updateUI();
-                            return; 
+                            createExplosion(o.x, o.y); objects.splice(i, 1);
+                            gameState.activeBoosters.dynamite = false; showMessage("GÜM! Taş Yok Oldu", "#ff5722");
+                            updateUI(); return; 
                         }
                     }
                 }
             }
-
-            if (hook.state === 'swing') { hook.state = 'shoot'; }
+            if (hook.state === 'swing') hook.state = 'shoot'; 
         }
         canvas.addEventListener('mousedown', inputAction);
         canvas.addEventListener('touchstart', inputAction, {passive: false});
