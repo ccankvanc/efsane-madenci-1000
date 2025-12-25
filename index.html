@@ -112,9 +112,10 @@
             border: 1px solid #ffd700; box-shadow: 0 0 3px #ffd700; cursor: help;
         }
 
+        /* Menüler */
         .overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.95);
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             z-index: 20; color: white; backdrop-filter: blur(5px);
         }
@@ -138,6 +139,7 @@
             border-radius: 15px; cursor: pointer; margin-top: 10px;
         }
 
+        /* Market */
         .shop-container {
             display: flex; flex-direction: column; background: #2c3e50; padding: 15px;
             border-radius: 15px; border: 3px solid #ffd700; width: 95%; max-width: 500px;
@@ -191,6 +193,7 @@
             z-index: 15; text-align: center; width: 100%; font-weight: 900;
         }
         
+        /* Harita */
         .map-container {
             width: 85%; max-width: 350px; height: 50vh; background: #3e2723;
             border: 3px solid #8d6e63; border-radius: 12px; overflow-y: auto;
@@ -212,6 +215,50 @@
         .map-node.current {
             background: #ffd700; border-color: #ff6f00; color: #3e2723;
             transform: scale(1.2); box-shadow: 0 0 10px #ffd700; animation: pulseNode 1.5s infinite; cursor: pointer;
+        }
+
+        /* --- MINI GAME (ATÖLYE) --- */
+        #mini-game-screen {
+            background: rgba(0, 0, 0, 0.95);
+        }
+        .mini-game-container {
+            position: relative;
+            width: 300px;
+            height: 400px;
+            background: #2c3e50;
+            border: 4px solid #ffd700;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.2);
+        }
+        .mg-title { font-size: 24px; color: #ffd700; margin-bottom: 20px; font-weight: bold; text-align: center; }
+        .mg-icon { font-size: 60px; margin-bottom: 30px; animation: float 2s infinite ease-in-out; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        
+        .mg-bar-container {
+            width: 100%;
+            height: 30px;
+            background: #333;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #555;
+            margin-bottom: 40px;
+        }
+        /* Zones: Red - Yellow - Green - Yellow - Red */
+        .mg-zone { height: 100%; position: absolute; top: 0; }
+        .mg-zone.red { background: #e53935; width: 100%; left: 0; }
+        .mg-zone.yellow { background: #ffeb3b; width: 50%; left: 25%; }
+        .mg-zone.green { background: #4caf50; width: 20%; left: 40%; box-shadow: 0 0 10px #4caf50; }
+        
+        .mg-needle {
+            width: 4px; height: 100%; background: #fff;
+            position: absolute; top: 0; left: 50%;
+            box-shadow: 0 0 5px #000;
+            z-index: 2;
         }
     </style>
 </head>
@@ -281,6 +328,25 @@
             <button id="main-reset-btn" class="secondary-btn" style="background:#555; font-size:10px; margin-top:20px; padding:5px 15px;">İlerlemeyi Sıfırla</button>
         </div>
 
+        <!-- Mini Game Ekranı -->
+        <div id="mini-game-screen" class="overlay hidden">
+            <div class="mini-game-container">
+                <div class="mg-title">MÜCEVHER ATÖLYESİ</div>
+                <div class="mg-icon">💎🔨</div>
+                <p style="font-size:14px; margin-bottom:20px;">İbreyi yeşil alanda durdur!</p>
+                
+                <div class="mg-bar-container">
+                    <div class="mg-zone red"></div>
+                    <div class="mg-zone yellow"></div>
+                    <div class="mg-zone green"></div>
+                    <div class="mg-needle" id="mg-needle"></div>
+                </div>
+
+                <button id="mg-hit-btn" class="main-btn" style="width:100%; margin-top:0;">VUR!</button>
+                <p id="mg-result-text" style="height:20px; margin-top:10px; font-weight:bold; color:#fff;"></p>
+            </div>
+        </div>
+
         <!-- Nasıl Oynanır Ekranı -->
         <div id="tutorial-screen" class="overlay hidden">
             <h2 style="color:#ffd700">NASIL OYNANIR?</h2>
@@ -314,20 +380,11 @@
                 </div>
                 <div class="tut-item">
                     <div class="tut-icon">
-                        <svg viewBox="0 0 50 50"><text x="10" y="35" font-size="30">🐭</text></svg>
+                         <svg viewBox="0 0 50 50"><text x="10" y="35" font-size="30">🔨</text></svg>
                     </div>
                     <div class="tut-text">
-                        <h3>Fareyi Yakala</h3>
-                        <p>Elmas taşıyan fareyi yakalarsan ekstra yüksek puan kazanırsın.</p>
-                    </div>
-                </div>
-                <div class="tut-item">
-                    <div class="tut-icon">
-                         <svg viewBox="0 0 50 50"><text x="10" y="35" font-size="30">🎒</text></svg>
-                    </div>
-                    <div class="tut-text">
-                        <h3>Depo Yönetimi</h3>
-                        <p>Depon dolarsa bölümü geçemeyebilirsin. Marketten depo kapasitesini artır.</p>
+                        <h3>Mücevher Atölyesi</h3>
+                        <p>Her 10 bölümde bir açılır. İbreyi yeşilde durdurursan büyük ödül kazanırsın!</p>
                     </div>
                 </div>
             </div>
@@ -468,6 +525,7 @@
             mainMenu: document.getElementById('main-menu'),
             startScreen: document.getElementById('start-screen'),
             tutorialScreen: document.getElementById('tutorial-screen'),
+            miniGameScreen: document.getElementById('mini-game-screen'),
             activeBoosters: document.getElementById('active-boosters'),
             preBoostersInfo: document.getElementById('pre-boosters-info'),
             dynamiteHint: document.getElementById('dynamite-hint'),
@@ -476,22 +534,31 @@
             pricePolish: document.getElementById('price-polish')
         };
 
+        // YENİ KANCALAR EKLENDİ
         const hookSkins = [
             { id: 'default', name: 'Paslı Kanca', price: 0, color: '#555', type: 'basic', durability: 100 },
             { id: 'golden', name: 'Altın Kanca', price: 1500, color: '#FFD700', type: 'fancy', durability: 200 },
             { id: 'diamond', name: 'Elmas Uçlu', price: 3500, color: '#00FFFF', type: 'sharp', durability: 350 },
             { id: 'laser', name: 'Lazer Kıskaç', price: 8000, color: '#FF0055', type: 'neon', durability: 600 },
             { id: 'plasma', name: 'Plazma Kanca', price: 15000, color: '#76ff03', type: 'neon', durability: 1000 },
-            { id: 'void', name: 'Kara Delik', price: 1000000, color: '#e040fb', type: 'neon', durability: 2000, special: 'blackhole' }
+            { id: 'void', name: 'Kara Delik', price: 1000000, color: '#e040fb', type: 'neon', durability: 2000, special: 'blackhole' },
+            { id: 'magnet', name: 'Mıknatıs K.', price: 45000, color: '#ff3d00', type: 'fancy', durability: 1500 },
+            { id: 'time', name: 'Zaman Kancası', price: 90000, color: '#2979ff', type: 'sharp', durability: 1800 },
+            { id: 'infinity', name: 'Sonsuzluk', price: 250000, color: '#ffd600', type: 'neon', durability: 3000 }
         ];
 
+        // YENİ MADENCİLER EKLENDİ
         const minerSkins = [
             { id: 'default', name: 'Klasik', price: 0, shirt: '#1565C0', hat: '#FFC107', pants: '#0D47A1' },
             { id: 'business', name: 'İş Adamı', price: 5000, shirt: '#212121', hat: '#424242', pants: '#000000' },
             { id: 'ninja', name: 'Ninja', price: 8000, shirt: '#1a237e', hat: '#000000', pants: '#1a237e' },
             { id: 'santa', name: 'Noel Baba', price: 10000, shirt: '#d32f2f', hat: '#ff5252', pants: '#d32f2f' },
             { id: 'alien', name: 'Marslı', price: 15000, shirt: '#4caf50', hat: '#76ff03', pants: '#2e7d32' },
-            { id: 'golden_boy', name: 'Bay Altın', price: 50000, shirt: '#FFD700', hat: '#FFECB3', pants: '#FFD700' }
+            { id: 'pirate', name: 'Korsan', price: 20000, shirt: '#5d4037', hat: '#b71c1c', pants: '#3e2723' },
+            { id: 'cyborg', name: 'Sayborg', price: 45000, shirt: '#607d8b', hat: '#b0bec5', pants: '#455a64' },
+            { id: 'wizard', name: 'Büyücü', price: 80000, shirt: '#4a148c', hat: '#7b1fa2', pants: '#311b92' },
+            { id: 'king', name: 'Kral', price: 150000, shirt: '#b71c1c', hat: '#FFD700', pants: '#880e4f' },
+            { id: 'golden_boy', name: 'Bay Altın', price: 500000, shirt: '#FFD700', hat: '#FFECB3', pants: '#FFD700' }
         ];
 
         const defaultState = {
@@ -506,12 +573,26 @@
         };
 
         let gameState = JSON.parse(JSON.stringify(defaultState));
+        let levelStartState = null; 
         
         let sessionState = {
             storage: 0, currentHealth: 100, maxHealth: 100,
             isShopping: false, isPaused: false, isMapOpen: false, levelEnding: false, inMenu: true,
+            inMiniGame: false,
             playingLevel: 1, 
             shopMode: 'level' 
+        };
+
+        // Mini Game Değişkenleri
+        let mg = {
+            active: false,
+            pos: 50,
+            dir: 1,
+            speed: 1.5,
+            needleEl: document.getElementById('mg-needle'),
+            resultEl: document.getElementById('mg-result-text'),
+            btn: document.getElementById('mg-hit-btn'),
+            animId: null
         };
 
         let objects = [];
@@ -534,7 +615,6 @@
             return `<svg viewBox="0 0 50 50" style="${filter}">${path}</svg>`;
         }
 
-        // Madenci ikonu için (Market)
         function getMinerSVG(shirt, hat) {
             return `<svg viewBox="0 0 50 50">
                 <rect x="15" y="20" width="20" height="20" fill="${shirt}" rx="5"/>
@@ -558,7 +638,6 @@
         }
 
         function activateBlackHole(centerX, centerY) {
-            // Görsel Efekt: Kara Delik
             for(let i=0; i<30; i++) {
                 particles.push({
                     x: centerX + (Math.random()-0.5)*300, 
@@ -568,30 +647,18 @@
                     life: 2.0, color: '#e040fb'
                 });
             }
-
-            // Logic: Etraftaki her şeyi çek
             objects.forEach((obj, index) => {
                 if (obj.collected) return;
-                
                 let dist = Math.hypot(obj.x - centerX, obj.y - centerY);
-                if (dist < 200) { // 200px yarıçap
-                    obj.collected = true; // Hepsini topla
-                    
+                if (dist < 200) { 
+                    obj.collected = true; 
                     if (obj.type === 'rock') {
-                        // Taşları yok et
                         createExplosion(obj.x, obj.y);
                     } else {
-                        // Altın/Elmas/Fare topla
-                        // Kara delik nesneleri sıkıştırır, ağırlık yok sayılır (0.1)
                         let val = obj.value;
                         if (obj.type === 'diamond' && gameState.activeBoosters.polish) val = Math.floor(val * 1.5);
-                        
-                        gameState.money += val;
-                        gameState.levelScore += val;
-                        sessionState.storage += 0.1; // Çok az ağırlık
-                        
-                        // Uçuşan skor efekti (basitçe toplanmış gibi gösteriyoruz)
-                        createExplosion(obj.x, obj.y); // Görsel efekt
+                        gameState.money += val; gameState.levelScore += val; sessionState.storage += 0.1;
+                        createExplosion(obj.x, obj.y); 
                     }
                 }
             });
@@ -599,110 +666,58 @@
             updateUI();
         }
 
-
         // --- SINIFLAR ---
         class Miner {
             constructor() {
                 this.x = 0; this.y = 45; this.armAngle = 0; this.waveSpeed = 0.1; 
                 this.mood = 'normal'; this.waveTimer = 0; this.image = new Image(); 
                 this.imageLoaded = false;
-                
-                // Harici resim varsa onu kullan, yoksa procedural çizim yap
                 if(CUSTOM_MINER_IMAGE_URL && CUSTOM_MINER_IMAGE_URL.trim() !== '') {
                     this.image.src = CUSTOM_MINER_IMAGE_URL;
                     this.image.onload = () => { this.imageLoaded = true; };
                     this.image.onerror = () => { this.imageLoaded = false; };
                 }
             }
-
             update() { 
                 this.waveTimer += this.waveSpeed; 
-                if (this.mood === 'happy') { 
-                    this.armAngle = Math.sin(this.waveTimer * 3) * 0.5 - 2.5; 
-                    if (this.waveTimer > 10) this.mood = 'normal'; 
-                } else { 
-                    if (Math.sin(this.waveTimer * 0.05) > 0.8) this.armAngle = Math.sin(this.waveTimer) * 0.3 - 2.5; 
-                    else this.armAngle = -2.5; 
-                } 
+                if (this.mood === 'happy') { this.armAngle = Math.sin(this.waveTimer * 3) * 0.5 - 2.5; if (this.waveTimer > 10) this.mood = 'normal'; } 
+                else { if (Math.sin(this.waveTimer * 0.05) > 0.8) this.armAngle = Math.sin(this.waveTimer) * 0.3 - 2.5; else this.armAngle = -2.5; } 
             }
-
             draw() { 
-                // Eğer harici resim varsa onu çiz
                 if (this.imageLoaded && this.image.complete && this.image.naturalWidth !== 0) { 
-                    ctx.save(); ctx.translate(this.x, this.y); ctx.scale(-1, 1); 
-                    ctx.drawImage(this.image, -35, 0, 70, 90); ctx.restore(); 
-                } else { 
-                    this.drawDefaultMiner(); 
-                }
+                    ctx.save(); ctx.translate(this.x, this.y); ctx.scale(-1, 1); ctx.drawImage(this.image, -35, 0, 70, 90); ctx.restore(); 
+                } else { this.drawDefaultMiner(); }
             }
-
             drawDefaultMiner() {
-                // Seçili kostüm renklerini al
                 const skin = minerSkins.find(s => s.id === gameState.currentMinerSkinId) || minerSkins[0];
-                
                 ctx.save(); ctx.translate(this.x, this.y); ctx.scale(-1, 1); 
-                
-                // Sağ Kol (Arka)
-                ctx.save(); ctx.translate(14, 25); ctx.rotate(0.5); 
-                ctx.fillStyle = skin.shirt; ctx.fillRect(-4, 0, 8, 20); ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.arc(0, 20, 5, 0, Math.PI*2); ctx.fill(); ctx.restore();
-                
-                // Bacaklar
-                ctx.fillStyle = skin.pants; ctx.fillRect(-8, 45, 10, 25); ctx.fillRect(8, 45, 10, 25);  
-                ctx.fillStyle = '#3E2723'; ctx.fillRect(-10, 68, 14, 6); ctx.fillRect(6, 68, 14, 6); // Ayakkabı
-                
-                // Gövde
-                ctx.fillStyle = skin.shirt; ctx.beginPath(); 
-                if(ctx.roundRect) ctx.roundRect(-15, 20, 30, 30, 5); else ctx.rect(-15, 20, 30, 30); ctx.fill();
-                
-                // Kafa
-                ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.ellipse(0, 10, 11, 13, 0, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = '#5D4037'; ctx.beginPath(); ctx.arc(0, 12, 11, 0, Math.PI, false); ctx.fill(); // Sakal
-                ctx.fillRect(-6, 12, 12, 3);
-                
-                // Baret
+                ctx.save(); ctx.translate(14, 25); ctx.rotate(0.5); ctx.fillStyle = skin.shirt; ctx.fillRect(-4, 0, 8, 20); ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.arc(0, 20, 5, 0, Math.PI*2); ctx.fill(); ctx.restore();
+                ctx.fillStyle = skin.pants; ctx.fillRect(-8, 45, 10, 25); ctx.fillRect(8, 45, 10, 25); ctx.fillStyle = '#3E2723'; ctx.fillRect(-10, 68, 14, 6); ctx.fillRect(6, 68, 14, 6); 
+                ctx.fillStyle = skin.shirt; ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(-15, 20, 30, 30, 5); else ctx.rect(-15, 20, 30, 30); ctx.fill();
+                ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.ellipse(0, 10, 11, 13, 0, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#5D4037'; ctx.beginPath(); ctx.arc(0, 12, 11, 0, Math.PI, false); ctx.fill(); ctx.fillRect(-6, 12, 12, 3);
                 ctx.fillStyle = skin.hat; ctx.beginPath(); ctx.arc(0, 5, 12, Math.PI, 0); ctx.lineTo(16, 5); ctx.lineTo(-14, 5); ctx.fill();
-                
-                // Sol Kol (Ön)
-                ctx.save(); ctx.translate(-13, 22); ctx.rotate(this.armAngle); 
-                ctx.fillStyle = skin.shirt; ctx.fillRect(-4, 0, 8, 22); ctx.translate(0, 22); ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.arc(0, 2, 6, 0, Math.PI*2); ctx.fill(); ctx.restore();
-                
+                ctx.save(); ctx.translate(-13, 22); ctx.rotate(this.armAngle); ctx.fillStyle = skin.shirt; ctx.fillRect(-4, 0, 8, 22); ctx.translate(0, 22); ctx.fillStyle = '#ffcc80'; ctx.beginPath(); ctx.arc(0, 2, 6, 0, Math.PI*2); ctx.fill(); ctx.restore();
                 ctx.restore();
             }
         }
 
         class Hook {
-            constructor() { 
-                this.x = 0; 
-                this.y = 80; 
-                this.angle = 0; 
-                this.angleSpeed = 0.015; 
-                this.length = 50; 
-                this.state = 'swing'; 
-                this.targetObj = null; 
-            }
+            constructor() { this.x = 0; this.y = 80; this.angle = 0; this.angleSpeed = 0.015; this.length = 50; this.state = 'swing'; this.targetObj = null; }
             update() {
                 if (this.state === 'swing') { this.angle += this.angleSpeed; if (this.angle > 1.3 || this.angle < -1.3) this.angleSpeed *= -1; }
                 else if (this.state === 'shoot') {
                     this.length += gameState.hookSpeed * 2.0; 
                     if (this.length > canvas.height * 1.3 || this.x + Math.sin(this.angle) * this.length < 0 || this.x + Math.sin(this.angle) * this.length > canvas.width) this.state = 'pull';
                     let tipX = this.x + Math.sin(this.angle) * this.length; let tipY = this.y + Math.cos(this.angle) * this.length;
-                    
-                    if (mole.active && !mole.caught && Math.hypot(tipX - mole.x, tipY - mole.y) < 30) {
-                        this.targetObj = mole; this.state = 'pull'; mole.caught = true; miner.mood = 'happy'; miner.waveTimer = 0; return;
-                    }
-
+                    if (mole.active && !mole.caught && Math.hypot(tipX - mole.x, tipY - mole.y) < 30) { this.targetObj = mole; this.state = 'pull'; mole.caught = true; miner.mood = 'happy'; miner.waveTimer = 0; return; }
                     for (let obj of objects) { if (!obj.collected && Math.hypot(tipX - obj.x, tipY - obj.y) < obj.radius) { this.targetObj = obj; this.state = 'pull'; obj.caught = true; miner.mood = 'happy'; miner.waveTimer = 0; break; } }
                 } else if (this.state === 'pull') {
-                    // Kanca bir şey yakaladı, KARA DELİK kontrolü
                     if (this.targetObj && this.targetObj.caught) {
                         const currentSkin = hookSkins.find(s => s.id === gameState.currentSkinId);
-                        // Eğer Kara Delik kancasıysa ve henüz patlamadıysa
                         if (currentSkin && currentSkin.special === 'blackhole' && !this.targetObj.blackholed) {
-                            this.targetObj.blackholed = true; // Tekrar tetiklemeyi önle
-                            activateBlackHole(this.targetObj.x, this.targetObj.y);
+                            this.targetObj.blackholed = true; activateBlackHole(this.targetObj.x, this.targetObj.y);
                         }
                     }
-
                     let pullSpeed = gameState.hookSpeed;
                     if (this.targetObj) {
                         let weightFactor = this.targetObj.weight / gameState.hookPower;
@@ -726,17 +741,10 @@
         }
 
         class Mole {
-            constructor() {
-                this.active = false; this.caught = false; this.collected = false;
-                this.x = 0; this.y = 0; this.speed = 2; this.direction = 1; 
-                this.weight = 5; this.value = 800; this.type = 'mole';
-            }
+            constructor() { this.active = false; this.caught = false; this.collected = false; this.x = 0; this.y = 0; this.speed = 2; this.direction = 1; this.weight = 5; this.value = 800; this.type = 'mole'; }
             spawn() {
-                this.active = true; this.caught = false; this.collected = false;
-                this.direction = Math.random() < 0.5 ? 1 : -1;
-                this.y = 180 + Math.random() * (canvas.height - 250);
-                this.speed = 1.5 + (gameState.level * 0.1);
-                this.x = this.direction === 1 ? -50 : canvas.width + 50;
+                this.active = true; this.caught = false; this.collected = false; this.direction = Math.random() < 0.5 ? 1 : -1;
+                this.y = 180 + Math.random() * (canvas.height - 250); this.speed = 1.5 + (gameState.level * 0.1); this.x = this.direction === 1 ? -50 : canvas.width + 50;
             }
             update() {
                 if (!this.active || this.caught) return;
@@ -746,10 +754,8 @@
             draw() {
                 if (!this.active || this.collected) return;
                 ctx.save(); ctx.translate(this.x, this.y); if (this.direction === -1) ctx.scale(-1, 1);
-                ctx.fillStyle = '#795548'; ctx.beginPath(); ctx.ellipse(0, 0, 20, 15, 0, 0, Math.PI * 2); ctx.fill(); // Gövde
-                ctx.beginPath(); ctx.arc(15, -5, 10, 0, Math.PI * 2); ctx.fill(); // Kafa
-                ctx.fillStyle = '#00FFFF'; ctx.beginPath(); ctx.moveTo(15, 5); ctx.lineTo(25, 5); ctx.lineTo(20, 15); ctx.fill(); // Elmas
-                ctx.restore();
+                ctx.fillStyle = '#795548'; ctx.beginPath(); ctx.ellipse(0, 0, 20, 15, 0, 0, Math.PI * 2); ctx.fill(); ctx.beginPath(); ctx.arc(15, -5, 10, 0, Math.PI * 2); ctx.fill(); 
+                ctx.fillStyle = '#00FFFF'; ctx.beginPath(); ctx.moveTo(15, 5); ctx.lineTo(25, 5); ctx.lineTo(20, 15); ctx.fill(); ctx.restore();
             }
         }
 
@@ -758,16 +764,12 @@
                 this.type = type; this.x = x; this.y = y; this.caught = false; this.collected = false;
                 let inflation = 1 + (gameState.level * 0.1);
                 switch(type) {
-                    case 'gold': 
-                        this.radius = 15 + Math.random() * 20; this.value = Math.floor((this.radius * 12) * inflation); this.weight = this.radius * 1.5; break;
+                    case 'gold': this.radius = 15 + Math.random() * 20; this.value = Math.floor((this.radius * 12) * inflation); this.weight = this.radius * 1.5; break;
                     case 'rock': 
                         let sizeRoll = Math.random();
-                        if (sizeRoll < 0.4) { this.radius = 20 + Math.random() * 8; this.damage = 30; } 
-                        else if (sizeRoll < 0.8) { this.radius = 29 + Math.random() * 9; this.damage = 50; } 
-                        else { this.radius = 39 + Math.random() * 11; this.damage = 100; }
+                        if (sizeRoll < 0.4) { this.radius = 20 + Math.random() * 8; this.damage = 30; } else if (sizeRoll < 0.8) { this.radius = 29 + Math.random() * 9; this.damage = 50; } else { this.radius = 39 + Math.random() * 11; this.damage = 100; }
                         this.value = Math.floor((this.radius * 0.5) * inflation); this.weight = this.radius * 3.5; break;
-                    case 'diamond': 
-                        this.radius = 12; this.value = Math.floor(650 * inflation); this.weight = 5; break;
+                    case 'diamond': this.radius = 12; this.value = Math.floor(650 * inflation); this.weight = 5; break;
                 }
             }
             draw() {
@@ -796,11 +798,11 @@
         mole = new Mole(); 
 
         // --- KAYIT & SİSTEM ---
-        function saveGame() { try { localStorage.setItem('goldMinerSave_v7', JSON.stringify(gameState)); } catch(e) {} }
+        function saveGame() { try { localStorage.setItem('goldMinerSave_v9', JSON.stringify(gameState)); } catch(e) {} }
         function loadGame() {
-            try { const saved = localStorage.getItem('goldMinerSave_v7'); if (saved) gameState = { ...defaultState, ...JSON.parse(saved) }; } catch(e) {}
+            try { const saved = localStorage.getItem('goldMinerSave_v9'); if (saved) gameState = { ...defaultState, ...JSON.parse(saved) }; } catch(e) {}
         }
-        function resetSave() { try { localStorage.removeItem('goldMinerSave_v7'); } catch(e){} location.reload(); }
+        function resetSave() { try { localStorage.removeItem('goldMinerSave_v9'); } catch(e){} location.reload(); }
 
         function getBoosterPrice(type) {
             let base = 0; if(type==='dynamite') base=200; if(type==='strength') base=300; if(type==='polish') base=150;
@@ -809,20 +811,15 @@
 
         // --- MENÜLER ---
         function showMainMenu() {
-            ui.mainMenu.classList.remove('hidden'); ui.startScreen.classList.add('hidden'); ui.shopScreen.classList.add('hidden'); ui.pauseScreen.classList.add('hidden');
+            ui.mainMenu.classList.remove('hidden'); ui.startScreen.classList.add('hidden'); ui.shopScreen.classList.add('hidden'); ui.pauseScreen.classList.add('hidden'); ui.miniGameScreen.classList.add('hidden');
             document.getElementById('game-over-screen').classList.add('hidden');
             sessionState.inMenu = true;
-            // İlk kez oynuyorsa tutorial göster
-            if (!gameState.tutorialSeen) {
-                ui.tutorialScreen.classList.remove('hidden');
-            }
+            sessionState.isPaused = false;
+            sessionState.inMiniGame = false;
+            if (!gameState.tutorialSeen) { ui.tutorialScreen.classList.remove('hidden'); }
         }
 
-        function closeTutorial() {
-            ui.tutorialScreen.classList.add('hidden');
-            gameState.tutorialSeen = true;
-            saveGame();
-        }
+        function closeTutorial() { ui.tutorialScreen.classList.add('hidden'); gameState.tutorialSeen = true; saveGame(); }
 
         function startGameFlow() {
             ui.mainMenu.classList.add('hidden');
@@ -851,7 +848,7 @@
             
             let durability = getSkinDurability(gameState.currentSkinId);
             sessionState.currentHealth = durability; sessionState.maxHealth = durability;
-            sessionState.storage = 0; sessionState.levelEnding = false; sessionState.inMenu = false;
+            sessionState.storage = 0; sessionState.levelEnding = false; sessionState.inMenu = false; sessionState.inMiniGame = false;
             
             gameState.levelScore = 0;
             gameState.levelTarget = 400 + (lvl * 250); 
@@ -911,7 +908,14 @@
             gameState.activeBoosters = { dynamite: false, strength: false, polish: false };
             saveGame();
             if(msg) showMessage(msg, "#4CAF50");
-            setTimeout(() => openShop(false), 1500);
+            setTimeout(() => {
+                // Eğer bölüm 10'un katıysa (10, 20, 30...) Mini Game aç
+                if (sessionState.playingLevel % 10 === 0) {
+                    startMiniGame();
+                } else {
+                    openShop(false);
+                }
+            }, 1500);
         }
 
         function loseLevel(reason) {
@@ -925,6 +929,71 @@
                 document.getElementById('final-score').innerText = `Kasa: $${gameState.money}`;
             }, 1000);
         }
+
+        // --- MINI GAME: MÜCEVHER ATÖLYESİ ---
+        function startMiniGame() {
+            sessionState.inMiniGame = true;
+            ui.miniGameScreen.classList.remove('hidden');
+            mg.active = true;
+            mg.pos = 50;
+            mg.dir = 1;
+            // Hız seviyeye göre artar ama çok zorlaşmasın
+            mg.speed = 1.5 + (sessionState.playingLevel / 50); 
+            mg.btn.disabled = false;
+            mg.btn.innerText = "VUR!";
+            mg.resultEl.innerText = "";
+            requestAnimationFrame(miniGameLoop);
+        }
+
+        function miniGameLoop() {
+            if (!mg.active) return;
+            mg.pos += mg.speed * mg.dir;
+            if (mg.pos > 100 || mg.pos < 0) mg.dir *= -1;
+            mg.needleEl.style.left = mg.pos + '%';
+            requestAnimationFrame(miniGameLoop);
+        }
+
+        function hitMiniGame() {
+            if (!mg.active) return;
+            mg.active = false;
+            mg.btn.disabled = true;
+
+            // Değerlendirme
+            let bonus = 0;
+            let text = "";
+            let color = "#fff";
+            
+            // Merkez 50 (40-60 arası Yeşil)
+            // Sarı 25-75 arası
+            if (mg.pos >= 40 && mg.pos <= 60) {
+                bonus = 5000 * (sessionState.playingLevel / 5); // Büyük ödül
+                text = "MÜKEMMEL! USTA İŞİ";
+                color = "#4caf50";
+            } else if (mg.pos >= 25 && mg.pos <= 75) {
+                bonus = 2000 * (sessionState.playingLevel / 5); // Orta ödül
+                text = "İYİ İŞ";
+                color = "#ffeb3b";
+            } else {
+                bonus = 500; // Teselli
+                text = "ÇATLADI!";
+                color = "#e53935";
+            }
+            
+            bonus = Math.floor(bonus);
+            gameState.money += bonus;
+            mg.resultEl.innerText = `${text} (+$${bonus})`;
+            mg.resultEl.style.color = color;
+            saveGame();
+
+            setTimeout(() => {
+                ui.miniGameScreen.classList.add('hidden');
+                sessionState.inMiniGame = false;
+                openShop(false);
+            }, 2000);
+        }
+        
+        document.getElementById('mg-hit-btn').onclick = hitMiniGame;
+
 
         function restartCurrentLevel() {
             gameState.money = gameState.levelMoneyStart; 
@@ -1091,7 +1160,7 @@
             document.getElementById('tutorial-btn').onclick = () => ui.tutorialScreen.classList.remove('hidden');
             document.getElementById('close-tutorial-btn').onclick = closeTutorial;
             
-            document.getElementById('pause-btn').onclick = () => { if (!sessionState.inMenu && !sessionState.levelEnding) { sessionState.isPaused = true; ui.pauseScreen.classList.remove('hidden'); } };
+            document.getElementById('pause-btn').onclick = () => { if (!sessionState.inMenu && !sessionState.levelEnding && !sessionState.inMiniGame) { sessionState.isPaused = true; ui.pauseScreen.classList.remove('hidden'); } };
             document.getElementById('resume-btn').onclick = () => { sessionState.isPaused = false; ui.pauseScreen.classList.add('hidden'); };
             document.getElementById('pause-restart-btn').onclick = restartCurrentLevel; 
             document.getElementById('main-menu-btn').onclick = () => { ui.pauseScreen.classList.add('hidden'); showMainMenu(); };
@@ -1139,7 +1208,7 @@
 
         function loop() {
             requestAnimationFrame(loop);
-            if (sessionState.isPaused || sessionState.isMapOpen || sessionState.inMenu) return;
+            if (sessionState.isPaused || sessionState.isMapOpen || sessionState.inMenu || sessionState.inMiniGame) return;
             
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = '#87CEEB'; ctx.fillRect(0, 0, canvas.width, 110);
@@ -1168,7 +1237,7 @@
 
         function inputAction(e) {
             if(e.type === 'touchstart') e.preventDefault(); 
-            if (sessionState.inMenu || sessionState.levelEnding || sessionState.isPaused || sessionState.isMapOpen) return;
+            if (sessionState.inMenu || sessionState.levelEnding || sessionState.isPaused || sessionState.isMapOpen || sessionState.inMiniGame) return;
 
             const rect = canvas.getBoundingClientRect();
             let clientX = e.clientX; let clientY = e.clientY;
